@@ -1,0 +1,25 @@
+appengine {
+    httpPort = 8888
+    downloadSdk = true
+
+    dependencies {
+        appengineSdk 'com.google.appengine:appengine-java-sdk:1.9.15'
+    }
+
+    jvmFlags = ["-Dappengine.fullscan.seconds=5"]
+
+    appcfg {
+
+        email = '--your-gmail-address--'
+        oauth2 = true
+
+        logs {
+            severity = 1
+            outputFile = file('mylogs.txt')
+        }
+
+        app {
+            id = 'mediaq-poi'
+        }
+    }
+}
