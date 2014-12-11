@@ -10,7 +10,7 @@ appengine {
 
     appcfg {
 
-        email = '--your-gmail-address--'
+        email = '--your-gmail--address'
         oauth2 = true
 
         logs {
