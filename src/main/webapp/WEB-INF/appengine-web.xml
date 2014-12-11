@@ -9,4 +9,12 @@
     </system-properties>
 
     <public-root>/dist</public-root>
+
+    <resource-files>
+        <exclude path="/.sass-cache/**" />
+        <exclude path="/.tmp/**" />
+        <exclude path="/bower_components/**" />
+        <exclude path="/node_modules/**" />
+        <exclude path="/test/**" />
+    </resource-files>
 </appengine-web-app>
