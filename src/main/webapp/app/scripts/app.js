@@ -2,22 +2,24 @@
 
 /**
  * @ngdoc overview
- * @name webappApp
+ * @name mediaqPoi
  * @description
- * # webappApp
+ * # mediaqPoi
  *
  * Main module of the application.
  */
 angular
-  .module('webappApp', [
+  .module('mediaqPoi', [
     'ngAnimate',
     'ngCookies',
     'ngResource',
     'ngRoute',
     'ngSanitize',
-    'ngTouch'
+    'ngTouch',
+    'uiGmapgoogle-maps',
+    'Showdown'
   ])
-  .config(function ($routeProvider) {
+  .config(function ($routeProvider, uiGmapGoogleMapApiProvider) {
     $routeProvider
       .when('/', {
         templateUrl: 'views/main.html',
@@ -30,4 +32,9 @@ angular
       .otherwise({
         redirectTo: '/'
       });
+    uiGmapGoogleMapApiProvider.configure({
+      key: 'AIzaSyDIZgzM1EkYHEhOJfcjUvm0ovOUczk7v8s',
+      v: '3.17',
+      libraries: 'weather,geometry,visualization'
+    });
   });

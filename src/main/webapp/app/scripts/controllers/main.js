@@ -2,16 +2,31 @@
 
 /**
  * @ngdoc function
- * @name webappApp.controller:MainCtrl
+ * @name mediaqPoi.controller:MainCtrl
  * @description
  * # MainCtrl
- * Controller of the webappApp
+ * Controller of mediaqPoi
  */
-angular.module('webappApp')
-  .controller('MainCtrl', function ($scope) {
-    $scope.awesomeThings = [
-      'HTML5 Boilerplate',
-      'AngularJS',
-      'Karma'
-    ];
+angular.module('mediaqPoi')
+  .controller('MainCtrl', function ($scope, uiGmapGoogleMapApi) {
+
+    uiGmapGoogleMapApi.then(function(maps) {
+      $scope.map = {
+        center: {
+          latitude: 48.150529,
+          longitude: 11.595077
+        },
+        zoom: 15
+      };
+      $scope.options = {
+        mapTypeControl: false,
+        zoomControl: true,
+        zoomControlOptions: {
+          style: maps.ZoomControlStyle.LARGE,
+          position: maps.ControlPosition.LEFT_CENTER
+        },
+        panControl: false,
+        streetViewControl: false
+      };
+    });
   });
