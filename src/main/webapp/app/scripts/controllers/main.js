@@ -8,7 +8,7 @@
  * Controller of mediaqPoi
  */
 angular.module('mediaqPoi')
-  .controller('MainCtrl', function ($scope, uiGmapGoogleMapApi) {
+  .controller('MainCtrl', function ($scope, $resource, uiGmapGoogleMapApi) {
 
     uiGmapGoogleMapApi.then(function(maps) {
       $scope.map = {

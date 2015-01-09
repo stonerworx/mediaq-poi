@@ -5,12 +5,12 @@
 
 <web-app xmlns="http://java.sun.com/xml/ns/javaee" version="2.5">
     <servlet>
-        <servlet-name>sample</servlet-name>
-        <servlet-class>de.lmu.ifi.dbs.mediaqpoi.SampleServlet</servlet-class>
+        <servlet-name>videos</servlet-name>
+        <servlet-class>de.lmu.ifi.dbs.mediaqpoi.VideosServlet</servlet-class>
     </servlet>
     <servlet-mapping>
-        <servlet-name>sample</servlet-name>
-        <url-pattern>/sample</url-pattern>
+        <servlet-name>videos</servlet-name>
+        <url-pattern>/videos</url-pattern>
     </servlet-mapping>
     <welcome-file-list>
         <welcome-file>index.html</welcome-file>
