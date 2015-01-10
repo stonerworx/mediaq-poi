@@ -1,4 +1,4 @@
-package de.lmu.ifi.dbs.mediaqpoi;
+package de.lmu.ifi.dbs.mediaqpoi.entity;
 
 import com.google.appengine.api.datastore.Key;
 

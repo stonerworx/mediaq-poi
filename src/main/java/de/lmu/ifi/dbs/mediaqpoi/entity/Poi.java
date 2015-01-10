@@ -1,4 +1,4 @@
-package de.lmu.ifi.dbs.mediaqpoi;
+package de.lmu.ifi.dbs.mediaqpoi.entity;
 
 import java.io.Serializable;
 

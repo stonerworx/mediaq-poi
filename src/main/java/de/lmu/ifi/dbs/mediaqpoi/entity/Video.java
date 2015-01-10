@@ -1,4 +1,4 @@
-package de.lmu.ifi.dbs.mediaqpoi;
+package de.lmu.ifi.dbs.mediaqpoi.entity;
 
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
@@ -6,6 +6,8 @@ import com.google.appengine.api.memcache.ErrorHandlers;
 import com.google.appengine.api.memcache.MemcacheService;
 import com.google.appengine.api.memcache.MemcacheServiceFactory;
 import com.google.gson.annotations.SerializedName;
+
+import de.lmu.ifi.dbs.mediaqpoi.control.GooglePlacesApi;
 
 import java.util.ArrayList;
 import java.util.HashMap;

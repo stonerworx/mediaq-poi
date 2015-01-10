@@ -16,7 +16,7 @@
     </filter-mapping>
     <servlet>
         <servlet-name>videos</servlet-name>
-        <servlet-class>de.lmu.ifi.dbs.mediaqpoi.VideosServlet</servlet-class>
+        <servlet-class>de.lmu.ifi.dbs.mediaqpoi.boundary.VideosServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>videos</servlet-name>

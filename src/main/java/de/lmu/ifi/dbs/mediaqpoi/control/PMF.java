@@ -1,4 +1,4 @@
-package de.lmu.ifi.dbs.mediaqpoi;
+package de.lmu.ifi.dbs.mediaqpoi.control;
 
 import javax.jdo.JDOHelper;
 import javax.jdo.PersistenceManagerFactory;

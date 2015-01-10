@@ -1,8 +1,12 @@
-package de.lmu.ifi.dbs.mediaqpoi;
+package de.lmu.ifi.dbs.mediaqpoi.boundary;
 
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.gson.Gson;
+
+import de.lmu.ifi.dbs.mediaqpoi.control.PMF;
+import de.lmu.ifi.dbs.mediaqpoi.entity.TrajectoryPoint;
+import de.lmu.ifi.dbs.mediaqpoi.entity.Video;
 
 import java.io.IOException;
 import java.util.ArrayList;

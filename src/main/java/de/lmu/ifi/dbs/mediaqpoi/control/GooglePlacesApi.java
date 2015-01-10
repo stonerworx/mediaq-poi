@@ -1,4 +1,4 @@
-package de.lmu.ifi.dbs.mediaqpoi;
+package de.lmu.ifi.dbs.mediaqpoi.control;
 
 import com.google.api.client.extensions.appengine.http.UrlFetchTransport;
 import com.google.api.client.http.GenericUrl;
@@ -9,6 +9,9 @@ import com.google.api.client.http.HttpResponseException;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonObjectParser;
 import com.google.api.client.json.jackson2.JacksonFactory;
+
+import de.lmu.ifi.dbs.mediaqpoi.entity.PlacesList;
+import de.lmu.ifi.dbs.mediaqpoi.entity.SearchRadius;
 
 import java.io.IOException;
 
