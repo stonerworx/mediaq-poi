@@ -21,6 +21,7 @@ public class VideosServlet extends HttpServlet {
   public void doGet(HttpServletRequest req, HttpServletResponse resp)
       throws IOException {
 
+    resp.addHeader("Access-Control-Allow-Origin", "*");
     resp.setContentType("application/json");
 
     Gson gson = new Gson();

@@ -1,7 +1,16 @@
-Hi
 <ui-gmap-google-map
   center="map.center"
   zoom="map.zoom"
   draggable="true"
   options="options">
+  <ui-gmap-polyline
+    ng-repeat="v in videos"
+    path="v.path"
+    stroke="v.pathStyle.stroke"
+    visible="v.pathStyle.visible"
+    geodesic="v.pathStyle.geodesic"
+    fit="false"
+    editable="v.pathStyle.editable"
+    draggable="v.pathStyle.draggable">
+  </ui-gmap-polyline>
 </ui-gmap-google-map>
