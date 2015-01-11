@@ -2,13 +2,15 @@ package de.lmu.ifi.dbs.mediaqpoi.entity;
 
 import com.google.appengine.api.datastore.Key;
 
+import java.io.Serializable;
+
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
 @PersistenceCapable
-public class TrajectoryPoint {
+public class TrajectoryPoint  implements Serializable{
 
   @PrimaryKey
   @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)

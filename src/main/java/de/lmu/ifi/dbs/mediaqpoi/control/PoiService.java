@@ -92,8 +92,8 @@ public class PoiService implements IPoiService {
 						.getTimeStampedPoints().get(timeStamp);
 
 				// at what position in the video are we?
-				long startTime = (long) trajectory.getTimeStampedPoints()
-						.keySet().toArray()[0];
+				long startTime = Long.getLong(trajectory.getTimeStampedPoints()
+						.keySet().toArray()[0].toString());
 				long currentTime = trajectoryPoint.getTimecode();
 				// position of this TrajectoryPoint in the video in seconds.
 				int position = Math.round((currentTime - startTime) / 1000);
