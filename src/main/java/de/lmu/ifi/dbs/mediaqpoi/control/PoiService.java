@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.logging.Level;
 
 import com.google.appengine.api.memcache.ErrorHandlers;
@@ -92,8 +93,8 @@ public class PoiService implements IPoiService {
 						.getTimeStampedPoints().get(timeStamp);
 
 				// at what position in the video are we?
-				long startTime = Long.getLong(trajectory.getTimeStampedPoints()
-						.keySet().toArray()[0].toString());
+				long startTime = trajectory.getTimeStampedPoints().get(trajectory.
+				    getTimeStampedPoints().firstKey()).getTimecode();
 				long currentTime = trajectoryPoint.getTimecode();
 				// position of this TrajectoryPoint in the video in seconds.
 				int position = Math.round((currentTime - startTime) / 1000);

@@ -1,9 +1,6 @@
 package de.lmu.ifi.dbs.mediaqpoi.entity;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import com.google.api.client.util.Key;
+import java.util.TreeMap;
 
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.PersistenceCapable;
@@ -17,36 +14,32 @@ public class Trajectory {
   	@Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
   	private com.google.appengine.api.datastore.Key key;
 
-  	@Persistent(serialized = "true", defaultFetchGroup="true")
-	private Map<Long, TrajectoryPoint> timeStampedPoints;
+  	@Persistent
+	private TreeMap<Long, TrajectoryPoint> timeStampedPoints;
 
-	public Map<Long, TrajectoryPoint> getTimeStampedPoints() {
+	public TreeMap<Long, TrajectoryPoint> getTimeStampedPoints() {
 		return timeStampedPoints;
 	}
 
 	public void setTimeStampedPoints(
-			Map<Long, TrajectoryPoint> timeStampedPoints) {
+			TreeMap<Long, TrajectoryPoint> timeStampedPoints) {
 		this.timeStampedPoints = timeStampedPoints;
 	}
 
 	public void addPoint(long timeStamp, TrajectoryPoint point) {
 		if (timeStampedPoints == null) {
-			timeStampedPoints = new HashMap<Long, TrajectoryPoint>();
-		} else {
-		  	Map<Long, TrajectoryPoint> oldTimeStampedPoints = timeStampedPoints;
-		  	timeStampedPoints = new HashMap<Long, TrajectoryPoint>();
-		  	timeStampedPoints = oldTimeStampedPoints;
+			timeStampedPoints = new TreeMap<Long, TrajectoryPoint>();
 		}
 		timeStampedPoints.put(timeStamp, point);
 	}
 
 	public Location calculateCenter() {
 		// TODO: implement
-		return null;
+		return new Location(48.152187, 11.592492);
 	}
 
 	public long calculateSearchRange() {
 		// TODO: implement
-		return -1;
+		return 500;
 	}
 }

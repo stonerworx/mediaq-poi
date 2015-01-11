@@ -7,9 +7,6 @@ import java.util.List;
 public class PlacesList {
 
   @Key
-  public String status;
-
-  @Key
   public List<Place> results;
 
 }

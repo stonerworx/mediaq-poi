@@ -4,11 +4,13 @@ import com.google.api.client.util.Key;
 
 public class Location {
 
-	@Key
-	private double latitude;
+  	@Key("lat")
+  	public double latitude;
 
-	@Key
-	private double longitude;
+	@Key("lng")
+	public double longitude;
+
+  	public Location() {};
 
 	public Location(double latitude, double longitude) {
 		this.latitude = latitude;
