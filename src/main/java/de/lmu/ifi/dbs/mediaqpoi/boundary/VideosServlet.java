@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
@@ -22,10 +23,14 @@ import de.lmu.ifi.dbs.mediaqpoi.entity.TrajectoryPoint;
 import de.lmu.ifi.dbs.mediaqpoi.entity.Video;
 
 public class VideosServlet extends HttpServlet {
-
+	
+  private static final Logger LOGGER = Logger.getLogger(VideosServlet.class.getName());
+	
   public void doGet(HttpServletRequest req, HttpServletResponse resp)
       throws IOException {
 
+	LOGGER.info("Loading test data");
+	
     resp.addHeader("Access-Control-Allow-Origin", "*");
     resp.setContentType("application/json");
 
