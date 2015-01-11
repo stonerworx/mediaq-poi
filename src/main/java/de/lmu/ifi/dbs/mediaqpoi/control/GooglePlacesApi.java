@@ -1,5 +1,7 @@
 package de.lmu.ifi.dbs.mediaqpoi.control;
 
+import java.io.IOException;
+
 import com.google.api.client.extensions.appengine.http.UrlFetchTransport;
 import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpRequest;
@@ -10,10 +12,8 @@ import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonObjectParser;
 import com.google.api.client.json.jackson2.JacksonFactory;
 
+import de.lmu.ifi.dbs.mediaqpoi.entity.Location;
 import de.lmu.ifi.dbs.mediaqpoi.entity.PlacesList;
-import de.lmu.ifi.dbs.mediaqpoi.entity.SearchRadius;
-
-import java.io.IOException;
 
 public class GooglePlacesApi {
 
@@ -26,16 +26,16 @@ public class GooglePlacesApi {
   private static final JacksonFactory jacksonFactory = new JacksonFactory();
   private static final HttpTransport transport = new UrlFetchTransport();
 
-  public static PlacesList searchPlaces(SearchRadius searchRadius) {
+  public static PlacesList searchPlaces(Location location, long radius) {
     try {
 
       HttpRequestFactory httpRequestFactory = createRequestFactory(transport);
       HttpRequest request = httpRequestFactory.buildGetRequest(new GenericUrl("https://maps.googleapis.com/maps/api/place/search/json?"));
 
       request.getUrl().put("key", "AIzaSyDIZgzM1EkYHEhOJfcjUvm0ovOUczk7v8s");
-      request.getUrl().put("location", searchRadius.getLatitude() + "," +
-                                       searchRadius.getLongitude());
-      request.getUrl().put("radius", searchRadius.getRadius());
+      request.getUrl().put("location", location.getLatitude() + "," +
+                                       location.getLongitude());
+      request.getUrl().put("radius", radius);
       request.getUrl().put("sensor", "false");
 
       PlacesList placesList = request.execute().parseAs(PlacesList.class);
