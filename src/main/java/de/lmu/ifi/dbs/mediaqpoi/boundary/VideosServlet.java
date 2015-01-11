@@ -24,12 +24,13 @@ import de.lmu.ifi.dbs.mediaqpoi.entity.Video;
 
 public class VideosServlet extends HttpServlet {
 	
-  private static final Logger LOGGER = Logger.getLogger(VideosServlet.class.getName());
-	
-  public void doGet(HttpServletRequest req, HttpServletResponse resp)
+  private static final Logger LOGGER = Logger.getLogger(VideosServlet.class
+			.getName());
+
+	public void doGet(HttpServletRequest req, HttpServletResponse resp)
       throws IOException {
 
-	LOGGER.info("Loading test data");
+	LOGGER.info("Getting video data");
 	
     resp.addHeader("Access-Control-Allow-Origin", "*");
     resp.setContentType("application/json");
@@ -42,7 +43,7 @@ public class VideosServlet extends HttpServlet {
     PersistenceManager pm = PMF.get().getPersistenceManager();
 
     String action = req.getParameter("action");
-
+    
     if (action != null && action.equals("details") && req.getParameter("id") != null) {
       Key k = KeyFactory.createKey(Video.class.getSimpleName(), req.getParameter("id"));
       try {
@@ -54,6 +55,7 @@ public class VideosServlet extends HttpServlet {
 
         response.put("video", video);
       } catch (javax.jdo.JDOObjectNotFoundException e) {
+    	  LOGGER.severe(String.format("Exception occurred while getting video with id %s: %s", k, e.toString()));;
         response.put("status", "error");
         response.put("message", "Video not found.");
       }
@@ -70,8 +72,25 @@ public class VideosServlet extends HttpServlet {
             videos.add(video);
           }
         } else {
+    		//TODO: remove and use real data
+          generateTestData(pm, videos);
+        } 
+      } catch(Exception e) {
+      	  LOGGER.severe(String.format("Exception occurred while getting videos: %s", e.toString()));;
+        }
+      finally {
+        q.closeAll();
+      }
 
-          //TODO: remove and use real data
+      response.put("videos", videos);
+    }
+
+    resp.getWriter().write(gson.toJson(response));
+  }
+
+	private void generateTestData(PersistenceManager pm, List<Video> videos) {
+          LOGGER.info("Generating test data");
+
           Video video1 = new Video("1n940cuzuw3fi_2014_12_8_Videotake_1418038438174.mp4", "Testvideo 1");
           
           TrajectoryPoint tp1 = new TrajectoryPoint(1, 48.152187, 11.592492, 352.28128, -9.597204,  87.91111,  0.1,    51, 1418038438811L);
@@ -326,18 +345,11 @@ public class VideosServlet extends HttpServlet {
             pm.makePersistent(tp60);
             pm.makePersistent(tp61);
             pm.makePersistent(tp62);
-          } finally {
+          }  catch(Exception e) {
+        	  LOGGER.severe(String.format("Exception occurred while persisting test data s: %s", e.toString()));;
+          }
+          finally {
             pm.close();
           }
-
-        }
-      } finally {
-        q.closeAll();
-      }
-
-      response.put("videos", videos);
-    }
-
-    resp.getWriter().write(gson.toJson(response));
-  }
+	}
 }
