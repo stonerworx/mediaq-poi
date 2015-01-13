@@ -1,21 +1,21 @@
 package de.lmu.ifi.dbs.mediaqpoi.entity;
 
-import com.google.appengine.api.datastore.Key;
-
 import java.io.Serializable;
 
-import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.IdGeneratorStrategy;
+import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
+import com.google.appengine.api.datastore.Key;
+
 @PersistenceCapable
-public class TrajectoryPoint  implements Serializable{
+public class TrajectoryPoint  implements Serializable, Comparable<TrajectoryPoint> {
 
   @PrimaryKey
   @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
   private Key key;
-
+  
   @Persistent
   private int frame;
 
@@ -91,4 +91,16 @@ public class TrajectoryPoint  implements Serializable{
   public long getTimecode() {
     return timecode;
   }
+  
+	@Override
+	public int compareTo(TrajectoryPoint o) {
+		if(o.getTimecode() < getTimecode()) {
+			return -1;
+		}
+		else if(o.getTimecode() == getTimecode()) {
+			return 0;
+		} else {
+			return 1;
+		}
+	}
 }

@@ -12,7 +12,6 @@ import javax.jdo.annotations.PrimaryKey;
 
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
-import com.google.gson.annotations.SerializedName;
 
 @PersistenceCapable
 public class Video {
@@ -25,10 +24,9 @@ public class Video {
 
 	@Persistent
 	private String id;
-
-	@Persistent
-	@SerializedName("trajectory")
-	private Trajectory trajectory = new Trajectory();
+	
+	@Persistent(dependent = "true")
+	private Trajectory trajectory;
 
 	@NotPersistent
 	private Map<Integer, Map<String, List>> timeline = new HashMap<Integer, Map<String, List>>();
@@ -57,7 +55,11 @@ public class Video {
 	}
 	
 	public void addTrajectoryPoint(long timeStamp, TrajectoryPoint point) {
-		trajectory.addPoint(timeStamp, point);
+		//trajectory.addPoint(timeStamp, point);
+	}
+
+	public void setTrajectory(Trajectory trajectory) {
+		this.trajectory = trajectory;
 	}
 
 	public Trajectory getTrajectory() {

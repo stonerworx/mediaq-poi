@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.google.appengine.api.memcache.ErrorHandlers;
 import com.google.appengine.api.memcache.MemcacheService;
@@ -21,6 +21,7 @@ import de.lmu.ifi.dbs.mediaqpoi.entity.Video;
 
 public class PoiService implements IPoiService {
 
+	private static final Logger LOGGER = Logger.getLogger(PoiService.class.getName());
 	private final static PoiService instance = new PoiService();
 
 	public static PoiService getInstance() {
@@ -28,18 +29,19 @@ public class PoiService implements IPoiService {
 	}
 
 	@Override
-	public List<Video> getVideos(long longitude, long latitude) {
+	public List<Video> getVideos(long longitude, long latitude) throws Exception  {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public Map<Long, List<Poi>> getPois(Video video) {
+	public Map<Long, List<Poi>> getPois(Video video) throws Exception {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	public List<Poi> getNearbyPois(Video video) {
+	@SuppressWarnings("unchecked")
+	public List<Poi> getNearbyPois(Video video) throws Exception  {
 		String key = "nearbyPois_" + video.getKey();
 
 		MemcacheService syncCache = MemcacheServiceFactory.getMemcacheService();
@@ -66,7 +68,8 @@ public class PoiService implements IPoiService {
 		return nearbyPois;
 	}
 
-	public List<Poi> getVisiblePois(Video video) {
+	@SuppressWarnings("unchecked")
+	public List<Poi> getVisiblePois(Video video) throws Exception {
 		List<Poi> pois = getNearbyPois(video);
 
 		String key = "visiblePois_" + video.getKey();
@@ -87,14 +90,10 @@ public class PoiService implements IPoiService {
 			timeline = new HashMap<Integer, Map<String, List>>();
 			Trajectory trajectory = video.getTrajectory();
 
-			for (Long timeStamp : trajectory.getTimeStampedPoints().keySet()) {
-
-				TrajectoryPoint trajectoryPoint = trajectory
-						.getTimeStampedPoints().get(timeStamp);
+			for (TrajectoryPoint trajectoryPoint : trajectory.getTimeStampedPoints()) {
 
 				// at what position in the video are we?
-				long startTime = trajectory.getTimeStampedPoints().get(trajectory.
-				    getTimeStampedPoints().firstKey()).getTimecode();
+				long startTime = trajectory.getStartTime();
 				long currentTime = trajectoryPoint.getTimecode();
 				// position of this TrajectoryPoint in the video in seconds.
 				int position = Math.round((currentTime - startTime) / 1000);
