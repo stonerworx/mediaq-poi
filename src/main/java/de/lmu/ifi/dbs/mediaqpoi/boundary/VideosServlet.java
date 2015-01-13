@@ -21,6 +21,7 @@ import com.google.gson.Gson;
 
 import de.lmu.ifi.dbs.mediaqpoi.control.PMF;
 import de.lmu.ifi.dbs.mediaqpoi.control.PoiService;
+import de.lmu.ifi.dbs.mediaqpoi.control.dataimport.VideoImport;
 import de.lmu.ifi.dbs.mediaqpoi.entity.Trajectory;
 import de.lmu.ifi.dbs.mediaqpoi.entity.TrajectoryPoint;
 import de.lmu.ifi.dbs.mediaqpoi.entity.Video;
@@ -75,8 +76,7 @@ public class VideosServlet extends HttpServlet {
             videos.add(video);
           }
         } else {
-    		//TODO: remove and use real data
-          generateTestData(pm, videos);
+        	videos.addAll(new VideoImport().importData());
         } 
       } catch(Exception e) {
       	  LOGGER.severe(String.format("Exception occurred while getting videos: %s", e));;
@@ -92,6 +92,7 @@ public class VideosServlet extends HttpServlet {
     resp.getWriter().write(gson.toJson(response));
   }
 
+	@SuppressWarnings("unused")
 	private void generateTestData(PersistenceManager pm, List<Video> videos) {
           LOGGER.info("Generating test data");
 

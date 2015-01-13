@@ -43,7 +43,12 @@ public class DumpFileParser {
 
 				String name = insertValues[0].replace("'", "");
 
-				Video video = new Video(name);
+				Video video = null;
+				try {
+					video = new Video(name, name);
+				} catch (Exception e) {
+					video = new Video(name); // happens when tested via main method
+				}
 				videos.put(name, video);
 			}
 		} catch (Exception e) {
@@ -94,7 +99,7 @@ public class DumpFileParser {
 						trajectory.add(point);
 						video.setTrajectory(trajectory);
 					}
-					
+
 					videos.put(video.getId(), video);
 				}
 			}
@@ -131,7 +136,7 @@ public class DumpFileParser {
 
 			parser.parse("video_metadata.sql");
 			for (Video video : parser.getVideos()) {
-				if(video.getTrajectory() == null || video.getTrajectory().getTimeStampedPoints() == null) {
+				if (video.getTrajectory() == null || video.getTrajectory().getTimeStampedPoints() == null) {
 					System.out.println("Video has no trajectory " + video.getId());
 					continue;
 				}
