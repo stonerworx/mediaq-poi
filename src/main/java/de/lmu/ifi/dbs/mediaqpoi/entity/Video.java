@@ -38,12 +38,25 @@ public class Video {
 		setKey(key);
 	}
 
+	/** Simple constructor just for testing the DumpFileParser */
+	public Video(String id) {
+		this.id = id;
+	}
+	
 	public void setKey(Key key) {
 		this.key = key;
 	}
 
 	public Key getKey() {
 		return key;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
 	}
 
 	public void setTitle(String title) {
