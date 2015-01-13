@@ -16,16 +16,6 @@ public class Trajectory {
 
 	@Persistent
 	private TreeSet<TrajectoryPoint> timeStampedPoints;
-	
-//    /*
-//     * Important: Do not create getter and setters for this object else
-//     * bidirectional mapping gives error
-//     */
-//	@Persistent(mappedBy = "trajectory")
-//	private Video video;
-	
-	@Persistent
-	private String test = "B L A";
 
 	public TreeSet<TrajectoryPoint> getTimeStampedPoints() {
 		return timeStampedPoints;
@@ -35,6 +25,12 @@ public class Trajectory {
 		this.timeStampedPoints = timeStampedPoints;
 	}
 
+	public void add(TrajectoryPoint point) {
+		if(timeStampedPoints != null) {
+			timeStampedPoints.add(point);
+		}
+	}
+	
 	public Location calculateCenter() {
 		// TODO: implement
 		return new Location(48.152187, 11.592492);
