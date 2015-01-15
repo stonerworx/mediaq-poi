@@ -1,16 +1,33 @@
 <ui-gmap-google-map
-  center="map.center"
-  zoom="map.zoom"
+  center="vm.map.center"
+  zoom="vm.map.zoom"
   draggable="true"
-  options="options">
+  options="vm.options">
+
+  <ui-gmap-markers
+    models="vm.videos"
+    coords="'self'"
+    icon="'icon'"
+    click="'click'">
+  </ui-gmap-markers>
+
   <ui-gmap-polyline
-    ng-repeat="v in videos"
-    path="v.path"
-    stroke="v.pathStyle.stroke"
-    visible="v.pathStyle.visible"
-    geodesic="v.pathStyle.geodesic"
+    path="vm.activeVideo.path"
+    stroke="vm.activeVideo.stroke"
+    visible='vm.activeVideo.visible'
+    geodesic='true'
     fit="false"
-    editable="v.pathStyle.editable"
-    draggable="v.pathStyle.draggable">
+    editable="false"
+    draggable="false"
+    static="true">
   </ui-gmap-polyline>
+
 </ui-gmap-google-map>
+<div class="video-list">
+  <p
+    ng-repeat="video in vm.videos"
+    ng-class="{active: video === vm.activeVideo}"
+    ng-click="vm.setActive(video)">
+    <span>{{video.id}}</span>
+  </p>
+</div>

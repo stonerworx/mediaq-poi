@@ -1,33 +1,31 @@
-'use strict';
+(function() {
 
-/**
- * @ngdoc overview
- * @name mediaqPoi
- * @description
- * # mediaqPoi
- *
- * Main module of the application.
- */
-angular
-  .module('mediaqPoi', [
-    'ngAnimate',
-    'ngCookies',
-    'ngResource',
-    'ngRoute',
-    'ngSanitize',
-    'ngTouch',
-    'uiGmapgoogle-maps',
-    'Showdown'
-  ])
-  .config(function ($routeProvider, uiGmapGoogleMapApiProvider) {
+  'use strict';
+
+  angular
+    .module('mediaqPoi', [
+              'ngAnimate',
+              'ngCookies',
+              'ngResource',
+              'ngRoute',
+              'ngSanitize',
+              'ngTouch',
+              'uiGmapgoogle-maps',
+              'Showdown'
+            ])
+    .config(config);
+
+  function config($routeProvider, uiGmapGoogleMapApiProvider, $logProvider) {
     $routeProvider
       .when('/', {
         templateUrl: 'views/main.html',
-        controller: 'MainCtrl'
+        controller: 'MainController',
+        controllerAs: 'vm'
       })
       .when('/about', {
         templateUrl: 'views/about.html',
-        controller: 'AboutCtrl'
+        controller: 'AboutController',
+        controllerAs: 'vm'
       })
       .otherwise({
         redirectTo: '/'
@@ -37,4 +35,7 @@ angular
       v: '3.17',
       libraries: 'weather,geometry,visualization'
     });
-  });
+    $logProvider.debugEnabled(true);
+  }
+
+})();

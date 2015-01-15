@@ -15,7 +15,6 @@ body {
   margin: 0px;
 }
 
-.ng-scope,
 .angular-google-map-container,
 .angular-google-map,
 .container {
@@ -39,4 +38,28 @@ body {
 
 .markdown {
   padding: 79px 20px 20px 20px;
+}
+
+.video-list {
+  background: {
+    color: #ffffff;
+  };
+  font: {
+    size: 10px;
+  }
+  padding: 5px;
+  position: absolute;
+  top: 80px;
+  right: 10px;
+  width: 300px;
+
+  p {
+    cursor: pointer;
+    &.active {
+      background: {
+        color: #add8e6;
+      };
+      cursor: default;
+    }
+  }
 }
