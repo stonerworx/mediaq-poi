@@ -15,6 +15,8 @@ import com.google.appengine.api.datastore.KeyFactory;
 
 @PersistenceCapable
 public class Video {
+	private static final String URL_VIDEO = "http://mediaq.dbs.ifi.lmu.de/MediaQ_MVC_V2/video_content/";
+	
 	@PrimaryKey
 	@Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
 	private Key key;
@@ -24,7 +26,7 @@ public class Video {
 
 	@Persistent
 	private String id;
-	
+
 	@Persistent(dependent = "true")
 	private Trajectory trajectory;
 
@@ -42,7 +44,7 @@ public class Video {
 	public Video(String id) {
 		this.id = id;
 	}
-	
+
 	public void setKey(Key key) {
 		this.key = key;
 	}
@@ -66,9 +68,9 @@ public class Video {
 	public String getTitle() {
 		return title;
 	}
-	
+
 	public void addTrajectoryPoint(long timeStamp, TrajectoryPoint point) {
-		//trajectory.addPoint(timeStamp, point);
+		// trajectory.addPoint(timeStamp, point);
 	}
 
 	public void setTrajectory(Trajectory trajectory) {
@@ -78,4 +80,9 @@ public class Video {
 	public Trajectory getTrajectory() {
 		return trajectory;
 	}
+
+	public String getFilePath() {
+		return URL_VIDEO + id;
+	}
+
 }
