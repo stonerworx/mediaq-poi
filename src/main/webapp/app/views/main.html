@@ -22,6 +22,25 @@
     static="true">
   </ui-gmap-polyline>
 
+  <ui-gmap-circle
+    center="vm.activeVideo.center"
+    radius="vm.activeVideo.radius">
+  </ui-gmap-circle>
+
+  <ui-gmap-markers
+    models="vm.activeVideo.nearbyPois"
+    coords="'self'"
+    icon="'icon'"
+    options="'options'">
+  </ui-gmap-markers>
+
+  <ui-gmap-markers
+    models="vm.activeVideo.visiblePois"
+    coords="'self'"
+    icon="'icon'"
+    options="'options'">
+  </ui-gmap-markers>
+
 </ui-gmap-google-map>
 <div class="video-list">
   <p

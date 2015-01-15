@@ -2,14 +2,51 @@
 
   'use strict';
 
-  function MainController(uiGmapGoogleMapApi, dataService) {
+  function MainController(uiGmapGoogleMapApi, dataService, $timeout) {
     var vm = this;
 
     vm.videos = [];
-    vm.activeVideo = {path: [], visible: false};
+    vm.activeVideo = {path: [], visible: false, nearbyPois: [], visiblePois: []};
 
     vm.setActive = function(video) {
       vm.activeVideo = video;
+
+      vm.map.zoom = 15;
+
+      vm.activeVideo.center = {};
+      vm.activeVideo.radius = 0;
+      vm.activeVideo.nearbyPois = [];
+      vm.activeVideo.visiblePois = [];
+
+      dataService.getVideo(video.id).then(function(details) {
+        vm.map.center = details.center;
+        vm.activeVideo.center = details.center;
+        vm.activeVideo.radius = details.searchRange;
+        $timeout(function() {
+          angular.forEach(details.nearbyPois, function(poi) {
+            poi.icon = 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png';
+            poi.options = { title: poi.name };
+            vm.activeVideo.nearbyPois.push(poi);
+          });
+          $timeout(function() {
+            vm.activeVideo.center = {};
+            vm.activeVideo.radius = 0;
+            vm.activeVideo.nearbyPois = [];
+            angular.forEach(details.visiblePois, function(poi) {
+              poi.icon = 'http://maps.google.com/mapfiles/ms/icons/green-dot.png';
+              poi.options = { title: poi.name };
+              vm.activeVideo.visiblePois.push(poi);
+            });
+            $timeout(function() {
+              vm.map.center = {
+                latitude: vm.activeVideo.latitude,
+                longitude: vm.activeVideo.longitude
+              };
+              vm.map.zoom = 19;
+            }, 2000);
+          }, 2000);
+        }, 2000);
+      });
     };
 
     uiGmapGoogleMapApi.then(function (maps) {
@@ -86,6 +123,6 @@
   }
 
   angular.module('mediaqPoi')
-    .controller('MainController', ['uiGmapGoogleMapApi', 'dataService', MainController]);
+    .controller('MainController', ['uiGmapGoogleMapApi', 'dataService', '$timeout', MainController]);
 
 })();

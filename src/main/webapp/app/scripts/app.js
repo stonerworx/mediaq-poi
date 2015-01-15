@@ -2,19 +2,6 @@
 
   'use strict';
 
-  angular
-    .module('mediaqPoi', [
-              'ngAnimate',
-              'ngCookies',
-              'ngResource',
-              'ngRoute',
-              'ngSanitize',
-              'ngTouch',
-              'uiGmapgoogle-maps',
-              'Showdown'
-            ])
-    .config(config);
-
   function config($routeProvider, uiGmapGoogleMapApiProvider, $logProvider) {
     $routeProvider
       .when('/', {
@@ -37,5 +24,18 @@
     });
     $logProvider.debugEnabled(true);
   }
+
+  angular
+    .module('mediaqPoi', [
+              'ngAnimate',
+              'ngCookies',
+              'ngResource',
+              'ngRoute',
+              'ngSanitize',
+              'ngTouch',
+              'uiGmapgoogle-maps',
+              'Showdown'
+            ])
+    .config(config);
 
 })();

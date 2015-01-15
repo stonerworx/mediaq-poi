@@ -53,11 +53,11 @@ public class VideosServlet extends HttpServlet {
       try {
         Video video = pm.getObjectById(Video.class, key);
 
-       // video.getTrajectory();
-        PoiService.getInstance().getNearbyPois(video);
-        PoiService.getInstance().getVisiblePois(video);
-
         response.put("video", video);
+        response.put("center", video.getTrajectory().calculateCenter());
+        response.put("searchRange", video.getTrajectory().calculateSearchRange());
+        response.put("nearbyPois", PoiService.getInstance().getNearbyPois(video));
+        response.put("visiblePois", PoiService.getInstance().getVisiblePois(video));
       } catch (Exception e) {
     	LOGGER.severe(String.format("Exception occurred while getting video with id %s: %s", key, e));;
         response.put("status", "error");
