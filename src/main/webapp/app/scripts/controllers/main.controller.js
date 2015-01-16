@@ -19,9 +19,12 @@
       vm.activeVideo.visiblePois = [];
 
       dataService.getVideo(video.id).then(function(details) {
+
         vm.map.center = details.center;
+
         vm.activeVideo.center = details.center;
         vm.activeVideo.radius = details.searchRange;
+
         $timeout(function() {
           angular.forEach(details.nearbyPois, function(poi) {
             poi.icon = 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png';
