@@ -45,7 +45,7 @@ public class TrajectoryPoint implements Serializable, Comparable<TrajectoryPoint
   private long timecode;
 
   public TrajectoryPoint(int frame, double latitude, double longitude, double thetaX,
-      double thetaY, double thetaZ, double r, int alpha, long timecode) {
+                         double thetaY, double thetaZ, double r, int alpha, long timecode) {
     this.frame = frame;
     this.latitude = latitude;
     this.longitude = longitude;
@@ -107,8 +107,8 @@ public class TrajectoryPoint implements Serializable, Comparable<TrajectoryPoint
   @Override
   public String toString() {
     return "frame: " + frame + ", latitude: " + latitude + ", longitude: " + longitude
-        + ", thetaX: " + thetaX + ", thetaY: " + thetaY + ", thetaZ: " + thetaZ + ", timeCode: "
-        + timecode;
+           + ", thetaX: " + thetaX + ", thetaY: " + thetaY + ", thetaZ: " + thetaZ + ", timeCode: "
+           + timecode;
   }
 
   public boolean isVisible(long latitude, long longitude) {
