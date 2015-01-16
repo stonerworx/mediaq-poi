@@ -1,6 +1,7 @@
 package de.lmu.ifi.dbs.mediaqpoi.entity;
 
 import java.util.TreeSet;
+import java.util.logging.Logger;
 
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.PersistenceCapable;
@@ -33,7 +34,28 @@ public class Trajectory {
 	
 	public Location calculateCenter() {
 		// TODO: implement
-		return new Location(48.152187, 11.592492);
+	  	double minLat = 180;
+	  	double maxLat = 0;
+	  	double minLng = 180;
+	  	double maxLng = 0;
+	  	for (TrajectoryPoint point : getTimeStampedPoints()) {
+	    		if (point.getLatitude() < minLat) {
+			  minLat = point.getLatitude();
+			}
+			if (point.getLatitude() > maxLat) {
+			  maxLat = point.getLatitude();
+			}
+			if (point.getLongitude() < minLng) {
+			  minLng = point.getLongitude();
+			}
+			if (point.getLongitude() > maxLng) {
+			  maxLng = point.getLongitude();
+			}
+	  	}
+	  	double lat = (maxLat + minLat) / 2;
+	  	double lng = (maxLng + minLng) / 2;
+		return new Location(lat, lng);
+
 	}
 
 	public long calculateSearchRange() {
