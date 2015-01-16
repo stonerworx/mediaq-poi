@@ -84,7 +84,7 @@ public class VideosServlet extends HttpServlet {
 			response.put("video", video);
 			response.put("center", video.getTrajectory().calculateCenter());
 			response.put("searchRange", video.getTrajectory().calculateSearchRange());
-			response.put("nearbyPois", PoiService.getInstance().getNearbyPois(video));
+			response.put("nearbyPois", PoiService.getInstance().getPoiCandidates(video));
 			response.put("visiblePois", PoiService.getInstance().getVisiblePois(video));
 		} catch (Exception e) {
 			LOGGER.severe(String.format("Exception occurred while getting video with id %s: %s", key, e));
@@ -97,7 +97,7 @@ public class VideosServlet extends HttpServlet {
 	private void generateTestData(PersistenceManager pm, List<Video> videos) {
 		LOGGER.info("Generating test data");
 
-		Video video1 = new Video("1n940cuzuw3fi_2014_12_8_Videotake_1418038438174.mp4", "Testvideo 1");
+		Video video1 = new Video("1n940cuzuw3fi_2014_12_8_Videotake_1418038438174.mp4");
 		Trajectory trajectory = new Trajectory();
 		video1.setTrajectory(trajectory);
 

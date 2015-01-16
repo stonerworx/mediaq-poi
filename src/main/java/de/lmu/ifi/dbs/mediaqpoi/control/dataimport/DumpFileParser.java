@@ -45,9 +45,10 @@ public class DumpFileParser {
 
 				Video video = null;
 				try {
-					video = new Video(name, name);
+					video = new Video(name);
 				} catch (Exception e) {
-					video = new Video(name); // happens when tested via main method
+					video = new Video(); // happens when tested via main method
+					video.setFileName(name);
 				}
 				videos.put(name, video);
 			}
@@ -100,7 +101,7 @@ public class DumpFileParser {
 						video.setTrajectory(trajectory);
 					}
 
-					videos.put(video.getId(), video);
+					videos.put(video.getFileName(), video);
 				}
 			}
 		} catch (Exception e) {
@@ -131,13 +132,13 @@ public class DumpFileParser {
 			DumpFileParser parser = new DumpFileParser();
 			parser.parse("video_info.sql");
 			for (Video video : parser.getVideos()) {
-				System.out.println(video.getId());
+				System.out.println(video.getFileName());
 			}
 
 			parser.parse("video_metadata.sql");
 			for (Video video : parser.getVideos()) {
 				if (video.getTrajectory() == null || video.getTrajectory().getTimeStampedPoints() == null) {
-					System.out.println("Video has no trajectory " + video.getId());
+					System.out.println("Video has no trajectory " + video.getFileName());
 					continue;
 				}
 				for (TrajectoryPoint point : video.getTrajectory().getTimeStampedPoints()) {

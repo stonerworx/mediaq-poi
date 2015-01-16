@@ -22,10 +22,7 @@ public class Video {
 	private Key key;
 
 	@Persistent
-	private String title;
-
-	@Persistent
-	private String id;
+	private String fileName;
 
 	@Persistent(dependent = "true")
 	private Trajectory trajectory;
@@ -33,16 +30,18 @@ public class Video {
 	@NotPersistent
 	private Map<Integer, Map<String, List>> timeline = new HashMap<Integer, Map<String, List>>();
 
-	public Video(String id, String title) {
-		this.id = id;
-		this.title = title;
-		Key key = KeyFactory.createKey(Video.class.getSimpleName(), id);
+	@NotPersistent
+	private String filePath;
+	
+	public Video(String fileName) {
+		this.fileName = fileName;
+		this.filePath = URL_VIDEO + fileName;
+		Key key = KeyFactory.createKey(Video.class.getSimpleName(), fileName);
 		setKey(key);
 	}
-
-	/** Simple constructor just for testing the DumpFileParser */
-	public Video(String id) {
-		this.id = id;
+	
+	public Video() {
+		super();
 	}
 
 	public void setKey(Key key) {
@@ -53,20 +52,12 @@ public class Video {
 		return key;
 	}
 
-	public String getId() {
-		return id;
+	public String getFileName() {
+		return fileName;
 	}
 
-	public void setId(String id) {
-		this.id = id;
-	}
-
-	public void setTitle(String title) {
-		this.title = title;
-	}
-
-	public String getTitle() {
-		return title;
+	public void setFileName(String name) {
+		this.fileName = name;
 	}
 
 	public void addTrajectoryPoint(long timeStamp, TrajectoryPoint point) {
@@ -82,7 +73,7 @@ public class Video {
 	}
 
 	public String getFilePath() {
-		return URL_VIDEO + id;
+		return filePath;
 	}
 
 }
