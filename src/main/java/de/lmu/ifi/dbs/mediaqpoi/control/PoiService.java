@@ -59,7 +59,7 @@ public class PoiService implements IPoiService {
       for (Place place : places.results) {
         Poi poi =
             new Poi(place.id, place.reference, place.geometry.location.getLatitude(),
-                place.geometry.location.getLongitude(), place.name);
+                    place.geometry.location.getLongitude(), place.name);
         nearbyPois.add(poi);
       }
 

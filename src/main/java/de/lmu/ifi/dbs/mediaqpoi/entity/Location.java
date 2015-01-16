@@ -4,32 +4,35 @@ import com.google.api.client.util.Key;
 
 public class Location {
 
-  	@Key("lat")
-  	public double latitude;
+  @Key("lat")
+  public double latitude;
 
-	@Key("lng")
-	public double longitude;
+  @Key("lng")
+  public double longitude;
 
-  	public Location() {};
+  public Location() {
+  }
 
-	public Location(double latitude, double longitude) {
-		this.latitude = latitude;
-		this.longitude = longitude;
-	}
+  ;
 
-	public double getLatitude() {
-		return latitude;
-	}
+  public Location(double latitude, double longitude) {
+    this.latitude = latitude;
+    this.longitude = longitude;
+  }
 
-	public void setLatitude(double latitude) {
-		this.latitude = latitude;
-	}
+  public double getLatitude() {
+    return latitude;
+  }
 
-	public double getLongitude() {
-		return longitude;
-	}
+  public void setLatitude(double latitude) {
+    this.latitude = latitude;
+  }
 
-	public void setLongitude(double longitude) {
-		this.longitude = longitude;
-	}
+  public double getLongitude() {
+    return longitude;
+  }
+
+  public void setLongitude(double longitude) {
+    this.longitude = longitude;
+  }
 }

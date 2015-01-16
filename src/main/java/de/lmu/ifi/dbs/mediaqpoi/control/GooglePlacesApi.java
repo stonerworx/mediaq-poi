@@ -18,9 +18,15 @@ public class GooglePlacesApi {
 
   private static final Logger LOGGER = Logger.getLogger(GooglePlacesApi.class.getName());
   private static final String API_KEY = "AIzaSyDIZgzM1EkYHEhOJfcjUvm0ovOUczk7v8s";
-  private static final String PLACES_SEARCH_URL =  "https://maps.googleapis.com/maps/api/place/search/json?";
-  private static final String PLACES_AUTOCOMPLETE_URL = "https://maps.googleapis.com/maps/api/place/autocomplete/json?";
-  private static final String PLACES_DETAILS_URL = "https://maps.googleapis.com/maps/api/place/details/json?";
+  private static final String
+      PLACES_SEARCH_URL =
+      "https://maps.googleapis.com/maps/api/place/search/json?";
+  private static final String
+      PLACES_AUTOCOMPLETE_URL =
+      "https://maps.googleapis.com/maps/api/place/autocomplete/json?";
+  private static final String
+      PLACES_DETAILS_URL =
+      "https://maps.googleapis.com/maps/api/place/details/json?";
   private static final JacksonFactory jacksonFactory = new JacksonFactory();
   private static final HttpTransport transport = new UrlFetchTransport();
 

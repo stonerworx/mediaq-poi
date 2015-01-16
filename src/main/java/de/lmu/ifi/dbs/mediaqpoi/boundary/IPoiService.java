@@ -21,8 +21,8 @@ public interface IPoiService {
   public List<Video> getVideos(long longitude, long latitude) throws Exception;
 
   /**
-	*
-	*/
+   *
+   */
   public List<Poi> getPoiCandidates(Video video) throws Exception;
 
   /**
