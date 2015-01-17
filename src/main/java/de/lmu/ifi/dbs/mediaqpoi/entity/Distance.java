@@ -2,6 +2,16 @@ package de.lmu.ifi.dbs.mediaqpoi.entity;
 
 public class Distance {
 
+  // visibility range in meters
+  public static final int VISIBILITY_RANGE = 100;
+
+  /**
+   * calculates the distance between two locations in meters
+   * 
+   * @param loc1
+   * @param loc2
+   * @return distance in meters
+   */
   public static double getDistanceInMeters(Location loc1, Location loc2) {
 
     // radius of the earth in km
@@ -10,10 +20,7 @@ public class Distance {
     double dLat = deg2rad(loc2.latitude - loc1.latitude);
     double dLon = deg2rad(loc2.longitude - loc1.longitude);
 
-    double
-        a =
-        Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(deg2rad(loc1.latitude)) * Math
-            .cos(deg2rad(loc2.latitude)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(deg2rad(loc1.latitude)) * Math.cos(deg2rad(loc2.latitude)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
     double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
     // distance in meters
@@ -26,24 +33,29 @@ public class Distance {
     return deg * (Math.PI / 180);
   }
 
+  /**
+   * calculates the midpoint between two locations
+   * 
+   * @param loc1
+   * @param loc2
+   * @return midpoint
+   */
   public static Location getMidPoint(Location loc1, Location loc2) {
 
     double dLon = Math.toRadians(loc2.longitude - loc1.longitude);
 
     // convert to radians
-    loc1.latitude = Math.toRadians(loc1.latitude);
-    loc2.latitude = Math.toRadians(loc2.latitude);
-    loc1.longitude = Math.toRadians(loc1.longitude);
+    double loc1LatInRad = Math.toRadians(loc1.latitude);
+    double loc2LatInRad = Math.toRadians(loc2.latitude);
+    double loc1LonInRad = Math.toRadians(loc1.longitude);
 
-    double Bx = Math.cos(loc2.latitude) * Math.cos(dLon);
-    double By = Math.cos(loc2.latitude) * Math.sin(dLon);
-    double
-        lat3 =
-        Math.atan2(Math.sin(loc1.latitude) + Math.sin(loc2.latitude), Math.sqrt(
-            (Math.cos(loc1.latitude) + Bx) * (Math.cos(loc1.latitude) + Bx) + By * By));
-    double lon3 = loc1.longitude + Math.atan2(By, Math.cos(loc1.latitude) + Bx);
+    double Bx = Math.cos(loc2LatInRad) * Math.cos(dLon);
+    double By = Math.cos(loc2LatInRad) * Math.sin(dLon);
+    double lat3 = Math.atan2(Math.sin(loc1LatInRad) + Math.sin(loc2LatInRad), Math.sqrt((Math.cos(loc1LatInRad) + Bx) * (Math.cos(loc1LatInRad) + Bx) + By * By));
+    double lon3 = loc1LonInRad + Math.atan2(By, Math.cos(loc1LatInRad) + Bx);
 
     return new Location(lat3, lon3);
+
   }
 
   /**
@@ -51,10 +63,10 @@ public class Distance {
    */
   public static void main(String[] args) {
 
-    double lat1 = 48.507063;
-    double lon1 = 11.688703;
-    double lat2 = 48.136012;
-    double lon2 = 11.580288;
+    double lat1 = 48.152572;
+    double lon1 = 11.592097;
+    double lat2 = 48.152926; 
+    double lon2 = 11.592116;
 
     Location loc1 = new Location(lat1, lon1);
     Location loc2 = new Location(lat2, lon2);
@@ -62,9 +74,13 @@ public class Distance {
     double d = Distance.getDistanceInMeters(loc1, loc2);
     System.out.println("Distance in meters: " + d);
 
-    Location mid = Distance.getMidPoint(loc1, loc2);
-    System.out
-        .println("lat: " + Math.toDegrees(mid.latitude) + " lon: " + Math.toDegrees(mid.longitude));
+     Location mid = Distance.getMidPoint(loc1, loc2);
+     System.out.println("lat: " + Math.toDegrees(mid.latitude) + " lon: " +
+     Math.toDegrees(mid.longitude));
+
+    TrajectoryPoint trajectoryPoint = new TrajectoryPoint(0, lat1, lon1, 180, 0, 0, VISIBILITY_RANGE, 51, 0);
+    boolean isVisible = trajectoryPoint.isVisible(lat2, lon2);
+    System.out.println("Is visible: " + isVisible);
 
   }
 

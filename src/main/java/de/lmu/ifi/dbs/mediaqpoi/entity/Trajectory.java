@@ -1,7 +1,6 @@
 package de.lmu.ifi.dbs.mediaqpoi.entity;
 
 import java.util.TreeSet;
-import java.util.logging.Logger;
 
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.PersistenceCapable;
@@ -33,11 +32,10 @@ public class Trajectory {
   }
 
   public Location calculateCenter() {
-    // TODO: implement
-    double minLat = 180;
-    double maxLat = 0;
-    double minLng = 180;
-    double maxLng = 0;
+    double maxLat = 90;
+    double minLat = -90;
+    double maxLng = 180;
+    double minLng = -180;
     for (TrajectoryPoint point : getTimeStampedPoints()) {
       if (point.getLatitude() < minLat) {
         minLat = point.getLatitude();
@@ -55,12 +53,31 @@ public class Trajectory {
     double lat = (maxLat + minLat) / 2;
     double lng = (maxLng + minLng) / 2;
     return new Location(lat, lng);
-
   }
 
   public long calculateSearchRange() {
-    // TODO: implement
-    return 500;
+    double maxLat = 90;
+    double minLat = -90;
+    double maxLng = 180;
+    double minLng = -180;
+    for (TrajectoryPoint point : getTimeStampedPoints()) {
+      if (point.getLatitude() < minLat) {
+        minLat = point.getLatitude();
+      }
+      if (point.getLatitude() > maxLat) {
+        maxLat = point.getLatitude();
+      }
+      if (point.getLongitude() < minLng) {
+        minLng = point.getLongitude();
+      }
+      if (point.getLongitude() > maxLng) {
+        maxLng = point.getLongitude();
+      }
+    }
+    Location maxLocation = new Location(maxLat, maxLng);
+    Location minLocation = new Location(minLat, minLng);
+    long radius = (long) Distance.getDistanceInMeters(maxLocation, minLocation) / 2 + Distance.VISIBILITY_RANGE;
+    return radius;
   }
 
   public com.google.appengine.api.datastore.Key getKey() {
@@ -102,4 +119,5 @@ public class Trajectory {
       return null;
     }
   }
+
 }

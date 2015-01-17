@@ -44,8 +44,7 @@ public class TrajectoryPoint implements Serializable, Comparable<TrajectoryPoint
   @Persistent
   private long timecode;
 
-  public TrajectoryPoint(int frame, double latitude, double longitude, double thetaX,
-                         double thetaY, double thetaZ, double r, int alpha, long timecode) {
+  public TrajectoryPoint(int frame, double latitude, double longitude, double thetaX, double thetaY, double thetaZ, double r, int alpha, long timecode) {
     this.frame = frame;
     this.latitude = latitude;
     this.longitude = longitude;
@@ -106,13 +105,67 @@ public class TrajectoryPoint implements Serializable, Comparable<TrajectoryPoint
 
   @Override
   public String toString() {
-    return "frame: " + frame + ", latitude: " + latitude + ", longitude: " + longitude
-           + ", thetaX: " + thetaX + ", thetaY: " + thetaY + ", thetaZ: " + thetaZ + ", timeCode: "
-           + timecode;
+    return "frame: " + frame + ", latitude: " + latitude + ", longitude: " + longitude + ", thetaX: " + thetaX + ", thetaY: " + thetaY + ", thetaZ: " + thetaZ + ", timeCode: " + timecode;
   }
 
-  public boolean isVisible(long latitude, long longitude) {
-    // todo: implement
-    return false;
+  /**
+   * calculates if a given location is visible from this trajectory point
+   * @param latitude
+   * @param longitude
+   * @return true if visible else false
+   */
+  public boolean isVisible(double latitude, double longitude) {
+
+    double distance = Distance.getDistanceInMeters(new Location(this.latitude, this.longitude), new Location(latitude, longitude));
+
+    if (distance > Distance.VISIBILITY_RANGE) {
+      return false;
+    } else {
+
+      double minAngle = this.thetaX - (double) this.alpha / 2d;
+      double maxAngle = this.thetaX + (double) this.alpha / 2d;
+      double angle = this.getAngleTo(new Location(latitude, longitude));
+
+      // normalization
+      double factor = minAngle;
+      minAngle = minAngle - factor;
+      maxAngle = maxAngle - factor;
+      angle = (angle - factor) % 360;
+      if (angle < 0) {
+        angle = angle + 360;
+      }
+
+      if (minAngle < angle && angle < maxAngle) {
+        return true;
+      } else {
+        return false;
+      }
+
+    }
+
   }
+
+  /**
+   * calculates the angle between this trajectory point and a given location
+   * 
+   * @param loc
+   * @return angle in degree
+   */
+  private double getAngleTo(Location loc) {
+
+    double dLon = (loc.longitude - this.longitude);
+
+    double y = Math.sin(dLon) * Math.cos(loc.latitude);
+    double x = Math.cos(this.latitude) * Math.sin(loc.latitude) - Math.sin(this.latitude) * Math.cos(loc.latitude) * Math.cos(dLon);
+
+    double brng = Math.atan2(y, x);
+
+    brng = Math.toDegrees(brng);
+    brng = (brng + 360) % 360;
+    brng = 360 - brng;
+
+    return brng;
+
+  }
+
 }
