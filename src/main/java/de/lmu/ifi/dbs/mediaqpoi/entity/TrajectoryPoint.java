@@ -110,6 +110,7 @@ public class TrajectoryPoint implements Serializable, Comparable<TrajectoryPoint
 
   /**
    * calculates if a given location is visible from this trajectory point
+   * 
    * @param latitude
    * @param longitude
    * @return true if visible else false

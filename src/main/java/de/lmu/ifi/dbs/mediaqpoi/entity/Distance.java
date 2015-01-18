@@ -63,10 +63,10 @@ public class Distance {
    */
   public static void main(String[] args) {
 
-    double lat1 = 48.152572;
-    double lon1 = 11.592097;
-    double lat2 = 48.152926; 
-    double lon2 = 11.592116;
+    double lat1 = 48.152570;
+    double lon1 = 11.592093;
+    double lat2 = 48.152570;
+    double lon2 = 11.591991;
 
     Location loc1 = new Location(lat1, lon1);
     Location loc2 = new Location(lat2, lon2);
@@ -74,9 +74,8 @@ public class Distance {
     double d = Distance.getDistanceInMeters(loc1, loc2);
     System.out.println("Distance in meters: " + d);
 
-     Location mid = Distance.getMidPoint(loc1, loc2);
-     System.out.println("lat: " + Math.toDegrees(mid.latitude) + " lon: " +
-     Math.toDegrees(mid.longitude));
+    Location mid = Distance.getMidPoint(loc1, loc2);
+    System.out.println("lat: " + Math.toDegrees(mid.latitude) + " lon: " + Math.toDegrees(mid.longitude));
 
     TrajectoryPoint trajectoryPoint = new TrajectoryPoint(0, lat1, lon1, 180, 0, 0, VISIBILITY_RANGE, 51, 0);
     boolean isVisible = trajectoryPoint.isVisible(lat2, lon2);

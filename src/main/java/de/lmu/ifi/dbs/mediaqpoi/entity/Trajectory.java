@@ -32,51 +32,17 @@ public class Trajectory {
   }
 
   public Location calculateCenter() {
-    double maxLat = 90;
-    double minLat = -90;
-    double maxLng = 180;
-    double minLng = -180;
-    for (TrajectoryPoint point : getTimeStampedPoints()) {
-      if (point.getLatitude() < minLat) {
-        minLat = point.getLatitude();
-      }
-      if (point.getLatitude() > maxLat) {
-        maxLat = point.getLatitude();
-      }
-      if (point.getLongitude() < minLng) {
-        minLng = point.getLongitude();
-      }
-      if (point.getLongitude() > maxLng) {
-        maxLng = point.getLongitude();
-      }
-    }
-    double lat = (maxLat + minLat) / 2;
-    double lng = (maxLng + minLng) / 2;
+    Location maxLocation = this.getMaxLocation();
+    Location minLocation = this.getMinLocation();
+    double lat = (maxLocation.latitude + minLocation.latitude) / 2;
+    double lng = (maxLocation.longitude + minLocation.longitude) / 2;
     return new Location(lat, lng);
   }
 
   public long calculateSearchRange() {
-    double maxLat = 90;
-    double minLat = -90;
-    double maxLng = 180;
-    double minLng = -180;
-    for (TrajectoryPoint point : getTimeStampedPoints()) {
-      if (point.getLatitude() < minLat) {
-        minLat = point.getLatitude();
-      }
-      if (point.getLatitude() > maxLat) {
-        maxLat = point.getLatitude();
-      }
-      if (point.getLongitude() < minLng) {
-        minLng = point.getLongitude();
-      }
-      if (point.getLongitude() > maxLng) {
-        maxLng = point.getLongitude();
-      }
-    }
-    Location maxLocation = new Location(maxLat, maxLng);
-    Location minLocation = new Location(minLat, minLng);
-    long radius = (long) Distance.getDistanceInMeters(maxLocation, minLocation) / 2 + Distance.VISIBILITY_RANGE;
+    Location maxLocation = this.getMaxLocation();
+    Location minLocation = this.getMinLocation();
+    long radius = (long)Distance.getDistanceInMeters(maxLocation, minLocation) / 2 + Distance.VISIBILITY_RANGE;
     return radius;
   }
 
@@ -118,6 +84,36 @@ public class Trajectory {
     } else {
       return null;
     }
+  }
+
+  public Location getMaxLocation() {
+    double maxLat = -90;
+    double maxLng = -180;
+    // TODO check if no points available?
+    for (TrajectoryPoint point : getTimeStampedPoints()) {
+      if (point.getLatitude() > maxLat) {
+        maxLat = point.getLatitude();
+      }
+      if (point.getLongitude() > maxLng) {
+        maxLng = point.getLongitude();
+      }
+    }
+    return new Location(maxLat, maxLng);
+  }
+
+  public Location getMinLocation() {
+    double minLat = 90;
+    double minLng = 180;
+    // TODO check if no points available?
+    for (TrajectoryPoint point : getTimeStampedPoints()) {
+      if (point.getLatitude() < minLat) {
+        minLat = point.getLatitude();
+      }
+      if (point.getLongitude() < minLng) {
+        minLng = point.getLongitude();
+      }
+    }
+    return new Location(minLat, minLng);
   }
 
 }

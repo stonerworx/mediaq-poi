@@ -1,5 +1,7 @@
 package de.lmu.ifi.dbs.mediaqpoi.control.dataimport;
 
+import gnu.trove.procedure.TIntProcedure;
+
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,6 +12,10 @@ import java.util.TreeSet;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
+import net.sf.jsi.Rectangle;
+import net.sf.jsi.SpatialIndex;
+import net.sf.jsi.rtree.RTree;
+import de.lmu.ifi.dbs.mediaqpoi.entity.Location;
 import de.lmu.ifi.dbs.mediaqpoi.entity.Trajectory;
 import de.lmu.ifi.dbs.mediaqpoi.entity.TrajectoryPoint;
 import de.lmu.ifi.dbs.mediaqpoi.entity.Video;
@@ -18,6 +24,15 @@ public class DumpFileParser {
 
   private static final Logger LOGGER = Logger.getLogger(DumpFileParser.class.getName());
   private Map<String, Video> videos = new HashMap<String, Video>();
+
+  // rtree for spatial queries
+  private SpatialIndex spatialIndex = new RTree();
+  private int ID = 0;
+  private ArrayList<String> mapping = new ArrayList<String>();
+
+  public DumpFileParser() {
+    // spatialIndex.init(null);
+  }
 
   public void parse(String fileName) throws Exception {
     String fileContent = readFile(fileName);
@@ -31,10 +46,7 @@ public class DumpFileParser {
 
   private void parseVideoInfo(String fileContent) throws Exception {
     try {
-      String
-          insertStatement =
-          Pattern.compile("\\A.*(INSERT INTO `VIDEO_INFO` VALUES.+?;).*\\Z", Pattern.DOTALL)
-              .matcher(fileContent).replaceAll("$1");
+      String insertStatement = Pattern.compile("\\A.*(INSERT INTO `VIDEO_INFO` VALUES.+?;).*\\Z", Pattern.DOTALL).matcher(fileContent).replaceAll("$1");
       insertStatement = insertStatement.replaceFirst("INSERT INTO `VIDEO_INFO` VALUES \\(", "\\(");
       insertStatement = insertStatement.substring(0, insertStatement.length() - 1);
 
@@ -62,12 +74,8 @@ public class DumpFileParser {
 
   private void parseVideoMetaData(String fileContent) throws Exception {
     try {
-      String
-          insertStatement =
-          Pattern.compile("\\A.*(INSERT INTO `VIDEO_METADATA` VALUES.+?;).*\\Z", Pattern.DOTALL)
-              .matcher(fileContent).replaceAll("$1");
-      insertStatement =
-          insertStatement.replaceFirst("INSERT INTO `VIDEO_METADATA` VALUES \\(", "\\(");
+      String insertStatement = Pattern.compile("\\A.*(INSERT INTO `VIDEO_METADATA` VALUES.+?;).*\\Z", Pattern.DOTALL).matcher(fileContent).replaceAll("$1");
+      insertStatement = insertStatement.replaceFirst("INSERT INTO `VIDEO_METADATA` VALUES \\(", "\\(");
       insertStatement = insertStatement.substring(0, insertStatement.length() - 1);
 
       String[] insertRows = insertStatement.split("\\),\\(");
@@ -88,13 +96,9 @@ public class DumpFileParser {
         String alpha = insertValues[8].replace("'", "");
         String timeCode = insertValues[9].replace("'", "");
 
-        TrajectoryPoint
-            point =
-            new TrajectoryPoint(Integer.parseInt(frame), Double.parseDouble(latitude),
-                                Double.parseDouble(longitude), Double.parseDouble(thetaX),
-                                Double.parseDouble(thetaY), Double.parseDouble(thetaZ),
-                                Double.parseDouble(r), Integer.parseInt(alpha),
-                                Long.parseLong(timeCode));
+        TrajectoryPoint point =
+            new TrajectoryPoint(Integer.parseInt(frame), Double.parseDouble(latitude), Double.parseDouble(longitude), Double.parseDouble(thetaX), Double.parseDouble(thetaY),
+                Double.parseDouble(thetaZ), Double.parseDouble(r), Integer.parseInt(alpha), Long.parseLong(timeCode));
 
         if (videos.isEmpty()) {
           throw new Exception("Please import video_info first");
@@ -122,9 +126,7 @@ public class DumpFileParser {
   }
 
   private String readFile(String fileName) throws Exception {
-    try (InputStream inputStream = getClass().getClassLoader()
-        .getResourceAsStream(fileName); Scanner scanner = new Scanner(inputStream)
-        .useDelimiter("\\A")) {
+    try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(fileName); Scanner scanner = new Scanner(inputStream).useDelimiter("\\A")) {
       return scanner.hasNext() ? scanner.next() : "";
     } catch (Exception e) {
       LOGGER.severe("Exception while reading file: " + e);
@@ -137,6 +139,33 @@ public class DumpFileParser {
     videos.addAll(this.videos.values());
     return videos;
   }
+
+  private void fillRtree() {
+    for (Video video : getVideos()) {
+      Trajectory trajectory = video.getTrajectory();
+      if (trajectory != null) {
+        Location maxLocation = trajectory.getMaxLocation();
+        Location minLocation = trajectory.getMinLocation();
+        Rectangle mbr = new Rectangle((float) maxLocation.latitude, (float) maxLocation.longitude, (float) minLocation.latitude, (float) minLocation.longitude);
+        int id = this.ID;
+        spatialIndex.add(mbr, id);
+        mapping.add(video.getFileName());
+      }
+    }
+  }
+
+  class SaveToListProcedure implements TIntProcedure {
+    private List<Integer> ids = new ArrayList<Integer>();
+
+    public boolean execute(int id) {
+      ids.add(id);
+      return true;
+    };
+
+    private List<Integer> getIds() {
+      return ids;
+    }
+  };
 
   /**
    * Just for testing (set working directory to src/main/resources!!
@@ -160,9 +189,22 @@ public class DumpFileParser {
         }
       }
 
+      // // rtree testing
+      // parser.fillRtree();
+      //
+      // SaveToListProcedure myProc = parser.new SaveToListProcedure();
+      // parser.spatialIndex.contains(new Rectangle(90, -180, -90, 180), myProc);
+      //
+      // List<Integer> ids = myProc.getIds();
+      // System.out.println("contains: " + ids.size());
+      // for (Integer id : ids) {
+      // System.out.println(parser.mapping.get(id));
+      // }
+
     } catch (Exception e) {
       System.out.println(e);
       e.printStackTrace();
     }
   }
+
 }
