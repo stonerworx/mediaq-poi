@@ -10,6 +10,7 @@ import java.util.Map;
 import net.sf.jsi.Rectangle;
 import net.sf.jsi.SpatialIndex;
 import net.sf.jsi.rtree.RTree;
+import de.lmu.ifi.dbs.mediaqpoi.control.dataimport.DumpFileParser;
 
 public class VideoRTree {
 
@@ -93,8 +94,8 @@ public class VideoRTree {
       maxLon = MAX_LON;
     }
 
-    Location maxLocation = new Location(maxLat, maxLon);
-    Location minLocation = new Location(minLat, minLon);
+    Location maxLocation = new Location(rad2deg(maxLat), rad2deg(maxLon));
+    Location minLocation = new Location(rad2deg(minLat), rad2deg(minLon));
     BoundingCoordinates boundingCoordinates = new BoundingCoordinates(maxLocation, minLocation);
 
     return boundingCoordinates;
@@ -102,6 +103,10 @@ public class VideoRTree {
 
   private static double deg2rad(double deg) {
     return deg * (Math.PI / 180);
+  }
+
+  private static double rad2deg(double rad) {
+    return (rad * 180 / Math.PI);
   }
 
   class BoundingCoordinates {
@@ -145,6 +150,25 @@ public class VideoRTree {
    * @param args
    */
   public static void main(String[] args) {
+
+    try {
+
+      DumpFileParser dumpFileParser = new DumpFileParser();
+      dumpFileParser.parse("video_info.sql");
+      dumpFileParser.parse("video_metadata.sql");
+      List<Video> videos = dumpFileParser.getVideos();
+
+      VideoRTree videoRTree = new VideoRTree();
+      videoRTree.insertAll(videos);
+      List<Video> candidates = videoRTree.getCandidates(48.152588, 11.590518);
+      for (Video video : candidates) {
+        System.out.println(video.getFileName() + " --> " + video.getTrajectory().getMaxLocation() + video.getTrajectory().getMinLocation());
+      }
+
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
 
   }
 
