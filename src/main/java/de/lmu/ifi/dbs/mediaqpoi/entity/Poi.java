@@ -18,8 +18,17 @@ public class Poi implements Serializable {
     this.name = name;
   }
 
+  public double getLatitude() {
+    return latitude;
+  }
+
+  public double getLongitude() {
+    return longitude;
+  }
+
   @Override
   public String toString() {
     return this.name + " (" + this.latitude + ", " + this.longitude + ")";
   }
+
 }
