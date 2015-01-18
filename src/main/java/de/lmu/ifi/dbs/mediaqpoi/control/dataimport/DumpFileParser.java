@@ -1,6 +1,6 @@
 package de.lmu.ifi.dbs.mediaqpoi.control.dataimport;
 
-import gnu.trove.procedure.TIntProcedure;
+//import gnu.trove.procedure.TIntProcedure;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -12,9 +12,9 @@ import java.util.TreeSet;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
-import net.sf.jsi.Rectangle;
-import net.sf.jsi.SpatialIndex;
-import net.sf.jsi.rtree.RTree;
+//import net.sf.jsi.Rectangle;
+//import net.sf.jsi.SpatialIndex;
+//import net.sf.jsi.rtree.RTree;
 import de.lmu.ifi.dbs.mediaqpoi.entity.Location;
 import de.lmu.ifi.dbs.mediaqpoi.entity.Trajectory;
 import de.lmu.ifi.dbs.mediaqpoi.entity.TrajectoryPoint;
@@ -25,13 +25,13 @@ public class DumpFileParser {
   private static final Logger LOGGER = Logger.getLogger(DumpFileParser.class.getName());
   private Map<String, Video> videos = new HashMap<String, Video>();
 
-  // rtree for spatial queries
-  private SpatialIndex spatialIndex = new RTree();
-  private int ID = 0;
-  private ArrayList<String> mapping = new ArrayList<String>();
+//  // rtree for spatial queries
+//  private SpatialIndex spatialIndex = new RTree();
+//  private int ID = 0;
+//  private ArrayList<String> mapping = new ArrayList<String>();
 
   public DumpFileParser() {
-    // spatialIndex.init(null);
+//     spatialIndex.init(null);
   }
 
   public void parse(String fileName) throws Exception {
@@ -140,32 +140,32 @@ public class DumpFileParser {
     return videos;
   }
 
-  private void fillRtree() {
-    for (Video video : getVideos()) {
-      Trajectory trajectory = video.getTrajectory();
-      if (trajectory != null) {
-        Location maxLocation = trajectory.getMaxLocation();
-        Location minLocation = trajectory.getMinLocation();
-        Rectangle mbr = new Rectangle((float) maxLocation.latitude, (float) maxLocation.longitude, (float) minLocation.latitude, (float) minLocation.longitude);
-        int id = this.ID;
-        spatialIndex.add(mbr, id);
-        mapping.add(video.getFileName());
-      }
-    }
-  }
-
-  class SaveToListProcedure implements TIntProcedure {
-    private List<Integer> ids = new ArrayList<Integer>();
-
-    public boolean execute(int id) {
-      ids.add(id);
-      return true;
-    };
-
-    private List<Integer> getIds() {
-      return ids;
-    }
-  };
+//  private void fillRtree() {
+//    for (Video video : getVideos()) {
+//      Trajectory trajectory = video.getTrajectory();
+//      if (trajectory != null) {
+//        Location maxLocation = trajectory.getMaxLocation();
+//        Location minLocation = trajectory.getMinLocation();
+//        Rectangle mbr = new Rectangle((float) maxLocation.latitude, (float) maxLocation.longitude, (float) minLocation.latitude, (float) minLocation.longitude);
+//        int id = this.ID;
+//        spatialIndex.add(mbr, id);
+//        mapping.add(video.getFileName());
+//      }
+//    }
+//  }
+//
+//  class SaveToListProcedure implements TIntProcedure {
+//    private List<Integer> ids = new ArrayList<Integer>();
+//
+//    public boolean execute(int id) {
+//      ids.add(id);
+//      return true;
+//    };
+//
+//    private List<Integer> getIds() {
+//      return ids;
+//    }
+//  };
 
   /**
    * Just for testing (set working directory to src/main/resources!!
@@ -189,17 +189,17 @@ public class DumpFileParser {
         }
       }
 
-      // // rtree testing
-      // parser.fillRtree();
-      //
-      // SaveToListProcedure myProc = parser.new SaveToListProcedure();
-      // parser.spatialIndex.contains(new Rectangle(90, -180, -90, 180), myProc);
-      //
-      // List<Integer> ids = myProc.getIds();
-      // System.out.println("contains: " + ids.size());
-      // for (Integer id : ids) {
-      // System.out.println(parser.mapping.get(id));
-      // }
+//       // rtree testing
+//       parser.fillRtree();
+//      
+//       SaveToListProcedure myProc = parser.new SaveToListProcedure();
+//       parser.spatialIndex.contains(new Rectangle(90, -180, -90, 180), myProc);
+//      
+//       List<Integer> ids = myProc.getIds();
+//       System.out.println("contains: " + ids.size());
+//       for (Integer id : ids) {
+//       System.out.println(parser.mapping.get(id));
+//       }
 
     } catch (Exception e) {
       System.out.println(e);
