@@ -7,6 +7,9 @@ public class Place {
   @Key
   public String id;
 
+  @Key("place_id")
+  public String placeId;
+  
   @Key
   public String name;
 

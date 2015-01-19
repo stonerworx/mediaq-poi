@@ -59,7 +59,7 @@ public class PoiService implements IPoiService {
       for (Place place : places.results) {
         Poi poi =
             new Poi(place.id, place.reference, place.geometry.location.getLatitude(),
-                    place.geometry.location.getLongitude(), place.name);
+                place.geometry.location.getLongitude(), place.name);
         nearbyPois.add(poi);
       }
 
@@ -161,7 +161,10 @@ public class PoiService implements IPoiService {
 
   @Override
   public Poi getPoi(String placeId) throws Exception {
-    // TODO Auto-generated method stub
+    Place place = GooglePlacesApi.getDetails(placeId);
+    if (place != null) {
+      return new Poi(place);
+    }
     return null;
   }
 

@@ -10,7 +10,7 @@ import de.lmu.ifi.dbs.mediaqpoi.entity.Video;
 public interface IPoiService {
 
   /**
-   * Returns the videos in the given map bounds
+   * Returns the videos in the given map bounds.
    */
   public List<Video> getVideosInRange(Location min, Location max) throws Exception;
 
