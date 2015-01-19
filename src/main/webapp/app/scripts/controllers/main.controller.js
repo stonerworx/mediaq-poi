@@ -32,9 +32,9 @@
             vm.activeVideo.nearbyPois.push(poi);
           });
           $timeout(function() {
-            vm.activeVideo.center = {};
-            vm.activeVideo.radius = 0;
-            vm.activeVideo.nearbyPois = [];
+            //vm.activeVideo.center = {};
+            //vm.activeVideo.radius = 0;
+            //vm.activeVideo.nearbyPois = [];
             angular.forEach(details.visiblePois, function(poi) {
               poi.icon = 'http://maps.google.com/mapfiles/ms/icons/green-dot.png';
               poi.options = { title: poi.name };
@@ -45,10 +45,10 @@
                 latitude: vm.activeVideo.latitude,
                 longitude: vm.activeVideo.longitude
               };
-              vm.map.zoom = 19;
-            }, 2000);
-          }, 2000);
-        }, 2000);
+              //vm.map.zoom = 19;
+            }, 0);
+          }, 0);
+        }, 0);
       });
     };
 
@@ -106,6 +106,7 @@
           video.latitude = latitude;
           video.longitude = longitude;
           video.path = path;
+          video.id = video.key.name;
           video.pathStyle = {
             id: i,
             path: path,
