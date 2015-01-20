@@ -1,17 +1,9 @@
 package de.lmu.ifi.dbs.mediaqpoi.entity;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.jdo.annotations.IdGeneratorStrategy;
-import javax.jdo.annotations.NotPersistent;
-import javax.jdo.annotations.PersistenceCapable;
-import javax.jdo.annotations.Persistent;
-import javax.jdo.annotations.PrimaryKey;
-
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
+
+import javax.jdo.annotations.*;
 
 @PersistenceCapable
 public class Video {
@@ -31,9 +23,6 @@ public class Video {
   private Trajectory trajectory;
 
   @NotPersistent
-  private Map<Integer, Map<String, List>> timeline = new HashMap<Integer, Map<String, List>>();
-
-  @NotPersistent
   private String filePath;
 
   public Video(String fileName) {
@@ -47,12 +36,12 @@ public class Video {
     super();
   }
 
-  public void setKey(Key key) {
-    this.key = key;
-  }
-
   public Key getKey() {
     return key;
+  }
+
+  public void setKey(Key key) {
+    this.key = key;
   }
 
   public String getFileName() {
@@ -63,16 +52,12 @@ public class Video {
     this.fileName = name;
   }
 
-  public void addTrajectoryPoint(long timeStamp, TrajectoryPoint point) {
-    // trajectory.addPoint(timeStamp, point);
+  public Trajectory getTrajectory() {
+    return trajectory;
   }
 
   public void setTrajectory(Trajectory trajectory) {
     this.trajectory = trajectory;
-  }
-
-  public Trajectory getTrajectory() {
-    return trajectory;
   }
 
   public String getFilePath() {

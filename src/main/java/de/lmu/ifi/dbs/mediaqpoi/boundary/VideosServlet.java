@@ -1,28 +1,22 @@
 package de.lmu.ifi.dbs.mediaqpoi.boundary;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeSet;
-import java.util.logging.Logger;
-
-import javax.jdo.PersistenceManager;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.gson.Gson;
-
 import de.lmu.ifi.dbs.mediaqpoi.control.PersistenceFacade;
 import de.lmu.ifi.dbs.mediaqpoi.control.PoiService;
 import de.lmu.ifi.dbs.mediaqpoi.control.dataimport.VideoImport;
 import de.lmu.ifi.dbs.mediaqpoi.entity.Trajectory;
 import de.lmu.ifi.dbs.mediaqpoi.entity.TrajectoryPoint;
 import de.lmu.ifi.dbs.mediaqpoi.entity.Video;
+
+import javax.jdo.PersistenceManager;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.*;
+import java.util.logging.Logger;
 
 public class VideosServlet extends HttpServlet {
 
@@ -39,20 +33,20 @@ public class VideosServlet extends HttpServlet {
 
     Gson gson = new Gson();
 
-    Map<String, Object> response = new HashMap<String, Object>();
-    response.put("status", "ok");
+      Map<String, Object> responseData = new HashMap<String, Object>();
+      responseData.put("status", "ok");
 
     String action = req.getParameter("action");
 
     if (action != null && action.equals(ACTION_VIDEO_DETAILS) && req.getParameter("id") != null) {
-      getVideoDetails(req.getParameter("id"), response);
+        getVideoDetails(req.getParameter("id"), responseData);
     } else if (action != null && action.equals(ACTION_VIDEO_INITIAL_LOAD)) {
-      performInitialLoad(response);
+        performInitialLoad(responseData);
     } else {
-      getVideos(response);
+        getVideos(responseData);
     }
 
-    resp.getWriter().write(gson.toJson(response));
+      resp.getWriter().write(gson.toJson(responseData));
   }
 
   private void performInitialLoad(Map<String, Object> response) {
