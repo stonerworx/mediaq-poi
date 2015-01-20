@@ -91,11 +91,11 @@ public class PoiService implements IPoiService {
 
       for (TrajectoryPoint trajectoryPoint : trajectory.getTimeStampedPoints()) {
 
-        // TODO: calculate which POIs are visible right now. - ONLY DEMO
         for (Poi poi : candidates) {
-          //TODO: if poi is visible
-          visiblePois.add(poi);
-          //---
+          if (trajectoryPoint.isVisible(poi.getLatitude(), poi.getLongitude()) &&
+              !visiblePois.contains(poi)) {
+            visiblePois.add(poi);
+          }
         }
 
       }
@@ -163,28 +163,11 @@ public class PoiService implements IPoiService {
           visible = new ArrayList<Poi>();
         }
 
-        // TODO: calculate which POIs are visible right now.
-        //
-        // for (Poi poi : visiblePois) {
-        //   if (poi is visible) {
-        //     visible.add(poi);
-        //   }
-        // }
-        //
-        // ONLY DEMO DATA AT THE MOMENT.
-        if (trajectoryPoint.getFrame() > 20 && trajectoryPoint.getFrame() < 50) {
-          Poi poi = visiblePois.get(0);
-          if (!visible.contains(poi)) {
+        for (Poi poi : visiblePois) {
+          if (trajectoryPoint.isVisible(poi.getLatitude(), poi.getLongitude())) {
             visible.add(poi);
           }
         }
-        if (trajectoryPoint.getFrame() > 30 && trajectoryPoint.getFrame() < 40) {
-          Poi poi = visiblePois.get(1);
-          if (!visible.contains(poi)) {
-            visible.add(poi);
-          }
-        }
-        // ---
 
         timelineElement.put("pois", visible);
 
