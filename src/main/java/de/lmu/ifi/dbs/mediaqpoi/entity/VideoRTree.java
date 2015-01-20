@@ -26,6 +26,11 @@ public class VideoRTree {
     saveToListProcedure = new SaveToListProcedure();
   }
 
+  /**
+   * Inserts the video into this R-tree.
+   * 
+   * @param video
+   */
   public void insert(Video video) {
     Trajectory trajectory = video.getTrajectory();
     if (trajectory != null) {
@@ -38,12 +43,24 @@ public class VideoRTree {
     }
   }
 
+  /**
+   * Inserts all videos into this R-tree.
+   * 
+   * @param videos
+   */
   public void insertAll(List<Video> videos) {
     for (Video video : videos) {
       insert(video);
     }
   }
 
+  /**
+   * calculates the video candidates for a given poi location.
+   * 
+   * @param latitude of poi
+   * @param longitude of poi
+   * @return list of video candidates
+   */
   public List<Video> getCandidates(double latitude, double longitude) {
     Location location = new Location(latitude, longitude);
     double distance = (double) Distance.VISIBILITY_RANGE / 1000;

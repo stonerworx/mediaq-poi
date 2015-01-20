@@ -109,10 +109,10 @@ public class TrajectoryPoint implements Serializable, Comparable<TrajectoryPoint
   }
 
   /**
-   * calculates if a given location is visible from this trajectory point
+   * calculates if a given location is visible from this trajectory point.
    * 
-   * @param latitude
-   * @param longitude
+   * @param latitude of the location
+   * @param longitude of the location
    * @return true if visible else false
    */
   public boolean isVisible(double latitude, double longitude) {
@@ -147,7 +147,7 @@ public class TrajectoryPoint implements Serializable, Comparable<TrajectoryPoint
   }
 
   /**
-   * calculates the angle between this trajectory point and a given location
+   * calculates the angle between this trajectory point and a given location.
    * 
    * @param loc
    * @return angle in degree
