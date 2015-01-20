@@ -94,7 +94,7 @@ public class TrajectoryPoint implements Serializable, Comparable<TrajectoryPoint
 
   @Override
   public int compareTo(TrajectoryPoint o) {
-    if (o.getTimecode() < getTimecode()) {
+    if (o.getTimecode() > getTimecode()) {
       return -1;
     } else if (o.getTimecode() == getTimecode()) {
       return 0;

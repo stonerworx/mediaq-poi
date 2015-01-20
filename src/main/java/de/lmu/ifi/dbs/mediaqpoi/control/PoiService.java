@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -70,30 +71,69 @@ public class PoiService implements IPoiService {
   }
 
   @SuppressWarnings("unchecked")
+  /**
+   * returns all visible pois in the video
+   */
   public List<Poi> getVisiblePois(Video video) throws Exception {
-    List<Poi> pois = getPoiCandidates(video);
-
     String key = "visiblePois_" + video.getKey();
 
     MemcacheService syncCache = MemcacheServiceFactory.getMemcacheService();
     syncCache.setErrorHandler(ErrorHandlers.getConsistentLogAndContinue(Level.INFO));
     List<Poi> visiblePois = (ArrayList<Poi>) syncCache.get(key);
 
-    String timelineKey = "timeline_" + video.getKey();
-    Map<Integer, Map<String, List>> timeline =
-        (HashMap<Integer, Map<String, List>>) syncCache.get(timelineKey);
+    // recalculate if we don't have the visible POIs in cache.
+    if (visiblePois == null) {
 
-    // recalculate if we don't have the visible POIs and timeline in cache.
-    if (visiblePois == null || timeline == null) {
+      List<Poi> candidates = getPoiCandidates(video);
 
       visiblePois = new ArrayList<Poi>();
-      timeline = new HashMap<Integer, Map<String, List>>();
       Trajectory trajectory = video.getTrajectory();
 
       for (TrajectoryPoint trajectoryPoint : trajectory.getTimeStampedPoints()) {
 
-        // at what position in the video are we?
-        long startTime = trajectory.getStartTime();
+        // TODO: calculate which POIs are visible right now. - ONLY DEMO
+        for (Poi poi : candidates) {
+          //TODO: if poi is visible
+          visiblePois.add(poi);
+          //---
+        }
+
+      }
+
+      syncCache.put(key, visiblePois);
+
+    }
+
+    return visiblePois;
+  }
+
+  @SuppressWarnings("unchecked")
+  /**
+   * returns a timeline, sorted by second in video, with a list of pois visible at this time
+   */
+  public TreeMap<Integer, Map<String, List>> getTimeline(Video video) throws Exception {
+
+    String timelineKey = "timeline_" + video.getKey();
+
+    MemcacheService syncCache = MemcacheServiceFactory.getMemcacheService();
+    syncCache.setErrorHandler(ErrorHandlers.getConsistentLogAndContinue(Level.INFO));
+
+    TreeMap<Integer, Map<String, List>> timeline =
+        (TreeMap<Integer, Map<String, List>>) syncCache.get(timelineKey);
+
+    // recalculate if we don't have the timeline in cache.
+    if (timeline == null) {
+
+      List<Poi> visiblePois = getVisiblePois(video);
+
+      timeline = new TreeMap<Integer, Map<String, List>>();
+      Trajectory trajectory = video.getTrajectory();
+
+      // at what position in the video are we?
+      long startTime = trajectory.getStartTime();
+
+      for (TrajectoryPoint trajectoryPoint : trajectory.getTimeStampedPoints()) {
+
         long currentTime = trajectoryPoint.getTimecode();
         // position of this TrajectoryPoint in the video in seconds.
         int position = Math.round((currentTime - startTime) / 1000);
@@ -123,25 +163,25 @@ public class PoiService implements IPoiService {
           visible = new ArrayList<Poi>();
         }
 
-        // TODO: calculate which POIs are visible right now. - ONLY DEMO
-        // DATA AT THE MOMENT.
-        // --- DEMO DATA
+        // TODO: calculate which POIs are visible right now.
+        //
+        // for (Poi poi : visiblePois) {
+        //   if (poi is visible) {
+        //     visible.add(poi);
+        //   }
+        // }
+        //
+        // ONLY DEMO DATA AT THE MOMENT.
         if (trajectoryPoint.getFrame() > 20 && trajectoryPoint.getFrame() < 50) {
-          Poi poi = pois.get(0);
+          Poi poi = visiblePois.get(0);
           if (!visible.contains(poi)) {
             visible.add(poi);
-          }
-          if (!visiblePois.contains(poi)) {
-            visiblePois.add(poi);
           }
         }
         if (trajectoryPoint.getFrame() > 30 && trajectoryPoint.getFrame() < 40) {
-          Poi poi = pois.get(1);
+          Poi poi = visiblePois.get(1);
           if (!visible.contains(poi)) {
             visible.add(poi);
-          }
-          if (!visiblePois.contains(poi)) {
-            visiblePois.add(poi);
           }
         }
         // ---
@@ -151,12 +191,11 @@ public class PoiService implements IPoiService {
         timeline.put(position, timelineElement);
       }
 
-      syncCache.put(key, visiblePois);
       syncCache.put(timelineKey, timeline);
 
     }
 
-    return visiblePois;
+    return timeline;
   }
 
   @Override

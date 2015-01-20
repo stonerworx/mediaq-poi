@@ -102,6 +102,7 @@ public class VideosServlet extends HttpServlet {
       response.put("searchRange", video.getTrajectory().calculateSearchRange());
       response.put("nearbyPois", PoiService.getInstance().getPoiCandidates(video));
       response.put("visiblePois", PoiService.getInstance().getVisiblePois(video));
+      response.put("timeline", PoiService.getInstance().getTimeline(video));
     } catch (Exception e) {
       LOGGER.severe(String.format("Exception occurred while getting video with id %s: %s", key, e));
       response.put("status", "error");
