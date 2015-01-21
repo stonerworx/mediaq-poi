@@ -15,9 +15,9 @@ public class PoiService implements IPoiService {
     private static final Logger LOGGER = Logger.getLogger(PoiService.class.getName());
     private static final String TIMELINE_KEY_FRAMES = "frames";
     private static final String TIMELINE_KEY_POIS = "pois";
-    private final static PoiService instance = new PoiService();
+    private final static IPoiService instance = new PoiService();
 
-    public static PoiService getInstance() {
+    public static IPoiService getInstance() {
         return instance;
     }
 
@@ -27,7 +27,7 @@ public class PoiService implements IPoiService {
     }
 
     @Override public Map<Long, List<Poi>> getPois(Video video) throws Exception {
-        // TODO Auto-generated method stub
+        // TODO change getTimeLine and put here
         return null;
     }
 
@@ -97,6 +97,7 @@ public class PoiService implements IPoiService {
      * returns a timeline, sorted by second in video, with a list of pois visible at this time
      */ public TreeMap<Integer, Map<String, List>> getTimeline(Video video) throws Exception {
 
+        //TODO: drop frames from timeline and put this into the getPois(video) method
         String timelineKey = "timeline_" + video.getKey();
 
         MemcacheService syncCache = MemcacheServiceFactory.getMemcacheService();
@@ -174,7 +175,6 @@ public class PoiService implements IPoiService {
 
   @Override
   public List<Video> getVideosInRange(Location min, Location max) throws Exception {
-    // TODO Auto-generated method stub
-    return null;
+    return PersistenceFacade.getVideosInRange(min, max);
   }
 }

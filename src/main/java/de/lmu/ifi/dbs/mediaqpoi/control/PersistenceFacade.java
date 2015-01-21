@@ -1,7 +1,10 @@
 package de.lmu.ifi.dbs.mediaqpoi.control;
 
 import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.search.*;
+import de.lmu.ifi.dbs.mediaqpoi.entity.Distance;
+import de.lmu.ifi.dbs.mediaqpoi.entity.Location;
 import de.lmu.ifi.dbs.mediaqpoi.entity.Trajectory;
 import de.lmu.ifi.dbs.mediaqpoi.entity.Video;
 
@@ -48,6 +51,32 @@ public final class PersistenceFacade {
             throw e;
         } finally {
             q.closeAll();
+        }
+    }
+
+    public static List<Video> getVideosInRange(Location bound1, Location bound2) throws Exception {
+        try {
+            String distanceBetweenBounds = Double.toString(
+                Distance.getDistanceInMeters(bound1, bound2));
+            String queryString = "( distance(minPoint, " + geoPoint(bound1) + ") <= " + distanceBetweenBounds;
+            queryString += " AND distance(minPoint, " + geoPoint(bound2) + ") <= " + distanceBetweenBounds + ")";
+            queryString += " OR ( distance(maxPoint, " + geoPoint(bound1) + ") <= " + distanceBetweenBounds;
+            queryString += " AND distance(maxPoint, " + geoPoint(bound2) + ") <= " + distanceBetweenBounds + ")";
+            Results<ScoredDocument> results = getIndex().search(queryString);
+
+            List<Video> videos = new ArrayList<>();
+            for (ScoredDocument document : results) {
+                String fileName = document.getId();
+                Key key = KeyFactory.createKey(Video.class.getSimpleName(), fileName);
+                Video video = getVideo(key);
+                videos.add(video);
+            }
+
+            return videos;
+
+        } catch(Exception e) {
+            LOGGER.severe("Exception while getting videos in range: " + e);
+            throw e;
         }
     }
 
@@ -107,8 +136,7 @@ public final class PersistenceFacade {
 
     private static void indexDocuments(List<Document> documents) throws Exception {
         try {
-            IndexSpec indexSpec = IndexSpec.newBuilder().setName(INDEX_VIDEOS).build();
-            Index index = SearchServiceFactory.getSearchService().getIndex(indexSpec);
+            Index index = getIndex();
 
             List<List<Document>> documentBatches = chunks(documents, 200);
             LOGGER.info(documentBatches.size() + " batch(es) to process");
@@ -135,5 +163,14 @@ public final class PersistenceFacade {
         }
 
         return chunks;
+    }
+
+    private static Index getIndex() {
+        IndexSpec indexSpec = IndexSpec.newBuilder().setName(INDEX_VIDEOS).build();
+        return SearchServiceFactory.getSearchService().getIndex(indexSpec);
+    }
+
+    private static String geoPoint(Location location) {
+        return "geopoint(" + location.getLatitude() + ", " + location.getLongitude() + ")";
     }
 }
