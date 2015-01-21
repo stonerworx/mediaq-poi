@@ -1,6 +1,7 @@
 package de.lmu.ifi.dbs.mediaqpoi.entity;
 
 import com.google.api.client.util.Key;
+import com.google.appengine.api.search.GeoPoint;
 
 public class Location {
 
@@ -12,8 +13,6 @@ public class Location {
 
   public Location() {
   }
-
-  ;
 
   public Location(double latitude, double longitude) {
     this.latitude = latitude;
@@ -35,9 +34,12 @@ public class Location {
   public void setLongitude(double longitude) {
     this.longitude = longitude;
   }
-  
+
   public String toString() {
     return "(" + latitude + ", " + longitude + ")";
   }
-  
+
+  public GeoPoint toGeoPoint() {
+    return new GeoPoint(latitude, longitude);
+  }
 }

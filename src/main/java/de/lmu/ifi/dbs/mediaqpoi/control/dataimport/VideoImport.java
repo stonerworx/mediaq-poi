@@ -11,12 +11,13 @@ public class VideoImport {
   private static final Logger LOGGER = Logger.getLogger(VideoImport.class.getName());
 
   public List<Video> importData() throws Exception {
-    LOGGER.info(
-        "Importing video_info and video_metadata from dump and persisting the video entities");
+    LOGGER.info("Importing video_info and video_metadata from dump and persisting the video entities");
 
     DumpFileParser parser = new DumpFileParser();
     parser.parse("video_info.sql");
     parser.parse("video_metadata.sql");
+
+    LOGGER.info("Successfully parsed the dump files");
 
     List<Video> videos = parser.getVideos();
     for (Video video : videos) {
@@ -25,6 +26,10 @@ public class VideoImport {
       }
     }
 
+    LOGGER.info("Successfully persisted the videos");
+
+    PersistenceFacade.indexVideos(videos);
+    LOGGER.info("Successfully indexed the videos");
     return videos;
   }
 }

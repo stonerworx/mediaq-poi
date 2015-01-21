@@ -33,7 +33,7 @@ public class VideosServlet extends HttpServlet {
 
     Gson gson = new Gson();
 
-      Map<String, Object> responseData = new HashMap<String, Object>();
+      Map<String, Object> responseData = new HashMap<>();
       responseData.put("status", "ok");
 
     String action = req.getParameter("action");
@@ -53,7 +53,7 @@ public class VideosServlet extends HttpServlet {
     try {
       new VideoImport().importData();
       response.put("status", "ok");
-      response.put("message", "Videso successfully loaded.");
+      response.put("message", "Videos successfully loaded.");
     } catch (Exception e) {
       LOGGER.severe(String.format("Exception occurred while performing inital "
           + "load of videos: %s", e));
@@ -65,7 +65,7 @@ public class VideosServlet extends HttpServlet {
   private void getVideos(Map<String, Object> response) {
     LOGGER.info("Getting all videos");
 
-    List<Video> videos = new ArrayList<Video>();
+    List<Video> videos = new ArrayList<>();
 
     try {
       List<Video> results = PersistenceFacade.getVideos();
@@ -112,7 +112,7 @@ public class VideosServlet extends HttpServlet {
     Trajectory trajectory = new Trajectory();
     video1.setTrajectory(trajectory);
 
-    TreeSet<TrajectoryPoint> points = new TreeSet<TrajectoryPoint>();
+    TreeSet<TrajectoryPoint> points = new TreeSet<>();
 
     TrajectoryPoint tp1 =
         new TrajectoryPoint(1, 48.152187, 11.592492, 352.28128, -9.597204, 87.91111, 0.1, 51,
