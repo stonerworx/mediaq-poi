@@ -2,7 +2,7 @@
 
   'use strict';
 
-  function MainController(uiGmapGoogleMapApi, dataService, $timeout) {
+  function MainController(uiGmapGoogleMapApi, dataService, $timeout, $sce) {
     var vm = this;
 
     vm.videos = [];
@@ -10,6 +10,11 @@
 
     vm.setActive = function(video) {
       vm.activeVideo = video;
+
+      vm.activeVideo.src = $sce.trustAsResourceUrl(
+        'http://mediaq.dbs.ifi.lmu.de/MediaQ_MVC_V2/video_content/' + video.fileName
+      );
+      vm.activeVideo.visible = true;
 
       vm.map.zoom = 15;
 
@@ -124,9 +129,21 @@
       });
 
     });
+
+    //get video player
+    var player = angular.element('.videoplayer video')[0];
+    //listen for time updates
+    player.addEventListener('timeupdate', function () {
+      var second = Math.round(player.currentTime);
+
+      vm.activeVideo.second = second;
+
+    }, false);
+
   }
 
   angular.module('mediaqPoi')
-    .controller('MainController', ['uiGmapGoogleMapApi', 'dataService', '$timeout', MainController]);
+    .controller('MainController', ['uiGmapGoogleMapApi', 'dataService', '$timeout', '$sce',
+                                   MainController]);
 
 })();

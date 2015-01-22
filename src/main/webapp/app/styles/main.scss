@@ -63,3 +63,20 @@ body {
     }
   }
 }
+
+.videoplayer {
+  display: none;
+  left: 10px;
+  position: absolute;
+  top: 90px;
+  width: 450px;
+
+  video {
+    width: 100%;
+  }
+}
+
+.visible {
+  display: block;
+}
+
