@@ -3,9 +3,9 @@ package de.lmu.ifi.dbs.mediaqpoi.control;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.search.*;
-import de.lmu.ifi.dbs.mediaqpoi.entity.Distance;
 import de.lmu.ifi.dbs.mediaqpoi.entity.Location;
 import de.lmu.ifi.dbs.mediaqpoi.entity.Trajectory;
+import de.lmu.ifi.dbs.mediaqpoi.entity.TrajectoryPoint;
 import de.lmu.ifi.dbs.mediaqpoi.entity.Video;
 
 import javax.jdo.*;
@@ -57,22 +57,28 @@ public final class PersistenceFacade {
 
     public static List<Video> getVideosInRange(Location bound1, Location bound2) throws Exception {
         try {
-            String distanceBetweenBounds = Double.toString(
-                Distance.getDistanceInMeters(bound1, bound2));
+            String distanceBetweenBounds = Double.toString(GeoHelper.getDistanceInMeters(bound1, bound2));
+            // get videos with a min or max point in range (they are potential candidates)
             String queryString = "( distance(minPoint, " + geoPoint(bound1) + ") <= " + distanceBetweenBounds;
             queryString += " AND distance(minPoint, " + geoPoint(bound2) + ") <= " + distanceBetweenBounds + ")";
             queryString += " OR ( distance(maxPoint, " + geoPoint(bound1) + ") <= " + distanceBetweenBounds;
             queryString += " AND distance(maxPoint, " + geoPoint(bound2) + ") <= " + distanceBetweenBounds + ")";
             Results<ScoredDocument> results = getIndex().search(queryString);
 
-            LOGGER.info(results.getNumberFound() + " results found");
+            LOGGER.info(results.getNumberFound() + " candidate results found");
 
             List<Video> videos = new CopyOnWriteArrayList<>();
+            // refinement: walk through candidates and look if the video is really in range
             for (ScoredDocument document : results.getResults()) {
-                String fileName = document.getId();
-                Key key = KeyFactory.createKey(Video.class.getSimpleName(), fileName);
-                Video video = getVideo(key);
-                videos.add(video);
+                Video video = getVideo(document);
+                if (video == null) {
+                    continue;
+                }
+
+                Trajectory trajectory = video.getTrajectory();
+                if (GeoHelper.isInRange(trajectory, bound1, bound2)) {
+                    videos.add(video);
+                }
             }
 
             return videos;
@@ -83,7 +89,69 @@ public final class PersistenceFacade {
         }
     }
 
+    public static List<Video> getVideos(double longitude, double latitude) throws Exception {
+        try {
+            Location location = new Location(longitude, longitude);
+            // get videos that contain the location in their search range (they are potential candidates)
+            String queryString = "distance(centerPoint, " + geoPoint(location) + ") <= searchRange";
+            Results<ScoredDocument> results = getIndex().search(queryString);
+
+            LOGGER.info(results.getNumberFound() + " candidate results found");
+
+            List<Video> videos = new CopyOnWriteArrayList<>();
+            // refinement: walk through candidates and look if the location really is visible in the video
+            for (ScoredDocument document : results.getResults()) {
+                Video video = getVideo(document);
+                if (video == null) {
+                    continue;
+                }
+
+                Trajectory trajectory = video.getTrajectory();
+                if(trajectory == null || trajectory.getTimeStampedPoints() == null) {
+                    LOGGER.warning("Video " + video.getFileName() + " has no trajectory data");
+                    continue;
+                }
+                for (TrajectoryPoint point : trajectory.getTimeStampedPoints()) {
+                    if (point.isVisible(longitude, latitude)) {
+                        videos.add(video);
+                        break;
+                    }
+                }
+            }
+
+            return videos;
+
+        } catch(Exception e) {
+            LOGGER.severe("Exception while getting videos for location: " + e);
+            throw e;
+        }
+    }
+
+    public static void persistVideos(List<Video> videos) throws Exception {
+        LOGGER.info("Persisting " + videos.size() + " videos");
+        PersistenceManager pm = getPersistenceManager();
+
+        // persist videos and dependent entities in a transaction
+        Transaction tx = null;
+        try {
+            tx = pm.currentTransaction();
+            tx.begin();
+            pm.makePersistentAll(videos);
+            tx.commit();
+            LOGGER.info("Successfully persisted the videos");
+        } catch (Exception e) {
+            LOGGER.severe("Exception while persisting videos: " + e);
+            throw e;
+        } finally {
+            if (tx != null && tx.isActive()) {
+                tx.rollback();
+            }
+        }
+    }
+
+
     public static void persistVideo(Video video) throws Exception {
+        LOGGER.info("Persisting video " + video.getFileName());
         PersistenceManager pm = getPersistenceManager();
 
         // persist video and dependent entities in a transaction
@@ -104,6 +172,8 @@ public final class PersistenceFacade {
     }
 
     public static void indexVideos(List<Video> videos) throws Exception {
+        LOGGER.info("Indexing " + videos.size() + " videos");
+
         try {
             List<Document> documents = new ArrayList<>();
             for (Video video : videos) {
@@ -113,6 +183,7 @@ public final class PersistenceFacade {
             }
 
             indexDocuments(documents);
+            LOGGER.info("Successfully indexed the videos");
         } catch (Exception e) {
             LOGGER.severe("Exception while indexing videos: " + e);
             e.printStackTrace();
@@ -126,10 +197,14 @@ public final class PersistenceFacade {
             Trajectory trajectory = video.getTrajectory();
             GeoPoint maxPoint = trajectory.getMaxLocation().toGeoPoint();
             GeoPoint minPoint = trajectory.getMinLocation().toGeoPoint();
+            GeoPoint centerPoint = trajectory.getCenter().toGeoPoint();
+            long searchRange = trajectory.getSearchRange();
 
             return Document.newBuilder().setId(docId)
                 .addField(Field.newBuilder().setName("maxPoint").setGeoPoint(maxPoint))
                 .addField(Field.newBuilder().setName("minPoint").setGeoPoint(minPoint))
+                .addField(Field.newBuilder().setName("centerPoint").setGeoPoint(centerPoint))
+                .addField(Field.newBuilder().setName("searchRange").setNumber(searchRange))
                 .build();
         } catch (Exception e) {
             LOGGER.severe("Exception while creating document for video: " + e);
@@ -171,6 +246,16 @@ public final class PersistenceFacade {
     private static Index getIndex() {
         IndexSpec indexSpec = IndexSpec.newBuilder().setName(INDEX_VIDEOS).build();
         return SearchServiceFactory.getSearchService().getIndex(indexSpec);
+    }
+
+    private static Video getVideo(Document document) throws Exception {
+        String fileName = document.getId();
+        Key key = KeyFactory.createKey(Video.class.getSimpleName(), fileName);
+        Video video = getVideo(key);
+        if(video == null) {
+            LOGGER.warning("Video not found by key " + key);
+        }
+        return video;
     }
 
     private static String geoPoint(Location location) {

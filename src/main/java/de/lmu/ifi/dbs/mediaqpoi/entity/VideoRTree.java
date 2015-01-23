@@ -3,6 +3,7 @@ package de.lmu.ifi.dbs.mediaqpoi.entity;
 import com.infomatiq.jsi.Rectangle;
 import com.infomatiq.jsi.SpatialIndex;
 import com.infomatiq.jsi.rtree.RTree;
+import de.lmu.ifi.dbs.mediaqpoi.control.GeoHelper;
 import de.lmu.ifi.dbs.mediaqpoi.control.dataimport.DumpFileParser;
 import gnu.trove.TIntProcedure;
 
@@ -25,7 +26,7 @@ public class VideoRTree {
   public VideoRTree() {
     spatialIndex = new RTree();
     spatialIndex.init(null);
-    map = new HashMap<Integer, Video>();
+    map = new HashMap<>();
   }
 
   private static double deg2rad(double deg) {
@@ -128,7 +129,7 @@ public class VideoRTree {
    */
   public List<Video> getCandidates(double latitude, double longitude) {
     Location location = new Location(latitude, longitude);
-    double distance = (double) Distance.VISIBILITY_RANGE / 1000;
+    double distance = (double) GeoHelper.VISIBILITY_RANGE / 1000;
     BoundingCoordinates boundingCoordinates = getBoundingCoordinates(location, distance);
     Location maxLocation = boundingCoordinates.getMaxLocation();
     Location minLocation = boundingCoordinates.getMinLocation();
@@ -174,9 +175,8 @@ public class VideoRTree {
 
     Location maxLocation = new Location(rad2deg(maxLat), rad2deg(maxLon));
     Location minLocation = new Location(rad2deg(minLat), rad2deg(minLon));
-    BoundingCoordinates boundingCoordinates = new BoundingCoordinates(maxLocation, minLocation);
 
-    return boundingCoordinates;
+      return new BoundingCoordinates(maxLocation, minLocation);
   }
 
 
@@ -203,7 +203,7 @@ public class VideoRTree {
 
   class SaveToListProcedure implements TIntProcedure {
 
-    private List<Video> videos = new ArrayList<Video>();
+    private List<Video> videos = new ArrayList<>();
 
     public boolean execute(int id) {
       videos.add(map.get(id));

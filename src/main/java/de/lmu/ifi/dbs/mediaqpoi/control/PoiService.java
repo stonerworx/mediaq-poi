@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -17,14 +18,21 @@ public class PoiService implements IPoiService {
 
     private static final Logger LOGGER = Logger.getLogger(PoiService.class.getName());
     private final static IPoiService instance = new PoiService();
+    private static AlgorithmApproachType approach = AlgorithmApproachType.NAIVE;
 
     public static IPoiService getInstance() {
         return instance;
     }
 
-    @Override public List<Video> getVideos(long longitude, long latitude) throws Exception {
-        // TODO: non naive approach using index
-        return getVideosNaive(longitude, latitude);
+    @Override public List<Video> getVideos(double longitude, double latitude) throws Exception {
+        switch (approach) {
+            case NAIVE:
+                return getVideosNaive(longitude, latitude);
+            case GOOGLE_DOCUMENT_INDEX:
+                return PersistenceFacade.getVideos(longitude, latitude);
+            default:
+                return null;
+        }
     }
 
     @Override public Map<Long, List<Poi>> getPois(Video video) throws Exception {
@@ -67,7 +75,12 @@ public class PoiService implements IPoiService {
         if (nearbyPois == null) {
             nearbyPois = new ArrayList<>();
 
-            PlacesList places = GooglePlacesApi.searchPlaces(video.getTrajectory().calculateCenter(), video.getTrajectory().calculateSearchRange());
+            Trajectory trajectory = video.getTrajectory();
+            if(trajectory == null || trajectory.getTimeStampedPoints() == null) {
+                LOGGER.warning("Video has no trajectory data");
+                return null;
+            }
+            PlacesList places = GooglePlacesApi.searchPlaces(trajectory.getCenter(), trajectory.getSearchRange());
 
             for (Place place : places.results) {
                 Poi poi = new Poi(place);
@@ -124,17 +137,32 @@ public class PoiService implements IPoiService {
     }
 
     @Override public List<Video> getVideosInRange(Location min, Location max) throws Exception {
-        //TODO: naive approach
-        return PersistenceFacade.getVideosInRange(min, max);
+        switch (approach) {
+            case NAIVE:
+                return getVideosInRangeNaive(min, max);
+            case GOOGLE_DOCUMENT_INDEX:
+                return PersistenceFacade.getVideosInRange(min, max);
+            default:
+                return null;
+        }
+    }
+
+    public static AlgorithmApproachType getApproach() {
+        return approach;
+    }
+
+    public static void setApproach(AlgorithmApproachType approach) {
+        PoiService.approach = approach;
     }
 
     /**
      * Naive approach for getting the videos that record a given geo location. All videos are retrieved and iterated.
      */
-    private List<Video> getVideosNaive(long longitude, long latitude) throws Exception {
+    private List<Video> getVideosNaive(double longitude, double latitude) throws Exception {
+        LOGGER.info("Performing video query for location with naive approach");
         try {
             List<Video> allVideos = PersistenceFacade.getVideos();
-            List<Video> result = new ArrayList<>();
+            List<Video> result = new CopyOnWriteArrayList<>();
 
             for (Video video : allVideos) {
 
@@ -156,4 +184,29 @@ public class PoiService implements IPoiService {
             throw e;
         }
     }
+
+    /**
+     * Naive approach for getting the videos in a given range area. All videos are retrieved and iterated.
+     */
+    private List<Video> getVideosInRangeNaive(Location min, Location max) throws Exception {
+       LOGGER.info("Performing range query with naive approach");
+        try {
+            List<Video> allVideos = PersistenceFacade.getVideos();
+            List<Video> result = new CopyOnWriteArrayList<>();
+
+            for (Video video : allVideos) {
+
+                Trajectory trajectory = video.getTrajectory();
+                if(GeoHelper.isInRange(trajectory, min, max)) {
+                    result.add(video);
+                }
+            }
+            return result;
+
+        } catch (Exception e) {
+            LOGGER.severe("Exception occurred in naive approach of getting all videos in a given range area: " + e);
+            throw e;
+        }
+    }
+
 }

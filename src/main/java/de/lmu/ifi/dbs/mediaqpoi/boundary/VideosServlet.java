@@ -6,10 +6,7 @@ import com.google.gson.Gson;
 import de.lmu.ifi.dbs.mediaqpoi.control.PersistenceFacade;
 import de.lmu.ifi.dbs.mediaqpoi.control.PoiService;
 import de.lmu.ifi.dbs.mediaqpoi.control.dataimport.VideoImport;
-import de.lmu.ifi.dbs.mediaqpoi.entity.Location;
-import de.lmu.ifi.dbs.mediaqpoi.entity.Trajectory;
-import de.lmu.ifi.dbs.mediaqpoi.entity.TrajectoryPoint;
-import de.lmu.ifi.dbs.mediaqpoi.entity.Video;
+import de.lmu.ifi.dbs.mediaqpoi.entity.*;
 
 import javax.jdo.PersistenceManager;
 import javax.servlet.http.HttpServlet;
@@ -25,6 +22,7 @@ public class VideosServlet extends HttpServlet {
     private static final String ACTION_VIDEO_DETAILS = "details";
     private static final String ACTION_VIDEO_INITIAL_LOAD = "initial_load";
     private static final String ACTION_VIDEO_RANGE_QUERY = "range_query";
+    private static final String ACTION_ALGO_CHANGE = "algo";
 
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 
@@ -50,6 +48,9 @@ public class VideosServlet extends HttpServlet {
             case ACTION_VIDEO_RANGE_QUERY:
                 getVideosInRange(req, responseData);
                 break;
+            case ACTION_ALGO_CHANGE:
+                setAlgorithmApproach(req, responseData);
+                break;
             default:
                 getVideos(responseData);
                 break;
@@ -57,6 +58,22 @@ public class VideosServlet extends HttpServlet {
 
 
         resp.getWriter().write(gson.toJson(responseData));
+    }
+
+    private void setAlgorithmApproach(HttpServletRequest req, Map<String, Object> responseData) {
+        try {
+            if (req.getParameter("approach") == null) {
+                throw new IllegalArgumentException("Approach must not be null");
+            }
+            PoiService.setApproach(AlgorithmApproachType.valueOf(req.getParameter("approach")));
+            responseData.put("status", "ok");
+            responseData.put("message", "Algorithm approach successfully changed to " + PoiService.getApproach().name());
+        } catch (Exception e) {
+            LOGGER.severe(String
+                .format("Exception occurred while changing algorithm approach: %s", e));
+            responseData.put("status", "error");
+            responseData.put("message", "Algorithm approach not changed.");
+        }
     }
 
     private void getVideosInRange(HttpServletRequest req, Map<String, Object> responseData) {
@@ -90,8 +107,7 @@ public class VideosServlet extends HttpServlet {
                 responseData.put("videos", videos);
             }
         } catch (Exception e) {
-            LOGGER.severe(
-                String.format("Exception occurred while performing range query for videos: %s", e));
+            LOGGER.severe(String.format("Exception occurred while performing range query for videos: %s", e));
             responseData.put("status", "error");
             responseData.put("message", "Videos in range could not be loaded.");
         }
@@ -146,8 +162,8 @@ public class VideosServlet extends HttpServlet {
             Video video = PersistenceFacade.getVideo(key);
 
             response.put("video", video);
-            response.put("center", video.getTrajectory().calculateCenter());
-            response.put("searchRange", video.getTrajectory().calculateSearchRange());
+            response.put("center", video.getTrajectory().getCenter());
+            response.put("searchRange", video.getTrajectory().getSearchRange());
             response.put("nearbyPois", PoiService.getInstance().getPoiCandidates(video));
             response.put("visiblePois", PoiService.getInstance().getVisiblePois(video));
             response.put("timeline", PoiService.getInstance().getPois(video));

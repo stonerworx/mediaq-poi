@@ -1,6 +1,7 @@
 package de.lmu.ifi.dbs.mediaqpoi.entity;
 
 import com.google.appengine.api.datastore.Key;
+import de.lmu.ifi.dbs.mediaqpoi.control.GeoHelper;
 
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.PersistenceCapable;
@@ -116,9 +117,9 @@ public class TrajectoryPoint implements Serializable, Comparable<TrajectoryPoint
    */
   public boolean isVisible(double latitude, double longitude) {
 
-    double distance = Distance.getDistanceInMeters(new Location(this.latitude, this.longitude), new Location(latitude, longitude));
+    double distance = GeoHelper.getDistanceInMeters(new Location(this.latitude, this.longitude), new Location(latitude, longitude));
 
-    if (distance > Distance.VISIBILITY_RANGE) {
+    if (distance > GeoHelper.VISIBILITY_RANGE) {
       return false;
     } else {
 
