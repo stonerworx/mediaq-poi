@@ -18,7 +18,7 @@ public interface IPoiService {
      * Returns the videos which record the given position (position must be in the visibility range of
      * the video).
      */
-    public List<Video> getVideos(long longitude, long latitude) throws Exception;
+    public List<Video> getVideos(double longitude, double latitude) throws Exception;
 
     /**
      * Returns all Pois that are located in the search range of the video and could therefore be potentially visible in the video.

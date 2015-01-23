@@ -1,9 +1,8 @@
 package de.lmu.ifi.dbs.mediaqpoi.entity;
 
-import javax.jdo.annotations.IdGeneratorStrategy;
-import javax.jdo.annotations.PersistenceCapable;
-import javax.jdo.annotations.Persistent;
-import javax.jdo.annotations.PrimaryKey;
+import de.lmu.ifi.dbs.mediaqpoi.control.GeoHelper;
+
+import javax.jdo.annotations.*;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -16,6 +15,12 @@ import java.util.TreeSet;
 
     @Persistent
     private TreeSet<TrajectoryPoint> timeStampedPoints;
+
+    @NotPersistent
+    private Location center = null;
+
+    @NotPersistent
+    private long searchRange = -1;
 
     public TreeSet<TrajectoryPoint> getTimeStampedPoints() {
         return timeStampedPoints;
@@ -53,7 +58,10 @@ import java.util.TreeSet;
         return null;
     }
 
-    public Location calculateCenter() {
+    public Location getCenter() {
+        if(center != null) {
+            return center;
+        }
         Location maxLocation = this.getMaxLocation();
         Location minLocation = this.getMinLocation();
         double lat = (maxLocation.latitude + minLocation.latitude) / 2;
@@ -61,10 +69,13 @@ import java.util.TreeSet;
         return new Location(lat, lng);
     }
 
-    public long calculateSearchRange() {
+    public long getSearchRange() {
+        if(searchRange > -1) {
+            return searchRange;
+        }
         Location maxLocation = this.getMaxLocation();
         Location minLocation = this.getMinLocation();
-        return (long) Distance.getDistanceInMeters(maxLocation, minLocation) / 2 + Distance.VISIBILITY_RANGE;
+        return (long) GeoHelper.getDistanceInMeters(maxLocation, minLocation) / 2 + GeoHelper.VISIBILITY_RANGE;
     }
 
     public com.google.appengine.api.datastore.Key getKey() {

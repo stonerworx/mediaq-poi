@@ -20,16 +20,17 @@ public class VideoImport {
     LOGGER.info("Successfully parsed the dump files");
 
     List<Video> videos = parser.getVideos();
+    LOGGER.info("Got " + videos.size() + " to import");
+
     for (Video video : videos) {
       if (video.getTrajectory() != null && video.getTrajectory().getTimeStampedPoints() != null) {
-        PersistenceFacade.persistVideo(video);
+          LOGGER.info("Removing video without trajectory data from import");
+          videos.remove(video);
       }
     }
 
-    LOGGER.info("Successfully persisted the videos");
-
+    PersistenceFacade.persistVideos(videos);
     PersistenceFacade.indexVideos(videos);
-    LOGGER.info("Successfully indexed the videos");
     return videos;
   }
 }
