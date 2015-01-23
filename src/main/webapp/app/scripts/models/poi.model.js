@@ -2,11 +2,11 @@
 
   'use strict';
 
-  function PoiModel() {
+  function PoiModelFactory() {
 
     function PoiModel(poi) {
 
-      var id = 1;
+      var id = poi.id;
 
       var name = poi.name;
       var latitude = poi.latitude;
@@ -30,9 +30,9 @@
           icon: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',
           latitude: this.getLatitude(),
           longitude: this.getLongitude(),
-          options: { title: this.getName() }
-        }
-      }
+          options: { title: this.getName() },
+        };
+      };
     }
 
     return PoiModel;
@@ -40,6 +40,6 @@
   }
 
   angular.module('mediaqPoi')
-    .factory('PoiModel', [PoiModel]);
+    .factory('PoiModel', [PoiModelFactory]);
 
 })();

@@ -31,7 +31,7 @@ public class VideosServlet extends HttpServlet {
         LOGGER.info("Getting video data");
 
         resp.addHeader("Access-Control-Allow-Origin", "*");
-        resp.setContentType("application/json");
+        resp.setContentType("application/json; charset=UTF-8");
 
         Gson gson = new Gson();
 
@@ -64,19 +64,19 @@ public class VideosServlet extends HttpServlet {
             if (req.getParameter("bound1_lat") == null) {
                 throw new IllegalArgumentException("Latitude of first bound must not be null");
             }
-            if (req.getParameter("bound1_lon") == null) {
-                throw new IllegalArgumentException("Latitude of first bound must not be null");
+            if (req.getParameter("bound1_lng") == null) {
+                throw new IllegalArgumentException("Longitude of first bound must not be null");
             }
             if (req.getParameter("bound2_lat") == null) {
                 throw new IllegalArgumentException("Latitude of second bound must not be null");
             }
-            if (req.getParameter("bound2_lon") == null) {
-                throw new IllegalArgumentException("Latitude of second bound must not be null");
+            if (req.getParameter("bound2_lng") == null) {
+                throw new IllegalArgumentException("Longitude of second bound must not be null");
             }
             double bound1Lat = Double.parseDouble(req.getParameter("bound1_lat"));
-            double bound1Lon = Double.parseDouble(req.getParameter("bound1_lon"));
+            double bound1Lon = Double.parseDouble(req.getParameter("bound1_lng"));
             double bound2Lat = Double.parseDouble(req.getParameter("bound2_lat"));
-            double bound2Lon = Double.parseDouble(req.getParameter("bound2_lon"));
+            double bound2Lon = Double.parseDouble(req.getParameter("bound2_lng"));
 
             Location bound1 = new Location(bound1Lat, bound1Lon);
             Location bound2 = new Location(bound2Lat, bound2Lon);
@@ -151,6 +151,7 @@ public class VideosServlet extends HttpServlet {
             response.put("nearbyPois", PoiService.getInstance().getPoiCandidates(video));
             response.put("visiblePois", PoiService.getInstance().getVisiblePois(video));
             response.put("timeline", PoiService.getInstance().getPois(video));
+            response.put("posTimeline", video.getTrajectory().getTimeLine());
         } catch (Exception e) {
             LOGGER.severe(
                 String.format("Exception occurred while getting video with id %s: %s", key, e));

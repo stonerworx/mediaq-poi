@@ -40,29 +40,6 @@ body {
   padding: 79px 20px 20px 20px;
 }
 
-.video-list {
-  background: {
-    color: #ffffff;
-  };
-  font: {
-    size: 10px;
-  }
-  padding: 5px;
-  position: absolute;
-  top: 80px;
-  right: 10px;
-  width: 300px;
-
-  p {
-    cursor: pointer;
-    &.active {
-      background: {
-        color: #add8e6;
-      };
-      cursor: default;
-    }
-  }
-}
 .loading {
   background: {
     color: transparent;
@@ -98,20 +75,75 @@ body {
   position: absolute;
   width: 100%;
 
+  button {
+    display: none;
+
+    &.visible {
+      display: block;
+    }
+  }
+
   &.visible {
     display: block;
   }
-}
 
-.videoplayer {
+  .visible-pois-list {
+    background: {
+      color: #ffffff;
+    };
+    display: none;
+    float: right;
+    font: {
+      size: 10px;
+    }
+    margin: {
+      top: 20px;
+    }
+    padding: 5px;
+    right: 10px;
+    width: 300px;
 
-  margin: {
-    top: 20px;
+    h1 {
+      font: {
+        size: 16px;
+      }
+      margin-top: 0px;
+    }
+
+    p.nothing {
+      display: none;
+      font: {
+        style: italic;
+      }
+
+      &.visible {
+        display: block;
+      }
+    }
+
+    &.visible {
+      display: block;
+    }
   }
 
-  width: 450px;
+  .videoplayer {
 
-  video {
-    width: 100%;
+    display: none;
+    float: left;
+
+    margin: {
+      top: 20px;
+    }
+
+    width: 450px;
+
+    video {
+      width: 100%;
+    }
+
+    &.visible {
+      display: block;
+    }
   }
+
 }

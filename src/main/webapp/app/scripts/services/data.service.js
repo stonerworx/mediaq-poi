@@ -9,12 +9,20 @@
       host = 'http://localhost:8888';
     }
 
-    function getVideos() {
+    function getVideos(bounds) {
       var deferred = $q.defer();
 
-      $log.info('requesting videos.');
+      $log.info('requesting videos with bounds: NW {' + bounds.northEast.latitude + ', ' +
+        bounds.northEast.longitude + '}. SE {' + bounds.southWest.latitude + ', ' +
+        bounds.southWest.longitude + '}');
 
-      $resource(host + '/videos').get(function (data) {
+      var url = host + '/videos?action=range_query&bound1_lat=' + bounds.northEast.latitude +
+                '&bound1_lng=' + bounds.northEast.longitude + '&bound2_lat=' +
+                bounds.southWest.latitude + '&bound2_lng=' + bounds.southWest.longitude;
+
+      $log.debug(url);
+
+      $resource(url).get(function (data) {
 
         $log.info('videos received (' + data.videos.length + '). returning.');
 

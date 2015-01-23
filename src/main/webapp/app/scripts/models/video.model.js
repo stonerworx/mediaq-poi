@@ -2,7 +2,7 @@
 
   'use strict';
 
-  function VideoModel(PoiModel, $sce) {
+  function VideoModelFactory(PoiModel, $sce) {
 
     function VideoModel(video) {
 
@@ -16,6 +16,7 @@
       var nearbyPois = [];
       var visiblePois = [];
       var timeline = {};
+      var posTimeline = {};
       var second = 0;
 
       if (video !== undefined) {
@@ -84,7 +85,7 @@
       };
 
       this.getLongitude = function() {
-        return longitude
+        return longitude;
       };
 
       this.getMarker = function() {
@@ -107,6 +108,16 @@
         angular.forEach(details.visiblePois, function(poi) {
           visiblePois.push(new PoiModel(poi));
         });
+
+        angular.forEach(details.timeline, function(pois, second) {
+          var poiObjects = [];
+          angular.forEach(pois, function(poi) {
+            poiObjects.push(new PoiModel(poi));
+          });
+          timeline[second] = poiObjects;
+        });
+
+        posTimeline = details.posTimeline;
       };
 
       this.getCenter = function() {
@@ -146,7 +157,7 @@
       };
 
       this.setSecond = function(s) {
-        second = s;
+        second = parseInt(s);
       };
 
       this.getSecond = function() {
@@ -154,8 +165,35 @@
       };
 
       this.getCurrentPois = function() {
-        return [];
+        return timeline[this.getSecond()];
       };
+
+      this.getCurrentPoiMarkers = function() {
+        return getMarkers(this.getCurrentPois());
+      };
+
+      this.getCurrentCoordinates = function() {
+        var point = posTimeline[this.getSecond()];
+        var latitude = null;
+        var longitude = null;
+        if (point !== undefined) {
+          latitude = point.latitude;
+          longitude = point.longitude;
+        }
+        return {
+          latitude: latitude,
+          longitude: longitude
+        };
+      };
+
+      this.getCurrentRotation = function() {
+        var point = posTimeline[this.getSecond()];
+        if (point !== undefined) {
+         return point.thetaX;
+        }
+        return 90;
+      };
+
     }
 
     return VideoModel;
@@ -163,6 +201,6 @@
   }
 
   angular.module('mediaqPoi')
-    .factory('VideoModel', ['PoiModel', '$sce', VideoModel]);
+    .factory('VideoModel', ['PoiModel', '$sce', VideoModelFactory]);
 
 })();
