@@ -63,20 +63,55 @@ body {
     }
   }
 }
+.loading {
+  background: {
+    color: transparent;
+  };
+  display: none;
+  height: 100%;
+  position: absolute;
+  width: 100%;
+  z-index: 9999;
+
+  img {
+    margin-top: 12px;
+    margin-left: 140px;
+  }
+
+  &.visible {
+    display: block;
+  }
+}
+
+.overlay {
+  background: {
+    color: transparent;
+  };
+  display: none;
+  height: 100%;
+  padding: {
+    bottom: 20px;
+    left: 10px;
+    top: 90px;
+    right: 10px;
+  }
+  position: absolute;
+  width: 100%;
+
+  &.visible {
+    display: block;
+  }
+}
 
 .videoplayer {
-  display: none;
-  left: 10px;
-  position: absolute;
-  top: 90px;
+
+  margin: {
+    top: 20px;
+  }
+
   width: 450px;
 
   video {
     width: 100%;
   }
 }
-
-.visible {
-  display: block;
-}
-

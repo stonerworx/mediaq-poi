@@ -5,16 +5,15 @@
   options="vm.options">
 
   <ui-gmap-markers
-    models="vm.videos"
+    models="vm.markers"
     coords="'self'"
     icon="'icon'"
-    click="'click'">
+    click="vm.clickMarker">
   </ui-gmap-markers>
 
   <ui-gmap-polyline
-    path="vm.activeVideo.path"
-    stroke="vm.activeVideo.stroke"
-    visible='vm.activeVideo.visible'
+    path="vm.activeVideo.getPath()"
+    visible='vm.activeVideo.getVisible()'
     geodesic='true'
     fit="false"
     editable="false"
@@ -23,31 +22,43 @@
   </ui-gmap-polyline>
 
   <ui-gmap-circle
-    center="vm.activeVideo.center"
-    radius="vm.activeVideo.radius">
+    center="vm.activeVideo.getCenter()"
+    radius="vm.activeVideo.getRadius()">
   </ui-gmap-circle>
 
   <ui-gmap-markers
-    models="vm.activeVideo.nearbyPois"
+    models="vm.nearbyPoiMarkers"
     coords="'self'"
     icon="'icon'"
     options="'options'">
   </ui-gmap-markers>
 
-  <ui-gmap-markers
-    models="vm.activeVideo.visiblePois"
-    coords="'self'"
-    icon="'icon'"
-    options="'options'">
-  </ui-gmap-markers>
+    <ui-gmap-markers
+      models="vm.visiblePoiMarkers"
+      coords="'self'"
+      icon="'icon'"
+      options="'options'">
+    </ui-gmap-markers>
 
 </ui-gmap-google-map>
+
+<!--
 <div class="video-list">
   <p
-    ng-repeat="poi in vm.activeVideo.timeline[vm.activeVideo.second]">
+    ng-repeat="poi in vm.activeVideo.getCurrentPois()">
     <span>{{poi.name}}</span>
   </p>
 </div>
-<div class="videoplayer" ng-class="{visible: vm.activeVideo.visible === true}">
-  <video autoplay="autoplay" type="video/mp4" ng-src="{{vm.activeVideo.src}}" controls="controls"></video>
+-->
+<div class="overlay" ng-class="{visible: vm.activeVideo.getVisible()}">
+
+  <button class="btn btn-default btn-sm" ng-click="vm.closeVideo()">close</button>
+
+  <div class="videoplayer">
+    <video autoplay="autoplay" type="video/mp4" ng-src="{{vm.activeVideo.getSrc()}}" controls="controls"></video>
+  </div>
+
+</div>
+<div class="loading" ng-class="{visible: vm.loading}">
+  <img src="images/loader.gif" alt="loading" />
 </div>

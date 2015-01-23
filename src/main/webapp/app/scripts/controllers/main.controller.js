@@ -2,58 +2,50 @@
 
   'use strict';
 
-  function MainController(uiGmapGoogleMapApi, dataService, $timeout, $sce) {
+  function MainController(uiGmapGoogleMapApi, dataService, VideoModel) {
     var vm = this;
 
-    vm.videos = [];
-    vm.activeVideo = {path: [], visible: false, nearbyPois: [], visiblePois: []};
+    vm.markers = [];
+    vm.nearbyPoiMarkers = [];
+    vm.visiblePoiMarkers = [];
+    vm.activeVideo = new VideoModel();
+    vm.loading = false;
 
-    vm.setActive = function(video) {
-      vm.activeVideo = video;
+    //get video player
+    var player = angular.element('.videoplayer video')[0];
+    //listen for time updates
+    player.addEventListener('timeupdate', function () {
+      var second = Math.round(player.currentTime);
 
-      vm.activeVideo.src = $sce.trustAsResourceUrl(
-        'http://mediaq.dbs.ifi.lmu.de/MediaQ_MVC_V2/video_content/' + video.fileName
-      );
-      vm.activeVideo.visible = true;
+      vm.activeVideo.setSecond(second);
 
+    }, false);
+
+    vm.clickMarker = function(marker) {
+      vm.openVideo(marker.model.id);
+    };
+
+    vm.closeVideo = function() {
+      vm.activeVideo = new VideoModel();
+      player.pause();
       vm.map.zoom = 15;
+    };
 
-      vm.activeVideo.center = {};
-      vm.activeVideo.radius = 0;
-      vm.activeVideo.nearbyPois = [];
-      vm.activeVideo.visiblePois = [];
+    vm.openVideo = function(videoId) {
+      vm.loading = true;
+      dataService.getVideo(videoId).then(function(video) {
+        vm.loading = false;
 
-      dataService.getVideo(video.id).then(function(details) {
+        vm.activeVideo = video;
 
-        vm.map.center = details.center;
+        vm.nearbyPoiMarkers = vm.activeVideo.getNearbyPoiMarkers();
+        vm.visiblePoiMarkers = vm.activeVideo.getVisiblePoiMarkers();
 
-        vm.activeVideo.center = details.center;
-        vm.activeVideo.radius = details.searchRange;
+        vm.map.center = vm.activeVideo.getCenter();
+        vm.map.zoom = vm.activeVideo.getZoomLevel();
 
-        $timeout(function() {
-          angular.forEach(details.nearbyPois, function(poi) {
-            poi.icon = 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png';
-            poi.options = { title: poi.name };
-            vm.activeVideo.nearbyPois.push(poi);
-          });
-          $timeout(function() {
-            //vm.activeVideo.center = {};
-            //vm.activeVideo.radius = 0;
-            //vm.activeVideo.nearbyPois = [];
-            angular.forEach(details.visiblePois, function(poi) {
-              poi.icon = 'http://maps.google.com/mapfiles/ms/icons/green-dot.png';
-              poi.options = { title: poi.name };
-              vm.activeVideo.visiblePois.push(poi);
-            });
-            $timeout(function() {
-              vm.map.center = {
-                latitude: vm.activeVideo.latitude,
-                longitude: vm.activeVideo.longitude
-              };
-              //vm.map.zoom = 19;
-            }, 0);
-          }, 0);
-        }, 0);
+        vm.activeVideo.show();
+
       });
     };
 
@@ -76,74 +68,22 @@
         streetViewControl: false
       };
 
+      vm.loading = true;
       dataService.getVideos().then(function(videos) {
-        vm.videos = [];
+        vm.loading = false;
 
-        for (var i in videos) {
-          var video = videos[i];
-          var path = [];
-          var latitude = 0;
-          var longitude = 0;
-          var points = video.trajectory.timeStampedPoints;
-
-          //sort by frame number
-          points.sort(function(a, b) {
-            if (a.frame < b.frame) {
-              return -1;
-            }
-            if (a.frame > b.frame) {
-              return 1;
-            }
-            return 0;
-          });
-
-          for (var j in points) {
-            var trajectoryPoint = points[j];
-            path.push({
-                        latitude: trajectoryPoint.latitude,
-                        longitude: trajectoryPoint.longitude
-                      });
-            if (latitude === 0 && longitude === 0) {
-              latitude = trajectoryPoint.latitude;
-              longitude = trajectoryPoint.longitude;
-            }
-          }
-          video.latitude = latitude;
-          video.longitude = longitude;
-          video.path = path;
-          video.id = video.key.name;
-          video.pathStyle = {
-            id: i,
-            path: path,
-            stroke: {
-              color: '#6060FB',
-              weight: 3
-            },
-            visible: true
-          };
-          video.icon = 'http://maps.google.com/mapfiles/ms/icons/red-dot.png';
-          video.click = function(marker) { vm.setActive(marker.model); };
-          vm.videos.push(video);
-        }
+        angular.forEach(videos, function(video) {
+          vm.markers.push(video.getMarker());
+        });
 
       });
 
     });
 
-    //get video player
-    var player = angular.element('.videoplayer video')[0];
-    //listen for time updates
-    player.addEventListener('timeupdate', function () {
-      var second = Math.round(player.currentTime);
-
-      vm.activeVideo.second = second;
-
-    }, false);
-
   }
 
   angular.module('mediaqPoi')
-    .controller('MainController', ['uiGmapGoogleMapApi', 'dataService', '$timeout', '$sce',
+    .controller('MainController', ['uiGmapGoogleMapApi', 'dataService', 'VideoModel',
                                    MainController]);
 
 })();
