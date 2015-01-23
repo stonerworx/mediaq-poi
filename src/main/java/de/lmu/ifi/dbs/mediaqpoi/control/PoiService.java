@@ -6,15 +6,16 @@ import com.google.appengine.api.memcache.MemcacheServiceFactory;
 import de.lmu.ifi.dbs.mediaqpoi.boundary.IPoiService;
 import de.lmu.ifi.dbs.mediaqpoi.entity.*;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class PoiService implements IPoiService {
 
     private static final Logger LOGGER = Logger.getLogger(PoiService.class.getName());
-    private static final String TIMELINE_KEY_FRAMES = "frames";
-    private static final String TIMELINE_KEY_POIS = "pois";
     private final static IPoiService instance = new PoiService();
 
     public static IPoiService getInstance() {
@@ -22,28 +23,51 @@ public class PoiService implements IPoiService {
     }
 
     @Override public List<Video> getVideos(long longitude, long latitude) throws Exception {
-        // TODO Auto-generated method stub
-        return null;
+        // TODO: non naive approach using index
+        return getVideosNaive(longitude, latitude);
     }
 
     @Override public Map<Long, List<Poi>> getPois(Video video) throws Exception {
-        // TODO change getTimeLine and put here
-        return null;
+        String timeLineKey = "timeline_" + video.getKey();
+
+        MemcacheService syncCache = MemcacheServiceFactory.getMemcacheService();
+        syncCache.setErrorHandler(ErrorHandlers.getConsistentLogAndContinue(Level.INFO));
+
+        Map<Long, List<Poi>> timeLine = (Map<Long, List<Poi>>) syncCache.get(timeLineKey);
+
+        // recalculate if we don't have the timeline in cache.
+        if (timeLine == null) {
+            timeLine = new TreeMap<>();
+
+            List<Poi> visiblePois = getVisiblePois(video);
+            Trajectory trajectory = video.getTrajectory();
+
+            for (Long timePosition : trajectory.getTimeLine().keySet()) {
+                List<Poi> visiblePoisAtPosition = new ArrayList<>();
+                for (Poi poi : visiblePois) {
+                    TrajectoryPoint point = trajectory.getTimeLine().get(timePosition);
+                    if (point.isVisible(poi.getLatitude(), poi.getLongitude())) {
+                        visiblePoisAtPosition.add(poi);
+                    }
+                }
+                timeLine.put(timePosition, visiblePoisAtPosition);
+            }
+            syncCache.put(timeLineKey, timeLine);
+        }
+
+        return timeLine;
     }
 
-    @SuppressWarnings("unchecked") @Override public List<Poi> getPoiCandidates(Video video)
-        throws Exception {
+    @SuppressWarnings("unchecked") @Override public List<Poi> getPoiCandidates(Video video) throws Exception {
         String key = "nearbyPois_" + video.getKey();
 
         MemcacheService syncCache = MemcacheServiceFactory.getMemcacheService();
         syncCache.setErrorHandler(ErrorHandlers.getConsistentLogAndContinue(Level.INFO));
         List<Poi> nearbyPois = (ArrayList<Poi>) syncCache.get(key);
         if (nearbyPois == null) {
-            nearbyPois = new ArrayList<Poi>();
+            nearbyPois = new ArrayList<>();
 
-            PlacesList places = GooglePlacesApi
-                .searchPlaces(video.getTrajectory().calculateCenter(),
-                    video.getTrajectory().calculateSearchRange());
+            PlacesList places = GooglePlacesApi.searchPlaces(video.getTrajectory().calculateCenter(), video.getTrajectory().calculateSearchRange());
 
             for (Place place : places.results) {
                 Poi poi = new Poi(place);
@@ -56,8 +80,7 @@ public class PoiService implements IPoiService {
         return nearbyPois;
     }
 
-    @SuppressWarnings("unchecked") @Override public List<Poi> getVisiblePois(Video video)
-        throws Exception {
+    @SuppressWarnings("unchecked") @Override public List<Poi> getVisiblePois(Video video) throws Exception {
         String key = "visiblePois_" + video.getKey();
 
         MemcacheService syncCache = MemcacheServiceFactory.getMemcacheService();
@@ -69,7 +92,7 @@ public class PoiService implements IPoiService {
 
             List<Poi> candidates = getPoiCandidates(video);
 
-            visiblePois = new ArrayList<Poi>();
+            visiblePois = new ArrayList<>();
             Trajectory trajectory = video.getTrajectory();
 
             for (TrajectoryPoint trajectoryPoint : trajectory.getTimeStampedPoints()) {
@@ -92,79 +115,6 @@ public class PoiService implements IPoiService {
         return visiblePois;
     }
 
-    @SuppressWarnings("unchecked")
-    /**
-     * returns a timeline, sorted by second in video, with a list of pois visible at this time
-     */ public TreeMap<Integer, Map<String, List>> getTimeline(Video video) throws Exception {
-
-        //TODO: drop frames from timeline and put this into the getPois(video) method
-        String timelineKey = "timeline_" + video.getKey();
-
-        MemcacheService syncCache = MemcacheServiceFactory.getMemcacheService();
-        syncCache.setErrorHandler(ErrorHandlers.getConsistentLogAndContinue(Level.INFO));
-
-        TreeMap<Integer, Map<String, List>> timeline =
-            (TreeMap<Integer, Map<String, List>>) syncCache.get(timelineKey);
-
-        // recalculate if we don't have the timeline in cache.
-        if (timeline == null) {
-
-            List<Poi> visiblePois = getVisiblePois(video);
-
-            timeline = new TreeMap<Integer, Map<String, List>>();
-            Trajectory trajectory = video.getTrajectory();
-
-            // at what position in the video are we?
-            long startTime = trajectory.getStartTime();
-
-            for (TrajectoryPoint trajectoryPoint : trajectory.getTimeStampedPoints()) {
-
-                long currentTime = trajectoryPoint.getTimecode();
-                // position of this TrajectoryPoint in the video in seconds.
-                int position = Math.round((currentTime - startTime) / 1000);
-
-                Map<String, List> timelineElement;
-                if (timeline.containsKey(position)) {
-                    timelineElement = timeline.get(position);
-                } else {
-                    timelineElement = new HashMap<String, List>();
-                }
-
-                // add the current frame number to the timeline
-                List<Integer> frames;
-                if (timelineElement.containsKey(TIMELINE_KEY_FRAMES)) {
-                    frames = timelineElement.get(TIMELINE_KEY_FRAMES);
-                } else {
-                    frames = new ArrayList<Integer>();
-                }
-                frames.add(trajectoryPoint.getFrame());
-
-                timelineElement.put(TIMELINE_KEY_FRAMES, frames);
-
-                List<Poi> visible;
-                if (timelineElement.containsKey(TIMELINE_KEY_POIS)) {
-                    visible = timelineElement.get(TIMELINE_KEY_POIS);
-                } else {
-                    visible = new ArrayList<Poi>();
-                }
-
-                for (Poi poi : visiblePois) {
-                    if (trajectoryPoint.isVisible(poi.getLatitude(), poi.getLongitude())) {
-                        visible.add(poi);
-                    }
-                }
-
-                timelineElement.put(TIMELINE_KEY_POIS, visible);
-
-                timeline.put(position, timelineElement);
-            }
-
-            syncCache.put(timelineKey, timeline);
-        }
-
-        return timeline;
-    }
-
     @Override public Poi getPoi(String placeId) throws Exception {
         Place place = GooglePlacesApi.getDetails(placeId);
         if (place != null) {
@@ -173,8 +123,37 @@ public class PoiService implements IPoiService {
         return null;
     }
 
-  @Override
-  public List<Video> getVideosInRange(Location min, Location max) throws Exception {
-    return PersistenceFacade.getVideosInRange(min, max);
-  }
+    @Override public List<Video> getVideosInRange(Location min, Location max) throws Exception {
+        //TODO: naive approach
+        return PersistenceFacade.getVideosInRange(min, max);
+    }
+
+    /**
+     * Naive approach for getting the videos that record a given geo location. All videos are retrieved and iterated.
+     */
+    private List<Video> getVideosNaive(long longitude, long latitude) throws Exception {
+        try {
+            List<Video> allVideos = PersistenceFacade.getVideos();
+            List<Video> result = new ArrayList<>();
+
+            for (Video video : allVideos) {
+
+                Trajectory trajectory = video.getTrajectory();
+                if (trajectory == null || trajectory.getTimeStampedPoints() == null || result.contains(video)) {
+                    continue;
+                }
+
+                for (TrajectoryPoint point : trajectory.getTimeStampedPoints()) {
+                    if (point.isVisible(longitude, latitude)) {
+                        result.add(video);
+                    }
+                }
+            }
+            return result;
+
+        } catch (Exception e) {
+            LOGGER.severe("Exception occurred in naive approach of getting all videos recording a specific geo location: " + e);
+            throw e;
+        }
+    }
 }

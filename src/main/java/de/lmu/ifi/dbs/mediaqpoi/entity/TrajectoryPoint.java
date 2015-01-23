@@ -1,13 +1,12 @@
 package de.lmu.ifi.dbs.mediaqpoi.entity;
 
-import java.io.Serializable;
+import com.google.appengine.api.datastore.Key;
 
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
-
-import com.google.appengine.api.datastore.Key;
+import java.io.Serializable;
 
 @SuppressWarnings("serial")
 @PersistenceCapable
@@ -42,9 +41,9 @@ public class TrajectoryPoint implements Serializable, Comparable<TrajectoryPoint
   private int alpha;
 
   @Persistent
-  private long timecode;
+  private long timeStamp;
 
-  public TrajectoryPoint(int frame, double latitude, double longitude, double thetaX, double thetaY, double thetaZ, double r, int alpha, long timecode) {
+  public TrajectoryPoint(int frame, double latitude, double longitude, double thetaX, double thetaY, double thetaZ, double r, int alpha, long timeStamp) {
     this.frame = frame;
     this.latitude = latitude;
     this.longitude = longitude;
@@ -53,7 +52,7 @@ public class TrajectoryPoint implements Serializable, Comparable<TrajectoryPoint
     this.thetaZ = thetaZ;
     this.r = r;
     this.alpha = alpha;
-    this.timecode = timecode;
+    this.timeStamp = timeStamp;
   }
 
   public int getFrame() {
@@ -88,15 +87,15 @@ public class TrajectoryPoint implements Serializable, Comparable<TrajectoryPoint
     return alpha;
   }
 
-  public long getTimecode() {
-    return timecode;
+  public long getTimeStamp() {
+    return timeStamp;
   }
 
   @Override
   public int compareTo(TrajectoryPoint o) {
-    if (o.getTimecode() > getTimecode()) {
+    if (o.getTimeStamp() > getTimeStamp()) {
       return -1;
-    } else if (o.getTimecode() == getTimecode()) {
+    } else if (o.getTimeStamp() == getTimeStamp()) {
       return 0;
     } else {
       return 1;
@@ -105,7 +104,7 @@ public class TrajectoryPoint implements Serializable, Comparable<TrajectoryPoint
 
   @Override
   public String toString() {
-    return "frame: " + frame + ", latitude: " + latitude + ", longitude: " + longitude + ", thetaX: " + thetaX + ", thetaY: " + thetaY + ", thetaZ: " + thetaZ + ", timeCode: " + timecode;
+    return "frame: " + frame + ", latitude: " + latitude + ", longitude: " + longitude + ", thetaX: " + thetaX + ", thetaY: " + thetaY + ", thetaZ: " + thetaZ + ", timeCode: " + timeStamp;
   }
 
   /**
@@ -136,11 +135,7 @@ public class TrajectoryPoint implements Serializable, Comparable<TrajectoryPoint
         angle = angle + 360;
       }
 
-      if (minAngle < angle && angle < maxAngle) {
-        return true;
-      } else {
-        return false;
-      }
+        return minAngle < angle && angle < maxAngle;
 
     }
 
