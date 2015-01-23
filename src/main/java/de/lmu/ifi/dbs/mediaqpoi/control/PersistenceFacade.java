@@ -12,6 +12,7 @@ import javax.jdo.*;
 import javax.jdo.Query;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Logger;
 
 public final class PersistenceFacade {
@@ -64,8 +65,10 @@ public final class PersistenceFacade {
             queryString += " AND distance(maxPoint, " + geoPoint(bound2) + ") <= " + distanceBetweenBounds + ")";
             Results<ScoredDocument> results = getIndex().search(queryString);
 
-            List<Video> videos = new ArrayList<>();
-            for (ScoredDocument document : results) {
+            LOGGER.info(results.getNumberFound() + " results found");
+
+            List<Video> videos = new CopyOnWriteArrayList<>();
+            for (ScoredDocument document : results.getResults()) {
                 String fileName = document.getId();
                 Key key = KeyFactory.createKey(Video.class.getSimpleName(), fileName);
                 Video video = getVideo(key);

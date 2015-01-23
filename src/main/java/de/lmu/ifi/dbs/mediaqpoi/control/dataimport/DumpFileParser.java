@@ -1,23 +1,19 @@
 package de.lmu.ifi.dbs.mediaqpoi.control.dataimport;
 
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
-import java.util.TreeSet;
-import java.util.logging.Logger;
-import java.util.regex.Pattern;
-
 import de.lmu.ifi.dbs.mediaqpoi.entity.Trajectory;
 import de.lmu.ifi.dbs.mediaqpoi.entity.TrajectoryPoint;
 import de.lmu.ifi.dbs.mediaqpoi.entity.Video;
 
+import java.io.InputStream;
+import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.logging.Logger;
+import java.util.regex.Pattern;
+
 public class DumpFileParser {
 
   private static final Logger LOGGER = Logger.getLogger(DumpFileParser.class.getName());
-  private Map<String, Video> videos = new HashMap<String, Video>();
+  private Map<String, Video> videos = new HashMap<>();
 
   public void parse(String fileName) throws Exception {
     String fileContent = readFile(fileName);
@@ -43,7 +39,7 @@ public class DumpFileParser {
 
         String name = insertValues[0].replace("'", "");
 
-        Video video = null;
+        Video video ;
         try {
           video = new Video(name);
         } catch (Exception e) {
@@ -120,7 +116,7 @@ public class DumpFileParser {
   }
 
   public List<Video> getVideos() {
-    List<Video> videos = new ArrayList<Video>();
+    List<Video> videos = new CopyOnWriteArrayList<>();
     videos.addAll(this.videos.values());
     return videos;
   }
@@ -147,7 +143,6 @@ public class DumpFileParser {
         }
       }
     } catch (Exception e) {
-      System.out.println(e);
       e.printStackTrace();
     }
   }
