@@ -58,7 +58,9 @@ public final class PersistenceFacade {
         try {
             pm = getPersistenceManager();
             q = pm.newQuery(Video.class);
-            return (List<Video>) q.execute();
+            List<Video> allVideos = (List<Video>) q.execute();
+            LOGGER.info(String.format("Found %s videos", allVideos.size()));
+            return allVideos;
         } catch (Exception e) {
             LOGGER.severe("Exception while getting all videos: " + e);
             throw e;
@@ -93,6 +95,7 @@ public final class PersistenceFacade {
                 }
             }
 
+            LOGGER.info(String.format("Found %s videos for the given range (using Google document index)", videos.size()));
             return videos;
 
         } catch(Exception e) {
@@ -131,6 +134,7 @@ public final class PersistenceFacade {
                 }
             }
 
+            LOGGER.info(String.format("Found %s videos for the given location (using Google document index)", videos.size()));
             return videos;
 
         } catch(Exception e) {

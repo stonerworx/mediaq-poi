@@ -3,8 +3,16 @@ package de.lmu.ifi.dbs.mediaqpoi.control;
 import com.google.appengine.api.memcache.ErrorHandlers;
 import com.google.appengine.api.memcache.MemcacheService;
 import com.google.appengine.api.memcache.MemcacheServiceFactory;
+
 import de.lmu.ifi.dbs.mediaqpoi.boundary.IPoiService;
-import de.lmu.ifi.dbs.mediaqpoi.entity.*;
+import de.lmu.ifi.dbs.mediaqpoi.entity.AlgorithmApproachType;
+import de.lmu.ifi.dbs.mediaqpoi.entity.Location;
+import de.lmu.ifi.dbs.mediaqpoi.entity.Place;
+import de.lmu.ifi.dbs.mediaqpoi.entity.PlacesList;
+import de.lmu.ifi.dbs.mediaqpoi.entity.Poi;
+import de.lmu.ifi.dbs.mediaqpoi.entity.Trajectory;
+import de.lmu.ifi.dbs.mediaqpoi.entity.TrajectoryPoint;
+import de.lmu.ifi.dbs.mediaqpoi.entity.Video;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -90,6 +98,7 @@ public class PoiService implements IPoiService {
             syncCache.put(key, nearbyPois);
         }
 
+        LOGGER.info(String.format("Found %s Poi candidates for the given video", nearbyPois.size()));
         return nearbyPois;
     }
 
@@ -125,6 +134,7 @@ public class PoiService implements IPoiService {
             syncCache.put(key, visiblePois);
         }
 
+        LOGGER.info(String.format("Found %s visible Pois for the given video", visiblePois.size()));
         return visiblePois;
     }
 
@@ -177,6 +187,7 @@ public class PoiService implements IPoiService {
                     }
                 }
             }
+            LOGGER.info(String.format("Found %s videos for the given location (naive approach)", result.size()));
             return result;
 
         } catch (Exception e) {
@@ -201,6 +212,7 @@ public class PoiService implements IPoiService {
                     result.add(video);
                 }
             }
+            LOGGER.info(String.format("Found %s videos in range (naive approach)", result.size()));
             return result;
 
         } catch (Exception e) {
