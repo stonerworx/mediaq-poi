@@ -14,6 +14,8 @@ import de.lmu.ifi.dbs.mediaqpoi.entity.Trajectory;
 import de.lmu.ifi.dbs.mediaqpoi.entity.TrajectoryPoint;
 import de.lmu.ifi.dbs.mediaqpoi.entity.Video;
 
+import org.apache.commons.lang3.time.StopWatch;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -33,15 +35,31 @@ public class PoiService implements IPoiService {
     }
 
     @Override public List<Video> getVideos(double longitude, double latitude) throws Exception {
+        List<Video> result = null;
+        StopWatch stopWatch = null;
+
+        try {
+            stopWatch = new StopWatch();
+            stopWatch.start();
+        } catch(Exception ignore) {}
+
         switch (approach) {
             case NAIVE:
-                return getVideosNaive(longitude, latitude);
+                result = getVideosNaive(longitude, latitude);
+                break;
             case GOOGLE_DOCUMENT_INDEX:
-                return PersistenceFacade.getVideos(longitude, latitude);
+                result = PersistenceFacade.getVideos(longitude, latitude);
+                break;
             default:
-                return null;
         }
         //TODO: case for RTree
+
+        try {
+            stopWatch.stop();
+            LOGGER.info(String.format("Got videos for location in %s milliseconds (using %s)", stopWatch.getTime(), approach.name()));
+        } catch (Exception ignore) {}
+
+        return result;
     }
 
     @Override public Map<Long, List<Poi>> getPois(Video video) throws Exception {
@@ -148,15 +166,31 @@ public class PoiService implements IPoiService {
     }
 
     @Override public List<Video> getVideosInRange(Location min, Location max) throws Exception {
+        List<Video> result = null;
+        StopWatch stopWatch = null;
+
+        try {
+            stopWatch = new StopWatch();
+            stopWatch.start();
+        } catch(Exception ignore) {}
+
         switch (approach) {
             case NAIVE:
-                return getVideosInRangeNaive(min, max);
+                result = getVideosInRangeNaive(min, max);
+                break;
             case GOOGLE_DOCUMENT_INDEX:
-                return PersistenceFacade.getVideosInRange(min, max);
+                result = PersistenceFacade.getVideosInRange(min, max);
+                break;
             default:
-                return null;
         }
         //TODO: case for RTree
+
+        try {
+            stopWatch.stop();
+            LOGGER.info(String.format("Got videos in range in %s milliseconds (using %s)", stopWatch.getTime(), approach.name()));
+        } catch (Exception ignore) {}
+
+        return result;
     }
 
     public static AlgorithmApproachType getApproach() {
