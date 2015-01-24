@@ -41,6 +41,7 @@ public class PoiService implements IPoiService {
             default:
                 return null;
         }
+        //TODO: case for RTree
     }
 
     @Override public Map<Long, List<Poi>> getPois(Video video) throws Exception {
@@ -155,6 +156,7 @@ public class PoiService implements IPoiService {
             default:
                 return null;
         }
+        //TODO: case for RTree
     }
 
     public static AlgorithmApproachType getApproach() {

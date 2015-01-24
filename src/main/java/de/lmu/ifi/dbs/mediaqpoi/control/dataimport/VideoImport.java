@@ -31,6 +31,7 @@ public class VideoImport {
 
     PersistenceFacade.persistVideos(videos);
     PersistenceFacade.indexVideos(videos);
+    // TODO: fill RTree
     return videos;
   }
 }
