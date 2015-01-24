@@ -2,18 +2,30 @@ package de.lmu.ifi.dbs.mediaqpoi.control;
 
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
-import com.google.appengine.api.search.*;
+import com.google.appengine.api.search.Document;
+import com.google.appengine.api.search.Field;
+import com.google.appengine.api.search.GeoPoint;
+import com.google.appengine.api.search.Index;
+import com.google.appengine.api.search.IndexSpec;
+import com.google.appengine.api.search.Results;
+import com.google.appengine.api.search.ScoredDocument;
+import com.google.appengine.api.search.SearchServiceFactory;
+
 import de.lmu.ifi.dbs.mediaqpoi.entity.Location;
 import de.lmu.ifi.dbs.mediaqpoi.entity.Trajectory;
 import de.lmu.ifi.dbs.mediaqpoi.entity.TrajectoryPoint;
 import de.lmu.ifi.dbs.mediaqpoi.entity.Video;
 
-import javax.jdo.*;
-import javax.jdo.Query;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Logger;
+
+import javax.jdo.JDOHelper;
+import javax.jdo.PersistenceManager;
+import javax.jdo.PersistenceManagerFactory;
+import javax.jdo.Query;
+import javax.jdo.Transaction;
 
 public final class PersistenceFacade {
 
@@ -131,22 +143,33 @@ public final class PersistenceFacade {
         LOGGER.info("Persisting " + videos.size() + " videos");
         PersistenceManager pm = getPersistenceManager();
 
-        // persist videos and dependent entities in a transaction
-        Transaction tx = null;
-        try {
-            tx = pm.currentTransaction();
-            tx.begin();
-            pm.makePersistentAll(videos);
-            tx.commit();
-            LOGGER.info("Successfully persisted the videos");
-        } catch (Exception e) {
-            LOGGER.severe("Exception while persisting videos: " + e);
-            throw e;
-        } finally {
-            if (tx != null && tx.isActive()) {
-                tx.rollback();
+        List<List<Video>> batches = chunks(videos, 5);
+        LOGGER.info(batches.size() + " batch(es) to process");
+
+        long persistedVideos = 0;
+        // XG transactions allow a maximum of five EGs per transaction. The 6th produces "java.lang.IllegalArgumentException: operating on too many entity groups in a single transaction."
+        for (List<Video> batch : batches) {
+            LOGGER.info(batch.size() + " video(s) to be processed in this batch.");
+
+            // persist videos and dependent entities in a transaction
+            Transaction tx = null;
+            try {
+                tx = pm.currentTransaction();
+                tx.begin();
+                pm.makePersistentAll(batch);
+                tx.commit();
+                persistedVideos += batch.size();
+            } catch (Exception e) {
+                LOGGER.severe("Exception while persisting videos: " + e);
+                throw e;
+            } finally {
+                if (tx != null && tx.isActive()) {
+                    tx.rollback();
+                }
             }
         }
+
+        LOGGER.info("Successfully persisted " + persistedVideos + " videos");
     }
 
 

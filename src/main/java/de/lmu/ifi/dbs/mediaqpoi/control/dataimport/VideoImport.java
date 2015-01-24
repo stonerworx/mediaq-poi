@@ -23,7 +23,7 @@ public class VideoImport {
     LOGGER.info("Got " + videos.size() + " to import");
 
     for (Video video : videos) {
-      if (video.getTrajectory() != null && video.getTrajectory().getTimeStampedPoints() != null) {
+      if (video.getTrajectory() == null || video.getTrajectory().getTimeStampedPoints() == null) {
           LOGGER.info("Removing video without trajectory data from import");
           videos.remove(video);
       }
