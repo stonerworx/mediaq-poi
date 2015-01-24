@@ -4,8 +4,14 @@ import de.lmu.ifi.dbs.mediaqpoi.entity.Trajectory;
 import de.lmu.ifi.dbs.mediaqpoi.entity.TrajectoryPoint;
 import de.lmu.ifi.dbs.mediaqpoi.entity.Video;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.InputStream;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
+import java.util.TreeSet;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -55,50 +61,59 @@ public class DumpFileParser {
 
   private void parseVideoMetaData(String fileContent) throws Exception {
     try {
-      String insertStatement = Pattern.compile("\\A.*(INSERT INTO `VIDEO_METADATA` VALUES.+?;).*\\Z", Pattern.DOTALL).matcher(fileContent).replaceAll("$1");
-      insertStatement = insertStatement.replaceFirst("INSERT INTO `VIDEO_METADATA` VALUES \\(", "\\(");
-      insertStatement = insertStatement.substring(0, insertStatement.length() - 1);
+      int patternCount = StringUtils.countMatches(fileContent, "INSERT INTO");
+      String insertStatementPart = Pattern.compile("\\A.+((INSERT INTO `VIDEO_METADATA` VALUES.+?\\);\\n){" + patternCount + "}).+\\Z",
+              Pattern.DOTALL).matcher(fileContent).replaceFirst("$1");
 
-      String[] insertRows = insertStatement.split("\\),\\(");
+      String insertStatements[] = insertStatementPart.split("\\n");
+      for (String insertStatement : insertStatements) {
+        insertStatement = insertStatement.replaceFirst("INSERT INTO `VIDEO_METADATA` VALUES \\(", "\\(");
+        insertStatement = insertStatement.substring(0, insertStatement.length() - 1);
 
-      for (String row : insertRows) {
-        row = row.replace("(", "").replace(")", "");
-        String[] insertValues = row.split(",");
+        String[] insertRows = insertStatement.split("\\),\\(");
 
-        String name = insertValues[0].replace("'", "");
+        for (String row : insertRows) {
+          row = row.replace("(", "").replace(")", "");
+          String[] insertValues = row.split(",");
 
-        String frame = insertValues[1].replace("'", "");
-        String latitude = insertValues[2].replace("'", "");
-        String longitude = insertValues[3].replace("'", "");
-        String thetaX = insertValues[4].replace("'", "");
-        String thetaY = insertValues[5].replace("'", "");
-        String thetaZ = insertValues[6].replace("'", "");
-        String r = insertValues[7].replace("'", "");
-        String alpha = insertValues[8].replace("'", "");
-        String timeCode = insertValues[9].replace("'", "");
+          String name = insertValues[0].replace("'", "");
 
-        TrajectoryPoint point =
-            new TrajectoryPoint(Integer.parseInt(frame), Double.parseDouble(latitude), Double.parseDouble(longitude), Double.parseDouble(thetaX), Double.parseDouble(thetaY),
-                Double.parseDouble(thetaZ), Double.parseDouble(r), Integer.parseInt(alpha), Long.parseLong(timeCode));
+          String frame = insertValues[1].replace("'", "");
+          String latitude = insertValues[2].replace("'", "");
+          String longitude = insertValues[3].replace("'", "");
+          String thetaX = insertValues[4].replace("'", "");
+          String thetaY = insertValues[5].replace("'", "");
+          String thetaZ = insertValues[6].replace("'", "");
+          String r = insertValues[7].replace("'", "");
+          String alpha = insertValues[8].replace("'", "");
+          String timeCode = insertValues[9].replace("'", "");
 
-        if (videos.isEmpty()) {
-          throw new Exception("Please import video_info first");
-        } else {
-          Video video = videos.get(name);
+          TrajectoryPoint point =
+              new TrajectoryPoint(Integer.parseInt(frame), Double.parseDouble(latitude),
+                                  Double.parseDouble(longitude), Double.parseDouble(thetaX),
+                                  Double.parseDouble(thetaY),
+                                  Double.parseDouble(thetaZ), Double.parseDouble(r),
+                                  Integer.parseInt(alpha), Long.parseLong(timeCode));
 
-          if (video == null) {
-            LOGGER.warning("Got metadata for nonexistent video " + name);
+          if (videos.isEmpty()) {
+            throw new Exception("Please import video_info first");
           } else {
-            if (video.getTrajectory() == null) {
-              video.setTrajectory(new Trajectory());
-              video.getTrajectory().setTimeStampedPoints(new TreeSet<TrajectoryPoint>());
-            }
-            Trajectory trajectory = video.getTrajectory();
-            trajectory.add(point);
-            video.setTrajectory(trajectory);
-          }
+            Video video = videos.get(name);
 
-          videos.put(video.getFileName(), video);
+            if (video == null) {
+              LOGGER.warning("Got metadata for nonexistent video " + name);
+            } else {
+              Trajectory trajectory = video.getTrajectory();
+              if (trajectory == null) {
+                trajectory = new Trajectory();
+                trajectory.setTimeStampedPoints(new TreeSet<TrajectoryPoint>());
+              }
+              trajectory.add(point);
+              video.setTrajectory(trajectory);
+            }
+
+            videos.put(video.getFileName(), video);
+          }
         }
       }
     } catch (Exception e) {
