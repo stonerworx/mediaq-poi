@@ -19,8 +19,7 @@
       });
     uiGmapGoogleMapApiProvider.configure({
       key: 'AIzaSyDIZgzM1EkYHEhOJfcjUvm0ovOUczk7v8s',
-      v: '3.17',
-      libraries: 'weather,geometry,visualization'
+      v: '3.17'
     });
     $logProvider.debugEnabled(true);
   }

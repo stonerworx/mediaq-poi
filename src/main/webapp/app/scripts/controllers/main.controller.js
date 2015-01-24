@@ -18,6 +18,9 @@
       //get video player
       var player = angular.element('.videoplayer video')[0];
 
+      //get autocomplete
+      var autocomplete = new maps.places.Autocomplete(angular.element('#placesearch')[0]);
+
       vm.map = {
         control: {},
         center: {
@@ -50,7 +53,7 @@
       vm.videoPositionMarker = {
         id: 'videoPosition',
         icon: {
-          url: 'images/position.png',
+          url: '/images/ignore/position.png',
           anchor: {
             x: 12.5,
             y: 12.5
@@ -69,10 +72,17 @@
           strokeColor: '#356cde',
           rotation: 90,
           strokeWeight: 1
-        },
+        }
       };
       vm.currentPoiMarkers = [];
       vm.searchRadius = {};
+
+      vm.places = {
+        autocomplete: '',
+        options: null,
+        results: '',
+        details: ''
+      };
 
       //listen for time updates
       player.addEventListener('timeupdate', function () {
@@ -172,6 +182,13 @@
 
         var gmap = vm.map.control.getGMap();
 
+        navigator.geolocation.getCurrentPosition(function(position) {
+          vm.map.center.latitude = position.coords.latitude;
+          vm.map.center.longitude = position.coords.longitude;
+          $scope.$apply();
+          getVideosByBounds();
+        });
+
         var getVideosByBounds = function() {
           var bounds = {
             northEast: {
@@ -208,6 +225,20 @@
         });
         maps.event.addListener(gmap, 'dragend', mapSettleTime);
         maps.event.addListener(gmap, 'zoom_changed', mapSettleTime);
+
+        maps.event.addListener(autocomplete, 'place_changed', function() {
+          var place = autocomplete.getPlace();
+          if (!place.geometry) {
+            return;
+          }
+
+          vm.map.center.latitude = place.geometry.location.lat();
+          vm.map.center.longitude = place.geometry.location.lng();
+          vm.map.zoom = 15;
+          $scope.$apply();
+
+          getVideosByBounds();
+        });
 
         getVideosByBounds();
 

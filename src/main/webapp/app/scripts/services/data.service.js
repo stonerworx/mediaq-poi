@@ -24,7 +24,11 @@
 
       $resource(url).get(function (data) {
 
-        $log.info('videos received (' + data.videos.length + '). returning.');
+        if (data.videos !== undefined) {
+          $log.info('videos received (' + data.videos.length + '). returning.');
+        } else {
+          $log.error('failed to load videos.');
+        }
 
         var videos = [];
 

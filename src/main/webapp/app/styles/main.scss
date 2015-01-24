@@ -94,18 +94,18 @@ body {
     display: none;
     float: right;
     font: {
-      size: 10px;
+      size: 12px;
     }
     margin: {
       top: 20px;
     }
     padding: 5px;
     right: 10px;
-    width: 300px;
+    width: 360px;
 
     h1 {
       font: {
-        size: 16px;
+        size: 20px;
       }
       margin-top: 0px;
     }
@@ -146,4 +146,15 @@ body {
     }
   }
 
+}
+
+.search {
+  position: absolute;
+  z-index: 99;
+  left: 200px;
+  top: 16px;
+
+  input {
+    width: 260px;
+  }
 }
