@@ -7,9 +7,12 @@ import com.google.appengine.api.search.Field;
 import com.google.appengine.api.search.GeoPoint;
 import com.google.appengine.api.search.Index;
 import com.google.appengine.api.search.IndexSpec;
+import com.google.appengine.api.search.Query;
+import com.google.appengine.api.search.QueryOptions;
 import com.google.appengine.api.search.Results;
 import com.google.appengine.api.search.ScoredDocument;
 import com.google.appengine.api.search.SearchServiceFactory;
+import com.google.apphosting.api.ApiProxy;
 
 import de.lmu.ifi.dbs.mediaqpoi.entity.Location;
 import de.lmu.ifi.dbs.mediaqpoi.entity.Trajectory;
@@ -24,7 +27,6 @@ import java.util.logging.Logger;
 import javax.jdo.JDOHelper;
 import javax.jdo.PersistenceManager;
 import javax.jdo.PersistenceManagerFactory;
-import javax.jdo.Query;
 import javax.jdo.Transaction;
 
 public final class PersistenceFacade {
@@ -34,6 +36,7 @@ public final class PersistenceFacade {
 
     private static final PersistenceManagerFactory pmfInstance =
         JDOHelper.getPersistenceManagerFactory("transactions-optional");
+    public static final int RESULT_LIMIT = 1000;
 
     private PersistenceFacade() {
     }
@@ -54,7 +57,7 @@ public final class PersistenceFacade {
 
     public static List<Video> getVideos() throws Exception {
         PersistenceManager pm = getPersistenceManager();
-        Query q = pm.newQuery(Video.class);
+        javax.jdo.Query q = pm.newQuery(Video.class);
         try {
             pm = getPersistenceManager();
             q = pm.newQuery(Video.class);
@@ -71,19 +74,24 @@ public final class PersistenceFacade {
 
     public static List<Video> getVideosInRange(Location bound1, Location bound2) throws Exception {
         try {
-            String distanceBetweenBounds = Double.toString(GeoHelper.getDistanceInMeters(bound1, bound2));
-            // get videos with a min or max point in range (they are potential candidates)
-            String queryString = "( distance(minPoint, " + geoPoint(bound1) + ") <= " + distanceBetweenBounds;
-            queryString += " AND distance(minPoint, " + geoPoint(bound2) + ") <= " + distanceBetweenBounds + ")";
-            queryString += " OR ( distance(maxPoint, " + geoPoint(bound1) + ") <= " + distanceBetweenBounds;
-            queryString += " AND distance(maxPoint, " + geoPoint(bound2) + ") <= " + distanceBetweenBounds + ")";
-            Results<ScoredDocument> results = getIndex().search(queryString);
+            Location middle = GeoHelper.getMidPoint(bound1, bound2);
+            String distanceToMiddle = Double.toString(GeoHelper.getDistanceInMeters(bound1, middle));
+            // get videos with a min or max point in the circumcircle around the range (they are potential candidates)
+            String queryString = "distance(minPoint, " + geoPoint(middle) + ") <= " + distanceToMiddle;
+            queryString += " OR distance(maxPoint, " + geoPoint(middle) + ") <= " + distanceToMiddle;
+            Query query =   Query.newBuilder()
+                .setOptions(QueryOptions.newBuilder()
+                                .setNumberFoundAccuracy(RESULT_LIMIT)
+                                .setReturningIdsOnly(true)
+                                .setLimit(RESULT_LIMIT).build())
+                .build(queryString);
+            Results<ScoredDocument> results = getIndex().search(query);
 
             LOGGER.info(results.getNumberFound() + " candidate results found");
 
             List<Video> videos = new CopyOnWriteArrayList<>();
             // refinement: walk through candidates and look if the video is really in range
-            for (ScoredDocument document : results.getResults()) {
+            for (ScoredDocument document : results) {
                 Video video = getVideo(document);
                 if (video == null) {
                     continue;
@@ -109,13 +117,20 @@ public final class PersistenceFacade {
             Location location = new Location(longitude, longitude);
             // get videos that contain the location in their search range (they are potential candidates)
             String queryString = "distance(centerPoint, " + geoPoint(location) + ") <= searchRange";
-            Results<ScoredDocument> results = getIndex().search(queryString);
+            Query query =   Query.newBuilder()
+                .setOptions(QueryOptions.newBuilder()
+                                .setNumberFoundAccuracy(RESULT_LIMIT)
+                                .setReturningIdsOnly(true)
+                                .setLimit(RESULT_LIMIT).build())
+                .build(queryString);
+
+            Results<ScoredDocument> results = getIndex().search(query);
 
             LOGGER.info(results.getNumberFound() + " candidate results found");
 
             List<Video> videos = new CopyOnWriteArrayList<>();
             // refinement: walk through candidates and look if the location really is visible in the video
-            for (ScoredDocument document : results.getResults()) {
+            for (ScoredDocument document : results) {
                 Video video = getVideo(document);
                 if (video == null) {
                     continue;
@@ -200,21 +215,30 @@ public final class PersistenceFacade {
 
     public static void indexVideos(List<Video> videos) throws Exception {
         LOGGER.info("Indexing " + videos.size() + " videos");
+        int trials = 0;
 
-        try {
-            List<Document> documents = new ArrayList<>();
-            for (Video video : videos) {
-                if (video.getTrajectory() != null) {
-                    documents.add(createDocument(video));
+        while(true) {
+            trials ++;
+            try {
+                List<Document> documents = new ArrayList<>();
+                for (Video video : videos) {
+                    if (video.getTrajectory() != null) {
+                        documents.add(createDocument(video));
+                    }
+                }
+
+                indexDocuments(documents);
+                LOGGER.info("Successfully indexed the videos");
+                return;
+            } catch(Exception e) {
+                if(e instanceof ApiProxy.ApiDeadlineExceededException && trials < 3) {
+                    LOGGER.warning("ApiDeadlineExceededException while indexing videos. No worries, we're trying again!");
+                } else {
+                    LOGGER.severe("Exception while indexing videos: " + e);
+                    e.printStackTrace();
+                    throw e;
                 }
             }
-
-            indexDocuments(documents);
-            LOGGER.info("Successfully indexed the videos");
-        } catch (Exception e) {
-            LOGGER.severe("Exception while indexing videos: " + e);
-            e.printStackTrace();
-            throw e;
         }
     }
 

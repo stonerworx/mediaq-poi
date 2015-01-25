@@ -68,7 +68,8 @@ public class GeoHelper {
     }
 
     /**
-     * A trajectory here is assumed to be "in range" if at least one TrajectoryPoint lies in the intersection area between two circles around the bounding locations with radius = distance between bounds
+     * A trajectory here is assumed to be "in range" if at least one TrajectoryPoint lies in the
+     * circumcircle around the range.
      */
     public static boolean isInRange(Trajectory trajectory, Location bound1, Location bound2) {
         if (trajectory == null || trajectory.getTimeStampedPoints() == null) {
@@ -76,12 +77,12 @@ public class GeoHelper {
             return false;
         }
 
-        double distanceBetweenBounds = GeoHelper.getDistanceInMeters(bound1, bound2);
+        Location middle = GeoHelper.getMidPoint(bound1, bound2);
+        double distanceToMiddle = GeoHelper.getDistanceInMeters(bound1, middle);
 
         for (TrajectoryPoint point : trajectory.getTimeStampedPoints()) {
             Location pointLocation = new Location(point.getLatitude(), point.getLongitude());
-            if (GeoHelper.getDistanceInMeters(pointLocation, bound1) <= distanceBetweenBounds
-                && GeoHelper.getDistanceInMeters(pointLocation, bound2) <= distanceBetweenBounds) {
+            if (GeoHelper.getDistanceInMeters(pointLocation, middle) <= distanceToMiddle) {
                 return true;
             }
         }

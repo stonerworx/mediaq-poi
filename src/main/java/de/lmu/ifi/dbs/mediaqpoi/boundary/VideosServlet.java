@@ -3,18 +3,28 @@ package de.lmu.ifi.dbs.mediaqpoi.boundary;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.gson.Gson;
+
 import de.lmu.ifi.dbs.mediaqpoi.control.PersistenceFacade;
 import de.lmu.ifi.dbs.mediaqpoi.control.PoiService;
 import de.lmu.ifi.dbs.mediaqpoi.control.dataimport.VideoImport;
-import de.lmu.ifi.dbs.mediaqpoi.entity.*;
+import de.lmu.ifi.dbs.mediaqpoi.entity.AlgorithmApproachType;
+import de.lmu.ifi.dbs.mediaqpoi.entity.Location;
+import de.lmu.ifi.dbs.mediaqpoi.entity.Trajectory;
+import de.lmu.ifi.dbs.mediaqpoi.entity.TrajectoryPoint;
+import de.lmu.ifi.dbs.mediaqpoi.entity.Video;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeSet;
+import java.util.logging.Logger;
 
 import javax.jdo.PersistenceManager;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.*;
-import java.util.logging.Logger;
 
 public class VideosServlet extends HttpServlet {
 
@@ -25,8 +35,6 @@ public class VideosServlet extends HttpServlet {
     private static final String ACTION_ALGO_CHANGE = "algo";
 
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-
-        LOGGER.info("Getting video data");
 
         resp.addHeader("Access-Control-Allow-Origin", "*");
         resp.setContentType("application/json; charset=UTF-8");
