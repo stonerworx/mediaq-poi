@@ -4,25 +4,33 @@
         "http://java.sun.com/dtd/web-app_2_3.dtd">
 
 <web-app xmlns="http://java.sun.com/xml/ns/javaee" version="2.5">
-    <filter>
-      <filter-name>UrlRewriteFilter</filter-name>
-      <filter-class>org.tuckey.web.filters.urlrewrite.UrlRewriteFilter</filter-class>
-    </filter>
-    <filter-mapping>
-      <filter-name>UrlRewriteFilter</filter-name>
-      <url-pattern>/*</url-pattern>
-      <dispatcher>REQUEST</dispatcher>
-      <dispatcher>FORWARD</dispatcher>
-    </filter-mapping>
-    <servlet>
-        <servlet-name>videos</servlet-name>
-        <servlet-class>de.lmu.ifi.dbs.mediaqpoi.boundary.VideosServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>videos</servlet-name>
-        <url-pattern>/videos</url-pattern>
-    </servlet-mapping>
-    <welcome-file-list>
-        <welcome-file>index.html</welcome-file>
-    </welcome-file-list>
+  <filter>
+    <filter-name>UrlRewriteFilter</filter-name>
+    <filter-class>org.tuckey.web.filters.urlrewrite.UrlRewriteFilter</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>UrlRewriteFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+    <dispatcher>REQUEST</dispatcher>
+    <dispatcher>FORWARD</dispatcher>
+  </filter-mapping>
+  <servlet>
+    <servlet-name>videos</servlet-name>
+    <servlet-class>de.lmu.ifi.dbs.mediaqpoi.boundary.VideosServlet</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>poi</servlet-name>
+    <servlet-class>de.lmu.ifi.dbs.mediaqpoi.boundary.PoiServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>videos</servlet-name>
+    <url-pattern>/videos</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>poi</servlet-name>
+    <url-pattern>/poi</url-pattern>
+  </servlet-mapping>
+  <welcome-file-list>
+    <welcome-file>index.html</welcome-file>
+  </welcome-file-list>
 </web-app>

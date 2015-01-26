@@ -13,6 +13,7 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 
 import de.lmu.ifi.dbs.mediaqpoi.entity.Location;
 import de.lmu.ifi.dbs.mediaqpoi.entity.Place;
+import de.lmu.ifi.dbs.mediaqpoi.entity.PlaceDetail;
 import de.lmu.ifi.dbs.mediaqpoi.entity.PlacesList;
 
 public class GooglePlacesApi {
@@ -58,10 +59,13 @@ public class GooglePlacesApi {
       request.getUrl().put("key", API_KEY);
       request.getUrl().put("placeid", placeId);
 
-      Place place = request.execute().parseAs(Place.class);
-      return place;
+      PlaceDetail placeDetail = request.execute().parseAs(PlaceDetail.class);
+
+      return placeDetail.result;
+
 
     } catch (Exception e) {
+      e.printStackTrace();
       LOGGER.severe("Exception while getting place details via Google API: " + e);
     }
     return null;

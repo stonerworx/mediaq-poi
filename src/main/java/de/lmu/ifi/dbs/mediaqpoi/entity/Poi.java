@@ -19,8 +19,8 @@ public class Poi implements Serializable {
   }
 
   public Poi(Place place) {
-    this(place.id, place.reference, place.geometry.location.getLatitude(),
-        place.geometry.location.getLongitude(), place.name);
+    this(place.placeId, place.reference, place.geometry.location.getLatitude(),
+         place.geometry.location.getLongitude(), place.name);
   }
 
   public double getLatitude() {

@@ -14,5 +14,9 @@
     <from>/video/(.*)</from>
     <to>/videos?action=details&amp;id=$1</to>
   </rule>
+  <rule>
+    <from>/poi/(.*)</from>
+    <to>/poi?id=$1</to>
+  </rule>
 
 </urlrewrite>
