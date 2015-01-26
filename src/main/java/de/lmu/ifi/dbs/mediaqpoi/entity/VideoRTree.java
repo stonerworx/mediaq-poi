@@ -3,6 +3,7 @@ package de.lmu.ifi.dbs.mediaqpoi.entity;
 import com.infomatiq.jsi.Rectangle;
 import com.infomatiq.jsi.SpatialIndex;
 import com.infomatiq.jsi.rtree.RTree;
+
 import de.lmu.ifi.dbs.mediaqpoi.control.GeoHelper;
 import de.lmu.ifi.dbs.mediaqpoi.control.dataimport.DumpFileParser;
 import gnu.trove.TIntProcedure;
@@ -50,6 +51,7 @@ public class VideoRTree {
       dumpFileParser.parse("video_info.sql");
       dumpFileParser.parse("video_metadata.sql");
       List<Video> videos = dumpFileParser.getVideos();
+      System.out.println("videos.size() = " + videos.size());
 
       VideoRTree videoRTree = new VideoRTree();
       videoRTree.insertAll(videos);
@@ -81,6 +83,7 @@ public class VideoRTree {
    * @param video
    */
   public void insert(Video video) {
+    // System.out.print("insert " + video.getFileName());
     Trajectory trajectory = video.getTrajectory();
     if (trajectory != null) {
       Location maxLocation = trajectory.getMaxLocation();
@@ -89,6 +92,9 @@ public class VideoRTree {
       spatialIndex.add(mbr, ID);
       map.put(ID, video);
       ID++;
+      // System.out.println(" --> done");
+    } else {
+      // System.out.println(" --> trajectory == null");
     }
   }
 
@@ -142,6 +148,30 @@ public class VideoRTree {
     return saveToListProcedure.getVideos();
   }
 
+  /**
+   * calculates all videos that record a given poi location.
+   * 
+   * @param latitude of poi
+   * @param longitude of poi
+   * @return video result list
+   */
+  public List<Video> getVideos(double latitude, double longitude) {
+    List<Video> candidates = getCandidates(latitude, longitude);
+    List<Video> result = new ArrayList<Video>();
+    for (Video video : candidates) {
+      Trajectory trajectory = video.getTrajectory();
+      if (trajectory != null && trajectory.getTimeStampedPoints() != null) {
+        for (TrajectoryPoint point : trajectory.getTimeStampedPoints()) {
+          if (point.isVisible(longitude, latitude)) {
+            result.add(video);
+            break;
+          }
+        }
+      }
+    }
+    return result;
+  }
+
   private BoundingCoordinates getBoundingCoordinates(Location location, double distance) {
 
     if (distance < 0d)
@@ -176,7 +206,7 @@ public class VideoRTree {
     Location maxLocation = new Location(rad2deg(maxLat), rad2deg(maxLon));
     Location minLocation = new Location(rad2deg(minLat), rad2deg(minLon));
 
-      return new BoundingCoordinates(maxLocation, minLocation);
+    return new BoundingCoordinates(maxLocation, minLocation);
   }
 
 

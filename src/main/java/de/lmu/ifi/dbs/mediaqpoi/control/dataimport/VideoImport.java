@@ -2,6 +2,7 @@ package de.lmu.ifi.dbs.mediaqpoi.control.dataimport;
 
 import de.lmu.ifi.dbs.mediaqpoi.control.PersistenceFacade;
 import de.lmu.ifi.dbs.mediaqpoi.entity.Video;
+import de.lmu.ifi.dbs.mediaqpoi.entity.VideoRTree;
 
 import java.util.List;
 import java.util.logging.Logger;
@@ -9,6 +10,7 @@ import java.util.logging.Logger;
 public class VideoImport {
 
   private static final Logger LOGGER = Logger.getLogger(VideoImport.class.getName());
+  public static VideoRTree rtree = new VideoRTree();
 
   public List<Video> importData() throws Exception {
     LOGGER.info("Importing video_info and video_metadata from dump and persisting the video entities");
@@ -31,7 +33,8 @@ public class VideoImport {
 
     PersistenceFacade.persistVideos(videos);
     PersistenceFacade.indexVideos(videos);
-    // TODO: fill RTree
+    rtree.insertAll(videos);
     return videos;
   }
+  
 }
