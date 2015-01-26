@@ -2,7 +2,7 @@
 
   'use strict';
 
-  function dataService($resource, $log, $q, VideoModel) {
+  function dataService($resource, $log, $q, VideoModel, PoiModel) {
 
     var host = '';
     if (window.location.host === 'localhost:9000') {
@@ -60,14 +60,33 @@
       return deferred.promise;
     }
 
+    function getPoi(id) {
+      var deferred = $q.defer();
+
+      $log.info('requesting poi ' + id + '.');
+
+      $resource(host + '/poi/' + id).get(function (data) {
+
+        $log.info('poi received. returning.');
+
+        var poi = new PoiModel(data.poi);
+        poi.setVideos(data.videos);
+
+        deferred.resolve(poi);
+      });
+
+      return deferred.promise;
+    }
+
     return {
       getVideos: getVideos,
-      getVideo: getVideo
+      getVideo: getVideo,
+      getPoi: getPoi
     };
 
   }
 
   angular.module('mediaqPoi')
-    .factory('dataService', ['$resource', '$log', '$q', 'VideoModel', dataService]);
+    .factory('dataService', ['$resource', '$log', '$q', 'VideoModel', 'PoiModel', dataService]);
 
 })();

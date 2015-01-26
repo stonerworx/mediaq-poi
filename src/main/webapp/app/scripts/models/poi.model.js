@@ -11,19 +11,24 @@
       var name = poi.name;
       var latitude = poi.latitude;
       var longitude = poi.longitude;
+      var videos = [];
 
       this.getId = function() {
         return id;
       };
+
       this.getName = function() {
         return name;
       };
+
       this.getLatitude = function() {
         return latitude;
       };
+
       this.getLongitude = function() {
         return longitude;
       };
+
       this.getMarker = function() {
         return {
           id: this.getId(),
@@ -33,6 +38,16 @@
           options: { title: this.getName() },
         };
       };
+
+      this.setVideos = function(videos) {
+        angular.forEach(videos, function(video) {
+          videos.push(new VideoModel(video));
+        });
+      };
+
+      this.getVideos = function() {
+        return videos;
+      }
     }
 
     return PoiModel;

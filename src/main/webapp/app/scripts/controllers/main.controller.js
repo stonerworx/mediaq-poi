@@ -237,7 +237,13 @@
           vm.map.zoom = 15;
           $scope.$apply();
 
-          getVideosByBounds();
+          vm.loading = true;
+
+          dataService.getPoi(place.place_id).then(function(poi) {
+            console.log(poi);
+          });
+
+          vm.loading = false;
         });
 
         getVideosByBounds();
