@@ -10,7 +10,6 @@ import java.util.logging.Logger;
 public class VideoImport {
 
   private static final Logger LOGGER = Logger.getLogger(VideoImport.class.getName());
-  public static VideoRTree rtree = new VideoRTree();
 
   public List<Video> importData() throws Exception {
     LOGGER.info("Importing video_info and video_metadata from dump and persisting the video entities");
@@ -33,7 +32,7 @@ public class VideoImport {
 
     PersistenceFacade.persistVideos(videos);
     PersistenceFacade.indexVideos(videos);
-    rtree.insertAll(videos);
+    VideoRTree.getInstance().insertAll(videos);
     return videos;
   }
   

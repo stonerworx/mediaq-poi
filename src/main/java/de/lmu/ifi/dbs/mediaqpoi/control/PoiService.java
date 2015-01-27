@@ -1,21 +1,10 @@
 package de.lmu.ifi.dbs.mediaqpoi.control;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import org.apache.commons.lang3.time.StopWatch;
-
 import com.google.appengine.api.memcache.ErrorHandlers;
 import com.google.appengine.api.memcache.MemcacheService;
 import com.google.appengine.api.memcache.MemcacheServiceFactory;
 
 import de.lmu.ifi.dbs.mediaqpoi.boundary.IPoiService;
-import de.lmu.ifi.dbs.mediaqpoi.control.dataimport.VideoImport;
 import de.lmu.ifi.dbs.mediaqpoi.entity.AlgorithmApproachType;
 import de.lmu.ifi.dbs.mediaqpoi.entity.Location;
 import de.lmu.ifi.dbs.mediaqpoi.entity.Place;
@@ -24,6 +13,17 @@ import de.lmu.ifi.dbs.mediaqpoi.entity.Poi;
 import de.lmu.ifi.dbs.mediaqpoi.entity.Trajectory;
 import de.lmu.ifi.dbs.mediaqpoi.entity.TrajectoryPoint;
 import de.lmu.ifi.dbs.mediaqpoi.entity.Video;
+import de.lmu.ifi.dbs.mediaqpoi.entity.VideoRTree;
+
+import org.apache.commons.lang3.time.StopWatch;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class PoiService implements IPoiService {
 
@@ -54,7 +54,7 @@ public class PoiService implements IPoiService {
         result = PersistenceFacade.getVideos(longitude, latitude);
         break;
       case RTREE:
-        result = VideoImport.rtree.getVideos(latitude, longitude);
+        result = VideoRTree.getInstance().getVideos(latitude, longitude);
         break;
       default:
     }
@@ -196,7 +196,7 @@ public class PoiService implements IPoiService {
         result = PersistenceFacade.getVideosInRange(min, max);
         break;
       case RTREE:
-        result = VideoImport.rtree.getVideosForArea(max, min);
+        result = VideoRTree.getInstance().getVideosForArea(max, min);
         break;
       default:
     }
@@ -238,6 +238,7 @@ public class PoiService implements IPoiService {
         for (TrajectoryPoint point : trajectory.getTimeStampedPoints()) {
           if (point.isVisible(longitude, latitude)) {
             result.add(video);
+            break;
           }
         }
       }

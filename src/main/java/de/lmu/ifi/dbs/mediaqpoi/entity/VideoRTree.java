@@ -6,20 +6,24 @@ import com.infomatiq.jsi.rtree.RTree;
 
 import de.lmu.ifi.dbs.mediaqpoi.control.GeoHelper;
 import de.lmu.ifi.dbs.mediaqpoi.control.dataimport.DumpFileParser;
+
 import gnu.trove.TIntProcedure;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.logging.Logger;
 
 public class VideoRTree {
 
+  private static final Logger LOGGER = Logger.getLogger(VideoRTree.class.getName());
   private static final double MIN_LAT = Math.toRadians(-90d);
   private static final double MAX_LAT = Math.toRadians(90d);
   private static final double MIN_LON = Math.toRadians(-180d);
   private static final double MAX_LON = Math.toRadians(180d);
-
+  private static final VideoRTree instance = new VideoRTree();
   private static int ID = 0;
   private SpatialIndex spatialIndex;
   private Map<Integer, Video> map;
@@ -28,6 +32,10 @@ public class VideoRTree {
     spatialIndex = new RTree();
     spatialIndex.init(null);
     map = new HashMap<>();
+  }
+
+  public static VideoRTree getInstance() {
+    return instance;
   }
 
   private static double deg2rad(double deg) {
@@ -111,7 +119,7 @@ public class VideoRTree {
 
   /**
    * calculates all videos within the given area.
-   * 
+   *
    * @param max maxLocation of the area
    * @param min minLocation of the area
    * @return list of videos within the area
@@ -123,7 +131,9 @@ public class VideoRTree {
     float minLon = (float) min.longitude;
     SaveToListProcedure saveToListProcedure = new SaveToListProcedure();
     spatialIndex.intersects(new Rectangle(maxLat, maxLon, minLat, minLon), saveToListProcedure);
-    return saveToListProcedure.getVideos();
+    List<Video> result = saveToListProcedure.getVideos();
+    LOGGER.info(String.format("Found %s videos for range in the r tree", result.size()));
+    return result;
   }
 
   /**
@@ -145,19 +155,21 @@ public class VideoRTree {
     float minLon = (float) minLocation.longitude;
     SaveToListProcedure saveToListProcedure = new SaveToListProcedure();
     spatialIndex.intersects(new Rectangle(maxLat, maxLon, minLat, minLon), saveToListProcedure);
-    return saveToListProcedure.getVideos();
+    List<Video> result = saveToListProcedure.getVideos();
+    LOGGER.info(String.format("Found %s candidates for geo location in the r tree", result.size()));
+    return result;
   }
 
   /**
    * calculates all videos that record a given poi location.
-   * 
+   *
    * @param latitude of poi
    * @param longitude of poi
    * @return video result list
    */
   public List<Video> getVideos(double latitude, double longitude) {
     List<Video> candidates = getCandidates(latitude, longitude);
-    List<Video> result = new ArrayList<Video>();
+    List<Video> result = new ArrayList<>();
     for (Video video : candidates) {
       Trajectory trajectory = video.getTrajectory();
       if (trajectory != null && trajectory.getTimeStampedPoints() != null) {
@@ -169,6 +181,7 @@ public class VideoRTree {
         }
       }
     }
+    LOGGER.info(String.format("Found %s videos for geo location in the r tree", result.size()));
     return result;
   }
 
@@ -233,7 +246,7 @@ public class VideoRTree {
 
   class SaveToListProcedure implements TIntProcedure {
 
-    private List<Video> videos = new ArrayList<>();
+    private List<Video> videos = new CopyOnWriteArrayList<>();
 
     public boolean execute(int id) {
       videos.add(map.get(id));
