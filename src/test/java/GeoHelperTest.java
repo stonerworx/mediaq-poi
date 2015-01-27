@@ -12,8 +12,8 @@ public class GeoHelperTest {
 
   @Test
   public void testIsInRangeTrue() {
-    Location northEast = new Location(48.153212, 11.590362);
-    Location southWest = new Location(48.152188, 11.593956);
+    Location northEast = new Location(48.153448, 11.597282);
+    Location southWest = new Location(48.150857, 11.588206);
     TrajectoryPoint point = new TrajectoryPoint(0, 48.152575, 11.592122, 0, 0, 0, 0, 0, 0);
     Trajectory trajectory = new Trajectory();
     TreeSet<TrajectoryPoint> points = new TreeSet();
@@ -24,8 +24,8 @@ public class GeoHelperTest {
 
   @Test
   public void testIsInRangeFalse() {
-    Location northEast = new Location(48.153212, 11.590362);
-    Location southWest = new Location(48.152188, 11.593956);
+    Location northEast = new Location(48.153448, 11.597282);
+    Location southWest = new Location(48.150857, 11.588206);
     TrajectoryPoint point = new TrajectoryPoint(0, 49.090383, 10.836704, 0, 0, 0, 0, 0, 0);
     Trajectory trajectory = new Trajectory();
     TreeSet<TrajectoryPoint> points = new TreeSet();
