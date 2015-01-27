@@ -52,7 +52,7 @@ public class PoiServlet extends HttpServlet {
 
             response.put("poi", poi);
             response.put("videos", PoiService.getInstance().getVideos(poi.getLatitude(),
-                                                                      poi.getLatitude()));
+                                                                      poi.getLongitude()));
 
         } catch (Exception e) {
             LOGGER.severe(
