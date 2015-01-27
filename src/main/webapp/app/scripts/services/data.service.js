@@ -47,12 +47,42 @@
 
       $log.info('requesting video ' + id + '.');
 
-      $resource(host + '/video/' + id).get(function (data) {
+      var url = host + '/video/' + id;
+
+      $log.debug(url);
+
+      $resource(url).get(function (data) {
 
         $log.info('video received. returning.');
 
         var video = new VideoModel(data.video);
-        video.setDetails(data);
+
+        video.setCenter(data.center);
+        video.setRadius(data.searchRange);
+
+        var nearbyPois = [];
+        angular.forEach(data.nearbyPois, function(poi) {
+          nearbyPois.push(new PoiModel(poi));
+        });
+        video.setNearbyPois(nearbyPois);
+
+        var visiblePois = [];
+        angular.forEach(data.visiblePois, function(poi) {
+          visiblePois.push(new PoiModel(poi));
+        });
+        video.setVisiblePois(visiblePois);
+
+        var timeline = [];
+        angular.forEach(data.timeline, function(pois, second) {
+          var poiObjects = [];
+          angular.forEach(pois, function(poi) {
+            poiObjects.push(new PoiModel(poi));
+          });
+          timeline[second] = poiObjects;
+        });
+        video.setTimeline(timeline);
+
+        video.setPosTimeline(data.posTimeline);
 
         deferred.resolve(video);
       });
@@ -65,12 +95,20 @@
 
       $log.info('requesting poi ' + id + '.');
 
-      $resource(host + '/poi/' + id).get(function (data) {
+      var url = host + '/poi/' + id;
+
+      $log.debug(url);
+
+      $resource(url).get(function (data) {
 
         $log.info('poi received. returning.');
 
         var poi = new PoiModel(data.poi);
-        poi.setVideos(data.videos);
+        var videoList = [];
+        angular.forEach(data.videos, function(video) {
+          videoList.push(new VideoModel(video));
+        });
+        poi.setVideos(videoList);
 
         deferred.resolve(poi);
       });

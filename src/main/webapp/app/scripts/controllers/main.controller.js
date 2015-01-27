@@ -43,6 +43,7 @@
 
       vm.markers = markers;
       vm.videoVisible = false;
+      vm.poiVisible = false;
       vm.nearbyPoiMarkers = [];
       vm.visiblePoiMarkers = [];
       vm.markerOptions = {
@@ -124,6 +125,7 @@
 
       vm.openVideo = function(videoId) {
         vm.loading = true;
+        markers = vm.markers;
         vm.markers = [];
         dataService.getVideo(videoId).then(function(video) {
 
@@ -182,14 +184,19 @@
 
         var gmap = vm.map.control.getGMap();
 
-        navigator.geolocation.getCurrentPosition(function(position) {
-          vm.map.center.latitude = position.coords.latitude;
-          vm.map.center.longitude = position.coords.longitude;
-          $scope.$apply();
-          getVideosByBounds();
+        navigator.geolocation.getCurrentPosition(
+          function(position) {
+            vm.map.center.latitude = position.coords.latitude;
+            vm.map.center.longitude = position.coords.longitude;
+            $scope.$apply();
+            getVideosByBounds();
+        }, function() {
+            getVideosByBounds();
         });
 
         var getVideosByBounds = function() {
+          vm.loading = true;
+          angular.element('.loading').focus();
           var bounds = {
             northEast: {
               latitude: gmap.getBounds().getNorthEast().lat(),
@@ -203,11 +210,10 @@
 
           dataService.getVideos(bounds).then(function(videos) {
             vm.loading = false;
-
+            vm.markers = [];
             angular.forEach(videos, function(video) {
-              markers.push(video.getMarker());
+              vm.markers.push(video.getMarker());
             });
-
           });
         };
 
@@ -215,7 +221,7 @@
 
         function mapSettleTime() {
           clearTimeout(mapupdater);
-          if (!vm.videoVisible) {
+          if (!vm.videoVisible && ! vm.poiVisible) {
             mapupdater = setTimeout(getVideosByBounds, 1000);
           }
         }
@@ -227,10 +233,15 @@
         maps.event.addListener(gmap, 'zoom_changed', mapSettleTime);
 
         maps.event.addListener(autocomplete, 'place_changed', function() {
+          vm.visiblePoiMarkers = [];
+          vm.poiVisible = false;
           var place = autocomplete.getPlace();
           if (!place.geometry) {
             return;
           }
+
+          vm.poiVisible = true;
+          vm.markers = [];
 
           vm.map.center.latitude = place.geometry.location.lat();
           vm.map.center.longitude = place.geometry.location.lng();
@@ -239,14 +250,20 @@
 
           vm.loading = true;
 
-          dataService.getPoi(place.place_id).then(function(poi) {
-            console.log(poi);
+          dataService.getPoi(place.place_id).then(function(poi) { // jshint ignore:line
+            vm.visiblePoiMarkers.push(poi.getMarker());
+            vm.visiblePoiMarkers[0].show = true;
+            vm.visiblePoiMarkers[0].close = function() {
+              vm.visiblePoiMarkers = [];
+              vm.poiVisible = false;
+              vm.poiSearch = '';
+              getVideosByBounds();
+            };
+            vm.markers = poi.getVideoMarkers();
+            vm.loading = false;
           });
 
-          vm.loading = false;
         });
-
-        getVideosByBounds();
 
       });
 

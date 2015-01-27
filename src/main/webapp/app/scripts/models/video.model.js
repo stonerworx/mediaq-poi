@@ -2,7 +2,7 @@
 
   'use strict';
 
-  function VideoModelFactory(PoiModel, $sce) {
+  function VideoModelFactory($sce) {
 
     function VideoModel(video) {
 
@@ -97,27 +97,28 @@
         };
       };
 
-      this.setDetails = function(details) {
-        center = details.center;
-        radius = details.searchRange;
+      this.setCenter = function(c) {
+        center = c;
+      };
 
-        angular.forEach(details.nearbyPois, function(poi) {
-          nearbyPois.push(new PoiModel(poi));
-        });
+      this.setRadius = function(r) {
+        radius = r;
+      };
 
-        angular.forEach(details.visiblePois, function(poi) {
-          visiblePois.push(new PoiModel(poi));
-        });
+      this.setNearbyPois = function(pois) {
+        nearbyPois = pois;
+      };
 
-        angular.forEach(details.timeline, function(pois, second) {
-          var poiObjects = [];
-          angular.forEach(pois, function(poi) {
-            poiObjects.push(new PoiModel(poi));
-          });
-          timeline[second] = poiObjects;
-        });
+      this.setVisiblePois = function(pois) {
+        visiblePois = pois;
+      };
 
-        posTimeline = details.posTimeline;
+      this.setTimeline = function(t) {
+        timeline = t;
+      };
+
+      this.setPosTimeline = function(pt) {
+        posTimeline = pt;
       };
 
       this.getCenter = function() {
@@ -201,6 +202,6 @@
   }
 
   angular.module('mediaqPoi')
-    .factory('VideoModel', ['PoiModel', '$sce', VideoModelFactory]);
+    .factory('VideoModel', ['$sce', VideoModelFactory]);
 
 })();

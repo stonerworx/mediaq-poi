@@ -35,19 +35,25 @@
           icon: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',
           latitude: this.getLatitude(),
           longitude: this.getLongitude(),
-          options: { title: this.getName() },
+          options: { title: this.getName() }
         };
       };
 
-      this.setVideos = function(videos) {
-        angular.forEach(videos, function(video) {
-          videos.push(new VideoModel(video));
-        });
+      this.setVideos = function(videoList) {
+        videos = videoList;
       };
 
       this.getVideos = function() {
         return videos;
-      }
+      };
+
+      this.getVideoMarkers = function() {
+        var markers = [];
+        angular.forEach(videos, function(video) {
+          markers.push(video.getMarker());
+        });
+        return markers;
+      };
     }
 
     return PoiModel;

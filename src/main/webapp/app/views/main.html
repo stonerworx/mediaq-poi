@@ -41,7 +41,9 @@
     coords="'self'"
     icon="'icon'"
     options="'options'">
-    <ui-gmap-windows show="show">
+    <ui-gmap-windows
+      show="show"
+      closeClick="'close'">
       <div ng-non-bindable>{{options.title}}</div>
     </ui-gmap-windows>
   </ui-gmap-markers>
@@ -73,7 +75,7 @@
 </ui-gmap-google-map>
 
 <div class="search">
-  <input type="text" id="placesearch" />
+  <input type="text" id="placesearch" ng-model="vm.poiSearch" />
 </div>
 
 <div class="overlay" ng-class="{visible: vm.videoVisible}">
