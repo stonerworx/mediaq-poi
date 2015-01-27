@@ -20,15 +20,15 @@ On the one hand we have the video database of MediaQ. There we have all the info
 
 * R-tree contains all videos as minimal bounded rectangles (MBRs) -> trajectory of a video can simplified be shown as a MBR
 
- ![alt text](/images/trajectory_mbr.png "trajectory mbr")
+ ![alt text](/images/documentation/trajectory_mbr.png "trajectory mbr")
 
 * POI with visibility range can also be shown as a MBR
 
- ![alt text](/images/poi_mbr.png "poi mbr")
+ ![alt text](/images/documentation/poi_mbr.png "poi mbr")
 
 * R-tree range query with the POI-MBR
 
- ![alt text](/images/rtree_range_query.png "rtree range query")
+ ![alt text](/images/documentation/rtree_range_query.png "rtree range query")
 
  -> Results in video candidates
 
@@ -37,7 +37,7 @@ For each video candidate determine if the POI is visible in a trajectory point o
 
 * What we know
  
- ![alt text](/images/thetax.png "thetax") ![alt text](/images/alpha_radius.png "alpha & radius")
+ ![alt text](/images/documentation/thetax.png "thetax") ![alt text](/images/documentation/alpha_radius.png "alpha & radius")
  
     
      Foreach video in candidates
@@ -47,7 +47,7 @@ For each video candidate determine if the POI is visible in a trajectory point o
 		        	if (distance <= radius) AND (thetax - alpha/2 <= angle <= thetax + alpha/2)
 		        	-> add video to result set
 
- ![alt text](/images/angle_distance.png "angle & distance")
+ ![alt text](/images/documentation/angle_distance.png "angle & distance")
 
 -> Result set with all videos that show the given POI
 
@@ -55,7 +55,7 @@ For each video candidate determine if the POI is visible in a trajectory point o
 
 * Trajectory of a video can simplified be shown as a MBR
 
- ![alt text](/images/trajectory_mbr.png "trajectory mbr") 
+ ![alt text](/images/documentation/trajectory_mbr.png "trajectory mbr") 
 
 ##### Filtering with Google Places API
 
@@ -68,7 +68,7 @@ For each trajectory point of the video determine which of the POI candidates is 
 
 * What we know
 
- ![alt text](/images/thetax.png "thetax") ![alt text](/images/alpha_radius.png "alpha & radius")
+ ![alt text](/images/documentation/thetax.png "thetax") ![alt text](/images/documentation/alpha_radius.png "alpha & radius")
  
  
     trajectory = video.getTrajectory();
@@ -78,7 +78,7 @@ For each trajectory point of the video determine which of the POI candidates is 
 			if (distance <= radius) AND (thetax - alpha/2 <= angle <= thetax + alpha/2)
 			-> add POI to result set
 
- ![alt text](/images/angle_distance.png "angle & distance")
+ ![alt text](/images/documentation/angle_distance.png "angle & distance")
 
 -> Result set with all visible POIs
 
