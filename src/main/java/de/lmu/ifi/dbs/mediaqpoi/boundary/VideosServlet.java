@@ -103,9 +103,9 @@ public class VideosServlet extends HttpServlet {
             double bound2Lat = Double.parseDouble(req.getParameter("bound2_lat"));
             double bound2Lon = Double.parseDouble(req.getParameter("bound2_lng"));
 
-            Location bound1 = new Location(bound1Lat, bound1Lon);
-            Location bound2 = new Location(bound2Lat, bound2Lon);
-            List<Video> videos = PoiService.getInstance().getVideosInRange(bound1, bound2);
+            Location northEast = new Location(bound1Lat, bound1Lon);
+            Location southWest = new Location(bound2Lat, bound2Lon);
+            List<Video> videos = PoiService.getInstance().getVideosInRange(northEast, southWest);
             if (!videos.isEmpty()) {
                 for (Video video : videos) {
                     // "touch" child entities to load them

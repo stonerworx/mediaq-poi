@@ -3,6 +3,9 @@ package de.lmu.ifi.dbs.mediaqpoi.entity;
 import com.google.api.client.util.Key;
 import com.google.appengine.api.search.GeoPoint;
 
+import ucar.unidata.geoloc.LatLonPoint;
+import ucar.unidata.geoloc.LatLonPointImpl;
+
 public class Location {
 
   @Key("lat")
@@ -41,5 +44,9 @@ public class Location {
 
   public GeoPoint toGeoPoint() {
     return new GeoPoint(latitude, longitude);
+  }
+
+  public LatLonPoint toLatLonPoint() {
+    return new LatLonPointImpl(latitude, longitude);
   }
 }

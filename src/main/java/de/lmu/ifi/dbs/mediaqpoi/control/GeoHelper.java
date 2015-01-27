@@ -6,6 +6,8 @@ import de.lmu.ifi.dbs.mediaqpoi.entity.TrajectoryPoint;
 
 import java.util.logging.Logger;
 
+import ucar.unidata.geoloc.LatLonRect;
+
 public class GeoHelper {
 
     private static final Logger LOGGER = Logger.getLogger(GeoHelper.class.getName());
@@ -68,21 +70,25 @@ public class GeoHelper {
     }
 
     /**
-     * A trajectory here is assumed to be "in range" if at least one TrajectoryPoint lies in the
-     * circumcircle around the range.
+     * Checks if at least one trajectory point is contained in the range area.
      */
-    public static boolean isInRange(Trajectory trajectory, Location bound1, Location bound2) {
+    public static boolean isInRange(Trajectory trajectory, Location northEast, Location southWest) {
         if (trajectory == null || trajectory.getTimeStampedPoints() == null) {
             LOGGER.warning("No trajectory data to check.");
             return false;
         }
 
-        Location middle = GeoHelper.getMidPoint(bound1, bound2);
-        double distanceToMiddle = GeoHelper.getDistanceInMeters(bound1, middle);
+        //  The order of longitude coord of the two points matters (left one must be first!)
+        LatLonRect rangeArea = new LatLonRect(southWest.toLatLonPoint(), northEast.toLatLonPoint());
+        LatLonRect trajectoryBounds = new LatLonRect(trajectory.getMinLocation().toLatLonPoint(), trajectory.getMaxLocation().toLatLonPoint());
+
+        if(trajectoryBounds.getWidth() > 0 && rangeArea.intersect(trajectoryBounds) == null ) {
+            // both rectangles disjoint ==> trajectory and area must be also disjoint
+           return false;
+        }
 
         for (TrajectoryPoint point : trajectory.getTimeStampedPoints()) {
-            Location pointLocation = new Location(point.getLatitude(), point.getLongitude());
-            if (GeoHelper.getDistanceInMeters(pointLocation, middle) <= distanceToMiddle) {
+            if(rangeArea.contains(point.getLatitude(), point.getLongitude())) {
                 return true;
             }
         }

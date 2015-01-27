@@ -72,10 +72,10 @@ public final class PersistenceFacade {
         }
     }
 
-    public static List<Video> getVideosInRange(Location bound1, Location bound2) throws Exception {
+    public static List<Video> getVideosInRange(Location northEast, Location southWest) throws Exception {
         try {
-            Location middle = GeoHelper.getMidPoint(bound1, bound2);
-            String distanceToMiddle = Double.toString(GeoHelper.getDistanceInMeters(bound1, middle));
+            Location middle = GeoHelper.getMidPoint(northEast, southWest);
+            String distanceToMiddle = Double.toString(GeoHelper.getDistanceInMeters(northEast, middle));
             // get videos with a min or max point in the circumcircle around the range (they are potential candidates)
             String queryString = "distance(minPoint, " + geoPoint(middle) + ") <= " + distanceToMiddle;
             queryString += " OR distance(maxPoint, " + geoPoint(middle) + ") <= " + distanceToMiddle;
@@ -98,7 +98,7 @@ public final class PersistenceFacade {
                 }
 
                 Trajectory trajectory = video.getTrajectory();
-                if (GeoHelper.isInRange(trajectory, bound1, bound2)) {
+                if (GeoHelper.isInRange(trajectory, northEast, southWest)) {
                     videos.add(video);
                 }
             }
