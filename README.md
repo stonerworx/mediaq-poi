@@ -1,4 +1,4 @@
-mediaq-poi
+MediaQ - POI
 ==========
 
 * David Steiner
@@ -16,46 +16,71 @@ On the one hand we have the video database of MediaQ. There we have all the info
 
 * Determine the coordinates (latitude, longitude) of the POI via Google Places API
 
-Filtering with R-tree
+##### Filtering with R-tree
 
 * R-tree contains all videos as minimal bounded rectangles (MBRs) -> trajectory of a video can simplified be shown as a MBR
 
- ![alt text](/images/img01.png "trajectory mbr")
+ ![alt text](/images/trajectory_mbr.png "trajectory mbr")
 
 * POI with visibility range can also be shown as a MBR
 
- ![alt text](/images/img02.png "poi mbr")
+ ![alt text](/images/poi_mbr.png "poi mbr")
 
 * R-tree range query with the POI-MBR
 
- ![alt text](/images/img03.png "range query")
+ ![alt text](/images/rtree_range_query.png "rtree range query")
 
--> Results in video candidates
+ -> Results in video candidates
 
-Refinement
+##### Refinement
+For each video candidate determine if the POI is visible in a trajectory point of the video:
 
-* For each video candidate determine if the POI is visible in a trajectory point of the video
-* If it’s true then the video is in the result list for the given POI
+* What we know
+ 
+ ![alt text](/images/thetax.png "thetax") ![alt text](/images/alpha_radius.png "alpha & radius")
+ 
+    
+     Foreach video in candidates
+        trajectory = video.getTrajectory();
+	        Foreach trajectory_point in trajectory
+            		calculate the distance and the angle between the trajectory_point and the given POI
+		        	if (distance <= radius) AND (thetax - alpha/2 <= angle <= thetax + alpha/2)
+		        	-> add video to result set
+
+ ![alt text](/images/angle_distance.png "angle & distance")
+
+-> Result set with all videos that show the given POI
 
 #### 2) Find all POIs that are shown in a given video
 
 * Trajectory of a video can simplified be shown as a MBR
 
- ![alt text](/images/img01.png "trajectory mbr") 
+ ![alt text](/images/trajectory_mbr.png "trajectory mbr") 
 
-Filtering with Google Places API
+##### Filtering with Google Places API
 
-* Get all POIs located in the video-MBR
+ * Get all POIs located in the video-MBR
+ 
+ -> Results in POI candidates
 
--> Results in POI candidates
+##### Refinement
+For each trajectory point of the video determine which of the POI candidates is visible:
 
-Refinement
+* What we know
 
-* For each trajectory point of the video determine which of the POIs candidates is visible
+ ![alt text](/images/thetax.png "thetax") ![alt text](/images/alpha_radius.png "alpha & radius")
+ 
+ 
+    trajectory = video.getTrajectory();
+    Foreach trajectory_point in trajectory
+    	Foreach POI in candidates
+			calculate the distance and the angle between the trajectory_point and the POI
+			if (distance <= radius) AND (thetax - alpha/2 <= angle <= thetax + alpha/2)
+			-> add POI to result set
+
+ ![alt text](/images/angle_distance.png "angle & distance")
 
 -> Result set with all visible POIs
-
-* Pseudocode
 
 #### Technical documentation:
 
