@@ -8,6 +8,7 @@
     var delay = 3000;
 
     var markers = [];
+    var selectedPoi = false;
 
     uiGmapGoogleMapApi.then(function (maps) {
       vm.loading = true;
@@ -38,7 +39,10 @@
           position: maps.ControlPosition.LEFT_CENTER
         },
         panControl: false,
-        streetViewControl: false
+        streetViewControl: false,
+        mapTypeId: maps.MapTypeId.ROADMAP,
+        heading: 180,
+        tilt: 45
       };
 
       vm.markers = markers;
@@ -94,6 +98,8 @@
           vm.videoPositionMarker.coords = vm.activeVideo.getCurrentCoordinates();
           vm.videoPositionView.icon.rotation = vm.activeVideo.getCurrentRotation();
 
+          vm.map.center = vm.videoPositionMarker.coords;
+
           vm.currentPoiMarkers = vm.activeVideo.getCurrentPoiMarkers();
           for (var i in vm.currentPoiMarkers) {
             vm.currentPoiMarkers[i].show = true;
@@ -117,6 +123,9 @@
         vm.activeVideo = new VideoModel();
         vm.nearbyPoiMarkers = [];
         vm.visiblePoiMarkers = [];
+        if (selectedPoi) {
+          vm.visiblePoiMarkers.push(selectedPoi);
+        }
         vm.videoPositionMarker.coords = {};
         vm.videoVisible = false;
         vm.currentPoiMarkers = [];
@@ -125,7 +134,14 @@
 
       vm.openVideo = function(videoId) {
         vm.loading = true;
+
         markers = vm.markers;
+        if (vm.poiVisible) {
+          selectedPoi = vm.visiblePoiMarkers[0];
+        } else {
+          selectedPoi = false;
+        }
+
         vm.markers = [];
         dataService.getVideo(videoId).then(function(video) {
 
@@ -222,7 +238,7 @@
         function mapSettleTime() {
           clearTimeout(mapupdater);
           if (!vm.videoVisible && ! vm.poiVisible) {
-            mapupdater = setTimeout(getVideosByBounds, 1000);
+            mapupdater = setTimeout(getVideosByBounds, 3000);
           }
         }
 
@@ -257,6 +273,7 @@
               vm.visiblePoiMarkers = [];
               vm.poiVisible = false;
               vm.poiSearch = '';
+              selectedPoi = false;
               getVideosByBounds();
             };
             vm.markers = poi.getVideoMarkers();
