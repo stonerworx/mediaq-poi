@@ -6,8 +6,8 @@ import de.lmu.ifi.dbs.mediaqpoi.control.PoiService;
 import de.lmu.ifi.dbs.mediaqpoi.entity.Poi;
 
 import java.io.IOException;
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServlet;
@@ -51,8 +51,8 @@ public class PoiServlet extends HttpServlet {
             }
 
             response.put("poi", poi);
-            response.put("videos", PoiService.getInstance().getVideos(poi.getLatitude(),
-                                                                      poi.getLongitude()));
+            response.put("videos", PoiService.getInstance().getVideos(poi.getLongitude(),
+                                                                      poi.getLatitude()));
 
         } catch (Exception e) {
             LOGGER.severe(

@@ -114,7 +114,7 @@ public final class PersistenceFacade {
 
     public static List<Video> getVideos(double longitude, double latitude) throws Exception {
         try {
-            Location location = new Location(longitude, longitude);
+            Location location = new Location(latitude, longitude);
             // get videos that contain the location in their search range (they are potential candidates)
             String queryString = "distance(centerPoint, " + geoPoint(location) + ") <= searchRange";
             Query query =   Query.newBuilder()

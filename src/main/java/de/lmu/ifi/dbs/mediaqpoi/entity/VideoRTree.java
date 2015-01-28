@@ -174,7 +174,7 @@ public class VideoRTree {
       Trajectory trajectory = video.getTrajectory();
       if (trajectory != null && trajectory.getTimeStampedPoints() != null) {
         for (TrajectoryPoint point : trajectory.getTimeStampedPoints()) {
-          if (point.isVisible(longitude, latitude)) {
+          if (point.isVisible(latitude, longitude)) {
             result.add(video);
             break;
           }
