@@ -20,7 +20,7 @@ On the one hand we have the video database of MediaQ. There we have all the info
 
 * R-tree contains all videos as minimal bounded rectangles (MBRs) -> trajectory of a video can simplified be shown as a MBR
 
- ![alt text](/images/documentation/trajectory_mbr.png "trajectory mbr" {width=400px height=400px})
+ ![alt text](/images/documentation/trajectory_mbr.png "trajectory mbr")
 
 * POI with visibility range can also be shown as a MBR
 
