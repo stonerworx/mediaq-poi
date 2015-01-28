@@ -29,7 +29,7 @@ public class PoiService implements IPoiService {
 
   private static final Logger LOGGER = Logger.getLogger(PoiService.class.getName());
   private final static IPoiService instance = new PoiService();
-  private static AlgorithmApproachType approach = AlgorithmApproachType.NAIVE;
+  private static AlgorithmApproachType approach = AlgorithmApproachType.RTREE;
 
   public static IPoiService getInstance() {
     return instance;
