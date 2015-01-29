@@ -95,12 +95,16 @@
 
         vm.activeVideo.setSecond(second);
         if (vm.activeVideo.getVisible()) {
-          vm.videoPositionMarker.coords = vm.activeVideo.getCurrentCoordinates();
-          vm.videoPositionView.icon.rotation = vm.activeVideo.getCurrentRotation();
+          var coordinates = vm.activeVideo.getCurrentCoordinates();
 
-          vm.map.center = vm.videoPositionMarker.coords;
+          if (coordinates.latitude !== null && coordinates.longitude !== null) {
+            vm.videoPositionMarker.coords = coordinates;
+            vm.videoPositionView.icon.rotation = vm.activeVideo.getCurrentRotation();
 
-          vm.currentPoiMarkers = vm.activeVideo.getCurrentPoiMarkers();
+            vm.map.center = vm.videoPositionMarker.coords;
+
+            vm.currentPoiMarkers = vm.activeVideo.getCurrentPoiMarkers();
+          }
           for (var i in vm.currentPoiMarkers) {
             vm.currentPoiMarkers[i].show = true;
           }

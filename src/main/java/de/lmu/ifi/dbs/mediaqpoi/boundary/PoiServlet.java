@@ -1,6 +1,7 @@
 package de.lmu.ifi.dbs.mediaqpoi.boundary;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import de.lmu.ifi.dbs.mediaqpoi.control.PoiService;
 import de.lmu.ifi.dbs.mediaqpoi.entity.Poi;
@@ -23,14 +24,16 @@ public class PoiServlet extends HttpServlet {
         resp.addHeader("Access-Control-Allow-Origin", "*");
         resp.setContentType("application/json; charset=UTF-8");
 
-        Gson gson = new Gson();
-
         Map<String, Object> responseData = new HashMap<>();
         responseData.put("status", "ok");
 
         String id = req.getParameter("id");
 
         getPoiDetails(id, responseData);
+
+        Gson gson = new GsonBuilder()
+            .excludeFieldsWithoutExposeAnnotation()
+            .create();
 
         resp.getWriter().write(gson.toJson(responseData));
     }

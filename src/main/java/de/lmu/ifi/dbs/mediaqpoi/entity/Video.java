@@ -2,6 +2,7 @@ package de.lmu.ifi.dbs.mediaqpoi.entity;
 
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
+import com.google.gson.annotations.Expose;
 
 import javax.jdo.annotations.*;
 
@@ -17,17 +18,31 @@ public class Video {
   private Key key;
 
   @Persistent
+  @Expose
   private String fileName;
 
   @Persistent(dependent = "true")
   private Trajectory trajectory;
 
   @NotPersistent
+  @Expose
   private String filePath;
+
+  @NotPersistent
+  @Expose
+  private String id;
+
+  @NotPersistent
+  @Expose
+  private double latitude;
+
+  @NotPersistent
+  @Expose
+  private double longitude;
 
   public Video(String fileName) {
     this.fileName = fileName;
-    this.filePath = URL_VIDEO + fileName;
+    setFilePath(fileName);
     Key key = KeyFactory.createKey(Video.class.getSimpleName(), fileName);
     setKey(key);
   }
@@ -60,8 +75,22 @@ public class Video {
     this.trajectory = trajectory;
   }
 
+  public void setFilePath(String fileName)
+  {
+    filePath = URL_VIDEO + fileName;
+  }
+
   public String getFilePath() {
     return filePath;
+  }
+
+  public void touch()
+  {
+    id = getKey().getName();
+    setFilePath(fileName);
+    TrajectoryPoint first = getTrajectory().getTimeStampedPoints().first();
+    latitude = first.getLatitude();
+    longitude = first.getLongitude();
   }
 
 }

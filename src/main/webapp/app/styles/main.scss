@@ -178,4 +178,17 @@ body {
     left: 20px;
     right: 20px;
   }
+
+  h2 {
+    border-bottom: 1px solid #eee;
+    line-height: 40px;
+  }
+
+  hr {
+    height: 4px;
+    padding: 0;
+    margin: 16px 0;
+    background-color: #e7e7e7;
+    border: 0 none;
+  }
 }

@@ -1,6 +1,8 @@
 package de.lmu.ifi.dbs.mediaqpoi.entity;
 
 import com.google.appengine.api.datastore.Key;
+import com.google.gson.annotations.Expose;
+
 import de.lmu.ifi.dbs.mediaqpoi.control.GeoHelper;
 
 import javax.jdo.annotations.IdGeneratorStrategy;
@@ -21,12 +23,15 @@ public class TrajectoryPoint implements Serializable, Comparable<TrajectoryPoint
   private int frame;
 
   @Persistent
+  @Expose
   private double latitude;
 
   @Persistent
+  @Expose
   private double longitude;
 
   @Persistent
+  @Expose
   private double thetaX;
 
   @Persistent

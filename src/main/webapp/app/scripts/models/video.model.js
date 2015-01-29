@@ -7,12 +7,13 @@
     function VideoModel(video) {
 
       var id = false;
+      var filePath;
       var visible = false;
       var latitude = 0;
       var longitude = 0;
-      var path = [];
       var center = {};
       var radius = 0;
+      var path = [];
       var nearbyPois = [];
       var visiblePois = [];
       var timeline = {};
@@ -20,31 +21,12 @@
       var second = 0;
 
       if (video !== undefined) {
-        id = video.key.name;
+        id = video.id;
 
-        //sort points by frame number
-        var points = video.trajectory.timeStampedPoints;
-        points.sort(function(a, b) {
-          if (a.frame < b.frame) {
-            return -1;
-          }
-          if (a.frame > b.frame) {
-            return 1;
-          }
-          return 0;
-        });
+        filePath = video.filePath;
 
-        for (var j in points) {
-          var trajectoryPoint = points[j];
-          path.push({
-                      latitude: trajectoryPoint.latitude,
-                      longitude: trajectoryPoint.longitude
-                    });
-          if (latitude === 0 && longitude === 0) {
-            latitude = trajectoryPoint.latitude;
-            longitude = trajectoryPoint.longitude;
-          }
-        }
+        latitude = video.latitude;
+        longitude = video.longitude;
       }
 
       var getMarkers = function(elements) {
@@ -76,7 +58,7 @@
           return '';
         }
         return $sce.trustAsResourceUrl(
-          'http://mediaq.dbs.ifi.lmu.de/MediaQ_MVC_V2/video_content/' + video.fileName
+          filePath
         );
       };
 
@@ -95,6 +77,10 @@
           longitude: this.getLongitude(),
           icon: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png'
         };
+      };
+
+      this.getPath = function() {
+        return path;
       };
 
       this.setCenter = function(c) {
@@ -118,6 +104,9 @@
       };
 
       this.setPosTimeline = function(pt) {
+        angular.forEach(pt, function(pos) {
+          path.push({latitude: pos.latitude, longitude: pos.longitude});
+        });
         posTimeline = pt;
       };
 
@@ -131,10 +120,6 @@
 
       this.getZoomLevel = function() {
         return 17;
-      };
-
-      this.getPath = function() {
-        return path;
       };
 
       this.getNearbyPois = function() {

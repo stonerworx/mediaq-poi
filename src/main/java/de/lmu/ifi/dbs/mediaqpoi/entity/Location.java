@@ -2,6 +2,7 @@ package de.lmu.ifi.dbs.mediaqpoi.entity;
 
 import com.google.api.client.util.Key;
 import com.google.appengine.api.search.GeoPoint;
+import com.google.gson.annotations.Expose;
 
 import ucar.unidata.geoloc.LatLonPoint;
 import ucar.unidata.geoloc.LatLonPointImpl;
@@ -9,9 +10,11 @@ import ucar.unidata.geoloc.LatLonPointImpl;
 public class Location {
 
   @Key("lat")
+  @Expose
   public double latitude;
 
   @Key("lng")
+  @Expose
   public double longitude;
 
   public Location() {
