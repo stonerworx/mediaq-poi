@@ -10,9 +10,9 @@
     var markers = [];
     var selectedPoi = false;
 
-    uiGmapGoogleMapApi.then(function (maps) {
-      vm.loading = true;
+    vm.loading = true;
 
+    uiGmapGoogleMapApi.then(function (maps) {
       //get map
       var map = new maps.Map(angular.element('.angular-google-map-container')[0]);
 
