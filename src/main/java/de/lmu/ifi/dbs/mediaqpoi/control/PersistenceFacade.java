@@ -209,6 +209,8 @@ public final class PersistenceFacade {
         LOGGER.info("Persisting " + videos.size() + " videos");
         PersistenceManager pm = getPersistenceManager();
 
+        cleanExistingVideos(pm, videos);
+
         List<List<Video>> batches = chunks(videos, 5);
         LOGGER.info(batches.size() + " batch(es) to process");
 
@@ -236,6 +238,23 @@ public final class PersistenceFacade {
         }
 
         LOGGER.info("Successfully persisted " + persistedVideos + " videos");
+    }
+
+    /**
+     * As we face serious issues regarding the daily quota of data store writes, we have to economize every write call.
+     * Therefore we check if a video is already existing and remove it from the list that is going to be persisted.
+     */
+    private static void cleanExistingVideos(PersistenceManager pm, List<Video> videos) {
+        for(Video video : videos) {
+            try {
+                if(pm.getObjectById(Video.class, video.getKey()) != null) {
+                    // video already exists
+                    videos.remove(video);
+                }
+            } catch (Exception ignore) {
+                // DataNucleus throws an exception if it cannot find the object - in that case we do nothing
+            }
+        }
     }
 
 
