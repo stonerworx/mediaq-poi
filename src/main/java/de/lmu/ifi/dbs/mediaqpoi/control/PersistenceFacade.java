@@ -2,32 +2,21 @@ package de.lmu.ifi.dbs.mediaqpoi.control;
 
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
-import com.google.appengine.api.search.Document;
-import com.google.appengine.api.search.Field;
-import com.google.appengine.api.search.GeoPoint;
-import com.google.appengine.api.search.Index;
-import com.google.appengine.api.search.IndexSpec;
-import com.google.appengine.api.search.Query;
-import com.google.appengine.api.search.QueryOptions;
-import com.google.appengine.api.search.Results;
-import com.google.appengine.api.search.ScoredDocument;
-import com.google.appengine.api.search.SearchServiceFactory;
+import com.google.appengine.api.search.*;
 import com.google.apphosting.api.ApiProxy;
-
 import de.lmu.ifi.dbs.mediaqpoi.entity.Location;
 import de.lmu.ifi.dbs.mediaqpoi.entity.Trajectory;
 import de.lmu.ifi.dbs.mediaqpoi.entity.TrajectoryPoint;
 import de.lmu.ifi.dbs.mediaqpoi.entity.Video;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.logging.Logger;
-
 import javax.jdo.JDOHelper;
 import javax.jdo.PersistenceManager;
 import javax.jdo.PersistenceManagerFactory;
 import javax.jdo.Transaction;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.logging.Logger;
 
 public final class PersistenceFacade {
 
@@ -113,6 +102,64 @@ public final class PersistenceFacade {
     }
 
     public static List<Video> getVideos(double longitude, double latitude) throws Exception {
+        try {
+            Location location = new Location(latitude, longitude);
+
+            long maxSearchRange = getMaxSearchRange();
+
+            // get candidates by upper bound which is the maximum search range. Every center point of a trajectory that is even more far away than this upper bound cannot be a result
+            String queryString = "distance(centerPoint, " + geoPoint(location) + ") <= " + maxSearchRange;
+            Query query = Query.newBuilder()
+                    .setOptions(QueryOptions.newBuilder()
+                            .setNumberFoundAccuracy(RESULT_LIMIT)
+                            .setReturningIdsOnly(true)
+                            .setLimit(RESULT_LIMIT).build())
+                    .build(queryString);
+
+            Results<ScoredDocument> candidates = getIndex().search(query);
+            LOGGER.info(candidates.getNumberFound() + " candidates found.");
+
+            List<Video> videos = new CopyOnWriteArrayList<>();
+            // refinement: walk through candidates and look if the location really is visible in the video
+            for (ScoredDocument document : candidates) {
+                Video video = getVideo(document);
+
+                if (video == null) {
+                    continue;
+                }
+
+                Trajectory trajectory = video.getTrajectory();
+                if (trajectory == null || trajectory.getTimeStampedPoints() == null) {
+                    LOGGER.warning("Video " + video.getFileName() + " has no trajectory data");
+                    continue;
+                }
+
+                for (TrajectoryPoint point : trajectory.getTimeStampedPoints()) {
+                    if (point.isVisible(latitude, longitude)) {
+                        videos.add(video);
+                        break;
+                    }
+                }
+            }
+
+            LOGGER.info(String.format("Found %s videos for the given location (using Google document index)", videos.size()));
+            return videos;
+        } catch (Exception e) {
+            LOGGER.severe("Exception while getting videos for location: " + e);
+            throw e;
+        }
+    }
+
+
+
+
+
+    /**
+    * Do not use this method. It doesn't work because the query is not supported by Google Search API (see my question on stackoverflow
+     * http://stackoverflow.com/questions/28213499/is-it-possible-to-use-a-document-field-as-radius-with-distance-function-in-googl)
+     */
+    @Deprecated
+    public static List<Video> getVideosOld(double longitude, double latitude) throws Exception {
         try {
             Location location = new Location(latitude, longitude);
             // get videos that contain the location in their search range (they are potential candidates)
@@ -311,5 +358,34 @@ public final class PersistenceFacade {
 
     private static String geoPoint(Location location) {
         return "geopoint(" + location.getLatitude() + ", " + location.getLongitude() + ")";
+    }
+
+    private static long getMaxSearchRange() {
+        SortOptions sortOptions = SortOptions.newBuilder()
+                .addSortExpression(SortExpression.newBuilder()
+                        .setExpression("searchRange")
+                        .setDirection(SortExpression.SortDirection.DESCENDING)
+                        .setDefaultValueNumeric(99999999.00))
+                .setLimit(RESULT_LIMIT)
+                .build();
+
+
+        Query query =   Query.newBuilder()
+                .setOptions(QueryOptions.newBuilder()
+                        .setSortOptions(sortOptions)
+                        .setNumberFoundAccuracy(1)
+                        .setReturningIdsOnly(false)
+                        .setLimit(1).build())  // return only 1 document (the one with the maximum search range)
+                .build("searchRange > 0"); // some dummy query to select all documents
+
+
+        Results<ScoredDocument> results = getIndex().search(query);
+        if(results != null && results.getNumberFound() > 0) {
+            for(Document document : results) {
+                return Math.round(document.getOnlyField("searchRange").getNumber());
+            }
+        }
+
+        return 0;
     }
 }
