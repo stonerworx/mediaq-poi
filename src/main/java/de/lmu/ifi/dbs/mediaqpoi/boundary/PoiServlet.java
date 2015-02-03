@@ -2,18 +2,18 @@ package de.lmu.ifi.dbs.mediaqpoi.boundary;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
 import de.lmu.ifi.dbs.mediaqpoi.control.PoiService;
 import de.lmu.ifi.dbs.mediaqpoi.entity.Poi;
-
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.logging.Logger;
+import de.lmu.ifi.dbs.mediaqpoi.entity.Video;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Logger;
 
 public class PoiServlet extends HttpServlet {
 
@@ -54,8 +54,15 @@ public class PoiServlet extends HttpServlet {
             }
 
             response.put("poi", poi);
-            response.put("videos", PoiService.getInstance().getVideos(poi.getLongitude(),
-                                                                      poi.getLatitude()));
+
+            List<Video> videos = PoiService.getInstance().getVideos(poi.getLongitude(),
+                    poi.getLatitude());
+
+            for(Video video : videos) {
+                video.touch();
+            }
+
+            response.put("videos", videos);
 
         } catch (Exception e) {
             LOGGER.severe(
