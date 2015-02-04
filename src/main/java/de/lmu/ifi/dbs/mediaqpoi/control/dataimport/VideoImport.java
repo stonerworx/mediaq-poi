@@ -32,7 +32,7 @@ public class VideoImport {
 
     PersistenceFacade.persistVideos(videos); // this method also checks for already existing videos and if so removes them from the videos list
     PersistenceFacade.indexVideos(videos);
-    VideoRTree.getInstance().insertAll(videos);
+    //VideoRTree.getInstance().insertAll(videos); // -- removed, done on demand
     return videos;
   }
   

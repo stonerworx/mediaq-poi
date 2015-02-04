@@ -3,6 +3,8 @@ package de.lmu.ifi.dbs.mediaqpoi.entity;
 import de.lmu.ifi.dbs.mediaqpoi.control.GeoHelper;
 
 import javax.jdo.annotations.*;
+
+import java.io.Serializable;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;

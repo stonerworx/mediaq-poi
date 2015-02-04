@@ -322,7 +322,7 @@ Technical documentation
 
   ![GruntJS logo](/images/documentation/grunt-logo.png "GruntJS")
 
-  [Grunt][6]<sup>5</sup>, The JavaScript Task Runner is automatically building our frontend
+  [Grunt][6]<sup>6</sup>, The JavaScript Task Runner is automatically building our frontend
   distribution - including JavaScript and image minification and much more.
 
 * R-tree:

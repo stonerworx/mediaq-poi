@@ -1,5 +1,9 @@
 package de.lmu.ifi.dbs.mediaqpoi.control;
 
+import com.google.appengine.api.memcache.ErrorHandlers;
+import com.google.appengine.api.memcache.MemcacheService;
+import com.google.appengine.api.memcache.MemcacheServiceFactory;
+
 import com.infomatiq.jsi.Rectangle;
 import com.infomatiq.jsi.SpatialIndex;
 import com.infomatiq.jsi.rtree.RTree;
@@ -10,11 +14,13 @@ import de.lmu.ifi.dbs.mediaqpoi.entity.TrajectoryPoint;
 import de.lmu.ifi.dbs.mediaqpoi.entity.Video;
 import gnu.trove.TIntProcedure;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class VideoRTree {
@@ -24,7 +30,7 @@ public class VideoRTree {
   private static final double MAX_LAT = Math.toRadians(90d);
   private static final double MIN_LON = Math.toRadians(-180d);
   private static final double MAX_LON = Math.toRadians(180d);
-  private static final VideoRTree instance = new VideoRTree();
+  private static VideoRTree instance;
   private static int ID = 0;
   private SpatialIndex spatialIndex;
   private Map<Integer, Video> map;
@@ -35,7 +41,30 @@ public class VideoRTree {
     map = new HashMap<>();
   }
 
+  /**
+   * @return the rtree instance from cache or a freshly built tree
+   */
   public static VideoRTree getInstance() {
+    LOGGER.info("Getting VideoRTree instance");
+
+    if (instance == null || instance.map.isEmpty()) {
+      LOGGER.info("new or empty instance, building tree.");
+      instance = new VideoRTree();
+      try {
+        List<Video> results = PersistenceFacade.getVideos();
+        if (!results.isEmpty()) {
+          for (Video video : results) {
+            // "touch" child entities to load them
+            video.getTrajectory().getTimeStampedPoints();
+            instance.insert(video);
+          }
+          LOGGER.info("done - added " + results.size() + " videos.");
+        }
+      } catch (Exception e) {
+        LOGGER.severe(String.format("Exception occurred while getting videos: %s", e));
+      }
+    }
+
     return instance;
   }
 
