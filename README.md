@@ -294,35 +294,70 @@ Technical documentation
 
 * [Google Places API][2]<sup>2</sup>
 
-  Used for getting a list of POIs in a given range, the canditates for our algorithm, and
+  Used for getting a list of POIs in a given range, the candidates for our algorithm, and
   searching for POIs.
 
 * [Google App Engine][3]<sup>3</sup>
 
-  ![alt text](/images/documentation/appengine-logo.png "Google App Engine")
+  ![Google App Engine logo](/images/documentation/appengine-logo.png "Google App Engine")
 
   The frontend and backend are hosted on [Google App Engine][3]<sup>3</sup>. App Engine is a cloud
   service for hosting Java, Python, PHP or Go applications. It also features "a schemaless NoSQL
   datastore providing robust, scalable storage" which we use for persisting the videos, trajectories
   and trajectory points.
 
-* [AngularJS][4]<sup>4</sup>
+* [Google Search API][4]<sup>4</sup>
 
-  ![alt text](/images/documentation/AngularJS-small.png "AngularJS")
+  Used for indexing the videos by their circular approximation and for getting the candidate videos
+  for a given POI.
+
+* [AngularJS][5]<sup>5</sup>
+
+  ![AngularJS logo](/images/documentation/AngularJS-small.png "AngularJS")
 
   Angular is a framework for JavaScript with features like two-way data-binding and dependency
   injection that allowed us to write a well structured frontend application.
 
-* [GruntJS][5]<sup>5</sup>
+* [GruntJS][6]<sup>6</sup>
 
-  ![alt text](/images/documentation/grunt-logo.png "GruntJS")
+  ![GruntJS logo](/images/documentation/grunt-logo.png "GruntJS")
 
-  [Grunt][5]<sup>5</sup>, The JavaScript Task Runner is automatically building our frontend
+  [Grunt][6]<sup>5</sup>, The JavaScript Task Runner is automatically building our frontend
   distribution - including JavaScript and image minification and much more.
 
 * R-tree:
  R-tree for spatial queries
 * [UML]
+
+  ![UML use case diagram](/images/documentation/uml_use_cases.png "Use cases")
+
+  Use cases of the mediaq-poi application
+
+  ![UML sequence diagram for query "get videos for POI"](/images/documentation/uml_sequence_videos_for_poi.png "Sequence diagram")
+
+  Sequence diagram to show how the query "get videos for POI" is solved. The servlet receives the request with the POI's
+  place id as parameter. It hands over the place Id to the PoiService which retrieves the place details via the Google
+  Places Api and returns the according Poi object. The servlet then can call the PoiService again to retrieve the videos
+  that record the geo position of the POI. Depending on the set algorithm approach type (RTREE, GOOGLE_DOCUMENT_INDEX or NAIVE)
+  the PoiService instance gets the video results and returns them to the servlet. Finally, the servlet puts the video data
+  as JSON into the http response and returns it to the frontend where the data will be further handled and shown to the user.
+
+  ![UML sequence diagram for query "get POIs for video"](/images/documentation/uml_sequence_pois_for_video.png "Sequence diagram")
+
+  Sequence diagram to show how the query "get POIs for video" is solved. The servlet receives the request with the video's
+  id as parameter. It loads the Video object from the datastore (not shown in sequence diagram) and calls the
+  getVisiblePois()-method of the PoiService. The service now gets the circular approximation of the video's trajectory
+  and requests the Google Places Api to return all places within this circular range. All this places are handled as candidates.
+  In the refinement step all trajectory points are iterated and for every single point all candidate POIs are checked
+  if they are visible at the point, If yes, they are added to the result lists. In the end, the results are returned to
+  the servlet which puts them together with other information about the video to the http response (as JSON).
+  The frontend can then display the information.
+
+  ![UML class diagram](/images/documentation/uml_classes.png "Class diagram")
+
+  Simplified class diagram of mediaq-poi application. Only the main relations are shown and the entity classes are not
+  specified in detail.
+
 * …
 
 Performance Evaluation
@@ -342,14 +377,16 @@ References
 * 1: MediaQ [http://mediaq.usc.edu/][1]
 * 2: Google Places API [https://developers.google.com/places/documentation/][2]
 * 3: Google App Engine [https://cloud.google.com/appengine/docs][3]
-* 4: AngularJS [https://angularjs.org/][4]
-* 5: GruntJS [http://gruntjs.com/][5]
+* 4: Google Search Api [https://cloud.google.com/appengine/docs/java/search/][4]
+* 5: AngularJS [https://angularjs.org/][5]
+* 6: GruntJS [http://gruntjs.com/][6]
 
 [1]: http://mediaq.usc.edu/ "MediaQ"
 [2]: https://developers.google.com/places/documentation/ "Google Places API"
 [3]: https://cloud.google.com/appengine/docs "Google App Engine"
-[4]: https://angularjs.org/ "AngularJS"
-[5]: http://gruntjs.com/ "GruntJS"
+[4]: https://cloud.google.com/appengine/docs/java/search/ "Google Search API"
+[5]: https://angularjs.org/ "AngularJS"
+[6]: http://gruntjs.com/ "GruntJS"
 
 ---
 
