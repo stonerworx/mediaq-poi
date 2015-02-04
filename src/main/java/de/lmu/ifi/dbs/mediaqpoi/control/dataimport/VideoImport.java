@@ -1,8 +1,8 @@
 package de.lmu.ifi.dbs.mediaqpoi.control.dataimport;
 
 import de.lmu.ifi.dbs.mediaqpoi.control.PersistenceFacade;
+import de.lmu.ifi.dbs.mediaqpoi.control.VideoRTree;
 import de.lmu.ifi.dbs.mediaqpoi.entity.Video;
-import de.lmu.ifi.dbs.mediaqpoi.entity.VideoRTree;
 
 import java.util.List;
 import java.util.logging.Logger;

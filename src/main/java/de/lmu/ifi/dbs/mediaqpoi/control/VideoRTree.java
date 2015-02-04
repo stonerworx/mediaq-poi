@@ -1,12 +1,13 @@
-package de.lmu.ifi.dbs.mediaqpoi.entity;
+package de.lmu.ifi.dbs.mediaqpoi.control;
 
 import com.infomatiq.jsi.Rectangle;
 import com.infomatiq.jsi.SpatialIndex;
 import com.infomatiq.jsi.rtree.RTree;
-
-import de.lmu.ifi.dbs.mediaqpoi.control.GeoHelper;
 import de.lmu.ifi.dbs.mediaqpoi.control.dataimport.DumpFileParser;
-
+import de.lmu.ifi.dbs.mediaqpoi.entity.Location;
+import de.lmu.ifi.dbs.mediaqpoi.entity.Trajectory;
+import de.lmu.ifi.dbs.mediaqpoi.entity.TrajectoryPoint;
+import de.lmu.ifi.dbs.mediaqpoi.entity.Video;
 import gnu.trove.TIntProcedure;
 
 import java.util.ArrayList;

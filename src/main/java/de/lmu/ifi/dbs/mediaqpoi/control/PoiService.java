@@ -3,18 +3,8 @@ package de.lmu.ifi.dbs.mediaqpoi.control;
 import com.google.appengine.api.memcache.ErrorHandlers;
 import com.google.appengine.api.memcache.MemcacheService;
 import com.google.appengine.api.memcache.MemcacheServiceFactory;
-
 import de.lmu.ifi.dbs.mediaqpoi.boundary.IPoiService;
-import de.lmu.ifi.dbs.mediaqpoi.entity.AlgorithmApproachType;
-import de.lmu.ifi.dbs.mediaqpoi.entity.Location;
-import de.lmu.ifi.dbs.mediaqpoi.entity.Place;
-import de.lmu.ifi.dbs.mediaqpoi.entity.PlacesList;
-import de.lmu.ifi.dbs.mediaqpoi.entity.Poi;
-import de.lmu.ifi.dbs.mediaqpoi.entity.Trajectory;
-import de.lmu.ifi.dbs.mediaqpoi.entity.TrajectoryPoint;
-import de.lmu.ifi.dbs.mediaqpoi.entity.Video;
-import de.lmu.ifi.dbs.mediaqpoi.entity.VideoRTree;
-
+import de.lmu.ifi.dbs.mediaqpoi.entity.*;
 import org.apache.commons.lang3.time.StopWatch;
 
 import java.util.ArrayList;
