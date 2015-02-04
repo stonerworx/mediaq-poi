@@ -356,7 +356,9 @@ Technical documentation
   ![UML class diagram](/images/documentation/uml_classes.png "Class diagram")
 
   Simplified class diagram of mediaq-poi application. Only the main relations are shown and the entity classes are not
-  specified in detail.
+  specified in detail. The servlets mainly communicate with the IPoiService interface so that the business logic
+  is capsulized. The entity classes are very simple data containers that are used for communication between the
+  different components.
 
 * …
 
