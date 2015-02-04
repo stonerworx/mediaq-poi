@@ -38,6 +38,10 @@ body {
 
 .markdown {
   padding: 79px 20px 20px 20px;
+  
+  img {
+    max-width: 100%;
+  }
 }
 
 .loading {
