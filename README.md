@@ -477,7 +477,6 @@ NAIVE:
 	/poi/ChIJ6Q6XOph1nkcRQWtXFc8qRRg
     	PoiServlet getPoiDetails: Getting details for poi id ChIJ6Q6XOph1nkcRQWtXFc8qRRg
     	PoiService getVideosNaive: Performing video query for location with naive approach
-    	PersistenceFacade getVideos: Found 46 videos
     	PoiService getVideosNaive: Found 46 videos for the given location (naive approach)
     	PoiService getVideos: Got videos for location in 1574 milliseconds (using NAIVE)
 	
@@ -505,8 +504,7 @@ NAIVE:
 	/poi/ChIJ6Q6XOph1nkcRQWtXFc8qRRg
     	PoiServlet getPoiDetails: Getting details for poi id ChIJ6Q6XOph1nkcRQWtXFc8qRRg
     	PoiService getVideosNaive: Performing video query for location with naive approach
-    	PersistenceFacade getVideos: Found 1 videos
-    	PoiService getVideosNaive: Found 1 videos for the given location (naive approach)
+    	PoiService getVideosNaive: Found 1 video for the given location (naive approach)
     	PoiService getVideos: Got videos for location in 1700 milliseconds (using NAIVE)
 	
 RTREE:
@@ -515,7 +513,7 @@ RTREE:
 		PoiServlet getPoiDetails: Getting details for poi id ChIJ6Q6XOph1nkcRQWtXFc8qRRg
 	  	VideoRTree getInstance: Getting VideoRTree instance
 	   	VideoRTree getCandidates: Found 3 candidates for geo location in the r tree
-	   	VideoRTree getVideos: Found 1 videos for geo location in the r tree
+	   	VideoRTree getVideos: Found 1 video for geo location in the r tree
 	   	PoiService getVideos: Got videos for location in 6 milliseconds (using RTREE)
 
 GOOGLE_DOCUMENT_INDEX:
@@ -532,7 +530,6 @@ NAIVE:
 
 	/videos?action=range_query&bound1_lat=48.16840282484953&bound1_lng=11.61478721537776&bound2_lat=48.14598681662252&bound2_lng=11.555435294296217
     	PoiService getVideosInRangeNaive: Performing range query with naive approach
-    	PersistenceFacade getVideos: Found 140 videos
     	PoiService getVideosInRangeNaive: Found 140 videos in range (naive approach)
     	PoiService getVideosInRange: Got videos in range in 2102 milliseconds (using NAIVE)
 	
@@ -557,7 +554,6 @@ NAIVE:
 
 	/videos?action=range_query&bound1_lat=48.16840282484953&bound1_lng=11.61478721537776&bound2_lat=48.14598681662252&bound2_lng=11.555435294296217
     	PoiService getVideosInRangeNaive: Performing range query with naive approach
-    	PersistenceFacade getVideos: Found 5 videos
     	PoiService getVideosInRangeNaive: Found 5 videos in range (naive approach)
     	PoiService getVideosInRange: Got videos in range in 1649 milliseconds (using NAIVE)
 	
