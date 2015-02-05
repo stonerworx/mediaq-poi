@@ -44,30 +44,33 @@ Our approach
 
 #### 1) Find all videos that show a given POI
 
-* Determine the coordinates (latitude, longitude) of the POI via [Google Places API][2]<sup>2</sup>
-
-##### Filtering with R-tree
-
-* R-tree contains all videos as minimal bounded rectangles (MBRs) -> trajectory of a video can simplified be shown as a MBR
+Basis of this query is a R-tree filled with all videos of the MediaQ database. In order to do this we calculate for each video the minimum bounded rectangel (MBR) of the video trajectory and insert it into the R-tree.
 
 ![alt text](/images/documentation/trajectory_mbr.png "trajectory mbr")
 
-* POI with visibility range can also be shown as a MBR
+This way we can search now for videos in a certain range on the map.
+
+##### Filtering with R-tree
+
+First of all we determine the coordinates (latitude, longitude) of the POI via [Google Places API][2]<sup>2</sup>. By means of this coordinates and the visibility range we define our search area.
 
 ![alt text](/images/documentation/poi_mbr.png "poi mbr")
 
-* R-tree range query with the POI-MBR
+With the MBR of this search area we can run a range query on the R-tree. The result set of this query contains all videos which might be showing the given POI.
 
 ![alt text](/images/documentation/rtree_range_query.png "rtree range query")
 
--> Results in video candidates
-
 ##### Refinement
-For each video candidate determine if the POI is visible in a trajectory point of the video:
 
-* What we know
- 
+In the filtering phase we determined the video candidates. Now we have to check for each candidate if the POI is visible in any trajectory point of this video. Therefore we calculate the distance and the angle between each trajectory point of a video and the given POI.
+
+![alt text](/images/documentation/angle_distance.png "angle & distance")
+
+Each trajectory point contains the information about its perspective.
+
 ![alt text](/images/documentation/thetax.png "thetax") ![alt text](/images/documentation/alpha_radius.png "alpha & radius")
+
+After comparing this values we know exactly if a video is showing the POI we are searching for.
  
     Foreach video in candidates
       trajectory = video.getTrajectory();
@@ -76,28 +79,23 @@ For each video candidate determine if the POI is visible in a trajectory point o
         if (distance <= radius) AND (thetax - alpha/2 <= angle <= thetax + alpha/2)
           -> add video to result set
 
-![alt text](/images/documentation/angle_distance.png "angle & distance")
-
--> Result set with all videos that show the given POI
-
 #### 2) Find all POIs that are shown in a given video
-
-* Trajectory of a video can simplified be shown as a MBR
-
-![alt text](/images/documentation/trajectory_mbr.png "trajectory mbr")
 
 ##### Filtering with Google Places API
 
-* Get all POIs located in the video-MBR
+First of all we calculate the circle that surrounds the trajectory of the given video and add the visibility range. Google Places API now provides us with the POIs in this search area.
+
+![alt text](/images/documentation/search_area.png "search area")
  
--> Results in POI candidates
+-> Results in POI candidates which might be shown in the video
 
 ##### Refinement
-For each trajectory point of the video determine which of the POI candidates is visible:
 
-* What we know
+For each trajectory point of the video determine which of the POI candidates is visible. Again we know the perspective of each trajectory point and calculate the distance and the angle to each POI candidate. After comparing this values we get the result set with all visible POIs in this video.
 
 ![alt text](/images/documentation/thetax.png "thetax") ![alt text](/images/documentation/alpha_radius.png "alpha & radius")
+
+![alt text](/images/documentation/angle_distance.png "angle & distance")
  
     trajectory = video.getTrajectory();
     Foreach trajectory_point in trajectory
@@ -105,10 +103,6 @@ For each trajectory point of the video determine which of the POI candidates is 
         calculate the distance and the angle between the trajectory_point and the POI
         if (distance <= radius) AND (thetax - alpha/2 <= angle <= thetax + alpha/2)
           -> add POI to result set
-
-![alt text](/images/documentation/angle_distance.png "angle & distance")
-
--> Result set with all visible POIs
 
 Backend
 ------
