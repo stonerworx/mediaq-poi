@@ -121,8 +121,12 @@ import java.util.TreeSet;
     public Location getMaxLocation() {
         double maxLat = -90;
         double maxLng = -180;
-        // TODO check if no points available?
-        for (TrajectoryPoint point : getTimeStampedPoints()) {
+
+        if(timeStampedPoints == null || timeStampedPoints.isEmpty()) {
+            return null;
+        }
+
+        for (TrajectoryPoint point : timeStampedPoints) {
             if (point.getLatitude() > maxLat) {
                 maxLat = point.getLatitude();
             }
@@ -136,8 +140,12 @@ import java.util.TreeSet;
     public Location getMinLocation() {
         double minLat = 90;
         double minLng = 180;
-        // TODO check if no points available?
-        for (TrajectoryPoint point : getTimeStampedPoints()) {
+
+        if(timeStampedPoints == null || timeStampedPoints.isEmpty()) {
+            return null;
+        }
+
+        for (TrajectoryPoint point : timeStampedPoints) {
             if (point.getLatitude() < minLat) {
                 minLat = point.getLatitude();
             }
