@@ -74,11 +74,11 @@ With the MBR of this search area we can run a range query on the [R-tree][7]<sup
 
 In the filtering phase we determined the video candidates. Now we have to check for each candidate if the POI is visible in any trajectory point of this video. Therefore we calculate the distance and the angle between each trajectory point of a video and the given POI.
 
-![alt text](/images/documentation/angle_distance.png "angle & distance")
+![alt text](/images/documentation/angle_distance_poi.png "angle & distance")
 
 Each trajectory point contains the information about its perspective.
 
-![alt text](/images/documentation/thetax.png "thetax") ![alt text](/images/documentation/alpha_radius.png "alpha & radius")
+![alt text](/images/documentation/trajectory_point_perspective.png "trajectory point perspective")
 
 After comparing this values we know exactly if a video is showing the POI we are searching for.
  
@@ -134,9 +134,9 @@ First of all we calculate the circle that surrounds the trajectory of the given 
 
 For each trajectory point of the video determine which of the POI candidates is visible. Again we know the perspective of each trajectory point and calculate the distance and the angle to each POI candidate. After comparing this values we get the result set with all visible POIs in this video.
 
-![alt text](/images/documentation/thetax.png "thetax") ![alt text](/images/documentation/alpha_radius.png "alpha & radius")
+![alt text](/images/documentation/trajectory_point_perspective.png "trajectory point perspective")
 
-![alt text](/images/documentation/angle_distance.png "angle & distance")
+![alt text](/images/documentation/angle_distance_poi.png "angle & distance")
  
     trajectory = video.getTrajectory();
     Foreach trajectory_point in trajectory
