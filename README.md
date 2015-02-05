@@ -515,17 +515,12 @@ Query was executed 5 times and mean was calculated: RTREE (0 milliseconds) << NA
 The query is solved using a filter step. The maximum search radius of the indexed trajectories is used as upper bound.
 All videos that have a less or equal distance to the poi are handled as candidates:
 
-    String queryString = "distance(centerPoint, " + geoPoint(poiLocation) + ") <= " + maxSearchRange;
-    
     /poi/ChIJ6Q6XOph1nkcRQWtXFc8qRRg
     	de.lmu.ifi.dbs.mediaqpoi.boundary.PoiServlet getPoiDetails: Getting details for poi id ChIJ6Q6XOph1nkcRQWtXFc8qRRg
     	de.lmu.ifi.dbs.mediaqpoi.control.PoiService getVideosNaive: Performing video query for location with naive approach
     	de.lmu.ifi.dbs.mediaqpoi.control.PersistenceFacade getVideos: Found [...] videos
     	de.lmu.ifi.dbs.mediaqpoi.control.PoiService getVideosNaive: Found [...] videos for the given location (naive approach)
     	de.lmu.ifi.dbs.mediaqpoi.control.PoiService getVideos: Got videos for location in [500] milliseconds (using NAIVE)
-    
-    Build query with the queryString
-    Execute the query and add results to candidates list
 
 The refinement step is analogous to the R-tree refinement.
 
