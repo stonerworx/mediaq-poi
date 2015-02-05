@@ -512,6 +512,10 @@ Query was executed 5 times and mean was calculated: RTREE (0 milliseconds) << NA
 
 * GOOGLE_DOCUMENT_INDEX
 
+    String queryString = "distance(centerPoint, " + geoPoint(poiLocation) + ") <= " + maxSearchRange;
+    Build query with the queryString
+    Execute the query and add results to candidates list
+
 	...
 
 Query was executed 5 times and mean was calculated: RTREE (0 milliseconds) << NAIVE (500 milliseconds)
