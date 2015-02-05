@@ -465,18 +465,22 @@ Below the performance evaluation for the three different approaches NAIVE, RTREE
 
 * NAIVE
 
+	{
 	/videos?action=range_query&bound1_lat=48.16840282484953&bound1_lng=11.61478721537776&bound2_lat=48.14598681662252&bound2_lng=11.555435294296217
     	de.lmu.ifi.dbs.mediaqpoi.control.PoiService getVideosInRangeNaive: Performing range query with naive approach
     	de.lmu.ifi.dbs.mediaqpoi.control.PersistenceFacade getVideos: Found [...] videos
     	de.lmu.ifi.dbs.mediaqpoi.control.PoiService getVideosInRangeNaive: Found [...] videos in range (naive approach)
     	de.lmu.ifi.dbs.mediaqpoi.control.PoiService getVideosInRange: Got videos in range in [2500] milliseconds (using NAIVE)
+    	}
 	
 * RTREE
 
+	{
 	/videos?action=range_query&bound1_lat=48.16376962982234&bound1_lng=11.631125889160103&bound2_lat=48.137284953024235&bound2_lng=11.55902811083979
     	de.lmu.ifi.dbs.mediaqpoi.control.VideoRTree getInstance: Getting VideoRTree instance
     	de.lmu.ifi.dbs.mediaqpoi.control.VideoRTree getVideosForArea: Found 79 videos for range in the r tree
     	de.lmu.ifi.dbs.mediaqpoi.control.PoiService getVideosInRange: Got videos in range in [0] milliseconds (using RTREE)
+    	}
 	
 * GOOGLE_DOCUMENT_INDEX
 
@@ -488,21 +492,25 @@ Query was executed 5 times and mean was calculated: RTREE (0 milliseconds) << NA
 
 * NAIVE
 
+    {
     /poi/ChIJ6Q6XOph1nkcRQWtXFc8qRRg
     	de.lmu.ifi.dbs.mediaqpoi.boundary.PoiServlet getPoiDetails: Getting details for poi id ChIJ6Q6XOph1nkcRQWtXFc8qRRg
     	de.lmu.ifi.dbs.mediaqpoi.control.PoiService getVideosNaive: Performing video query for location with naive approach
     	de.lmu.ifi.dbs.mediaqpoi.control.PersistenceFacade getVideos: Found [...] videos
     	de.lmu.ifi.dbs.mediaqpoi.control.PoiService getVideosNaive: Found [...] videos for the given location (naive approach)
     	de.lmu.ifi.dbs.mediaqpoi.control.PoiService getVideos: Got videos for location in [500] milliseconds (using NAIVE)
+    	}
 	
 * RTREE
 
+    {
     /poi/ChIJ6Q6XOph1nkcRQWtXFc8qRRg
     	de.lmu.ifi.dbs.mediaqpoi.boundary.PoiServlet getPoiDetails: Getting details for poi id ChIJ6Q6XOph1nkcRQWtXFc8qRRg
     	de.lmu.ifi.dbs.mediaqpoi.control.VideoRTree getInstance: Getting VideoRTree instance
     	de.lmu.ifi.dbs.mediaqpoi.control.VideoRTree getCandidates: Found 32 candidates for geo location in the r tree
     	de.lmu.ifi.dbs.mediaqpoi.control.VideoRTree getVideos: Found 24 videos for geo location in the r tree
     	de.lmu.ifi.dbs.mediaqpoi.control.PoiService getVideos: Got videos for location in [0] milliseconds (using RTREE)
+    	}
 
 * GOOGLE_DOCUMENT_INDEX
 
