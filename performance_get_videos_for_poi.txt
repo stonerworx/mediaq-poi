@@ -1,0 +1,54 @@
+get videos for POI
+====================
+
+POI = Chinesische1 Turm
+
+NAIVE (46 Ergebnisse):
+1. 1514 ms
+2. 1870 ms
+3. 1500 ms
+4. 1457 ms
+5. 1531 ms
+
+
+
+RTREE (46 Ergebnisse)
+1. 48 ms
+2. 51 ms
+3. 45 ms
+4. 44 ms
+5. 45 ms
+
+
+GOOGLE_DOCUMENT_INDEX (46 Ergebnisse)
+1. 825 ms
+2. 581 ms
+3. 598 ms
+4. 603 ms
+5. 595 ms
+
+
+POI = Monopteros
+
+NAIVE (1 Ergebniss)
+1. 1553 ms
+2. 2393 ms
+3. 1481 ms
+4. 1495 ms
+5. 1581 ms
+
+
+RTREE (1 Ergebniss)
+1. 6 ms
+2. 9 ms
+3. 3 ms
+4. 6 ms
+5. 4 ms
+
+
+GOOGLE_DOCUMENT_INDEX (0 Ergebnisse)
+1. 33 ms
+2. 47 ms
+3. 36 ms
+4. 93 ms
+5. 36 ms

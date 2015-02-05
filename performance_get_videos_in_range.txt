@@ -1,0 +1,54 @@
+get videos in range
+====================
+
+Initial range beim Chinesischen Turm
+
+NAIVE (140 Ergebnisse):
+1. 2599 ms
+2. 1680 ms
+3. 1694 ms
+4. 2133 ms
+5. 2408 ms
+
+
+
+RTREE (140 Ergebnisse)
+1. 0 ms
+2. 0 ms
+3. 0 ms
+4. 1 ms
+5. 1 ms
+
+
+GOOGLE_DOCUMENT_INDEX (140 Ergebnisse)
+1. 1986 ms
+2. 2464 ms
+3. 2270 ms
+4. 1802 ms
+5. 2380 ms
+
+
+Range bei Freising
+
+NAIVE (5 Ergebnisse)
+1. 2285 ms
+2. 1490 ms
+3. 1449 ms
+4. 1480 ms
+5. 1543 ms
+
+
+RTREE (5 Ergebnisse)
+1. 0 ms
+2. 0 ms
+3. 0 ms
+4. 0 ms
+5. 0 ms
+
+
+GOOGLE_DOCUMENT_INDEX (5 Ergebnisse)
+1. 1564 ms
+2. 2726 ms
+3. 1584 ms
+4. 1540 ms
+5. 1750 ms
