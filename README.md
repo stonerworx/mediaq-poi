@@ -164,7 +164,7 @@ current map section that the user has navigated to.
 
 ##### "Our" approach using the R-tree index structure
 
-TODO
+The R-tree can be used directly to find videos in a certain area.
 
 ##### "Our" approach using a Google Document Index
 
