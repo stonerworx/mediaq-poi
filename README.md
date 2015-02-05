@@ -44,19 +44,19 @@ Our approach
 
 #### 1) Find all videos that show a given POI
 
-Basis of this query is a R-tree filled with all videos of the MediaQ database. In order to do this we calculate for each video the minimum bounded rectangel (MBR) of the video trajectory and insert it into the R-tree.
+Basis of this query is a [R-tree][7]<sup>7</sup> filled with all videos of the MediaQ database. In order to do this we calculate for each video the minimum bounded rectangel (MBR) of the video trajectory and insert it into the [R-tree][7]<sup>7</sup>.
 
 ![alt text](/images/documentation/trajectory_mbr.png "trajectory mbr")
 
 This way we can search now for videos in a certain range on the map.
 
-##### Filtering with R-tree
+##### Filtering with [R-tree][7]<sup>7</sup>
 
 First of all we determine the coordinates (latitude, longitude) of the POI via [Google Places API][2]<sup>2</sup>. By means of this coordinates and the visibility range we define our search area.
 
 ![alt text](/images/documentation/poi_mbr.png "poi mbr")
 
-With the MBR of this search area we can run a range query on the R-tree. The result set of this query contains all videos which might be showing the given POI.
+With the MBR of this search area we can run a range query on the [R-tree][7]<sup>7</sup>. The result set of this query contains all videos which might be showing the given POI.
 
 ![alt text](/images/documentation/rtree_range_query.png "rtree range query")
 
@@ -81,9 +81,9 @@ After comparing this values we know exactly if a video is showing the POI we are
 
 #### 2) Find all POIs that are shown in a given video
 
-##### Filtering with Google Places API
+##### Filtering with [Google Places API][2]<sup>2</sup>
 
-First of all we calculate the circle that surrounds the trajectory of the given video and add the visibility range. Google Places API now provides us with the POIs in this search area.
+First of all we calculate the circle that surrounds the trajectory of the given video and add the visibility range. [Google Places API][2]<sup>2</sup> now provides us with the POIs in this search area.
 
 ![alt text](/images/documentation/search_area.png "search area")
  
@@ -319,8 +319,10 @@ Technical documentation
   [Grunt][6]<sup>6</sup>, The JavaScript Task Runner is automatically building our frontend
   distribution - including JavaScript and image minification and much more.
 
-* R-tree:
- R-tree for spatial queries
+* [R-tree][7]<sup>7</sup>
+
+ A high performance Java version of the [R-tree][7]<sup>7</sup> spatial indexing algorithm.
+ 
 * [UML]
 
   ![UML use case diagram](/images/documentation/uml_use_cases.png "Use cases")
@@ -341,7 +343,7 @@ Technical documentation
   Sequence diagram to show how the query "get POIs for video" is solved. The servlet receives the request with the video's
   id as parameter. It loads the Video object from the datastore (not shown in sequence diagram) and calls the
   getVisiblePois()-method of the PoiService. The service now gets the circular approximation of the video's trajectory
-  and requests the Google Places Api to return all places within this circular range. All this places are handled as candidates.
+  and requests the [Google Places API][2]<sup>2</sup> to return all places within this circular range. All this places are handled as candidates.
   In the refinement step all trajectory points are iterated and for every single point all candidate POIs are checked
   if they are visible at the point, If yes, they are added to the result lists. In the end, the results are returned to
   the servlet which puts them together with other information about the video to the http response (as JSON).
@@ -376,6 +378,7 @@ References
 * 4: Google Search Api [https://cloud.google.com/appengine/docs/java/search/][4]
 * 5: AngularJS [https://angularjs.org/][5]
 * 6: GruntJS [http://gruntjs.com/][6]
+* 7: R-tree [https://github.com/aled/jsi/][7]
 
 [1]: http://mediaq.usc.edu/ "MediaQ"
 [2]: https://developers.google.com/places/documentation/ "Google Places API"
@@ -383,6 +386,7 @@ References
 [4]: https://cloud.google.com/appengine/docs/java/search/ "Google Search API"
 [5]: https://angularjs.org/ "AngularJS"
 [6]: http://gruntjs.com/ "GruntJS"
+[7]: https://github.com/aled/jsi/ "R-tree"
 
 ---
 
