@@ -464,60 +464,117 @@ the Apache commons-lang3 library.
 
      StopWatch stopWatch = new StopWatch();
      stopWatch.start();
-     // do stuff
+     // query with {NAIVE, RTREE, GOOGLE_DOCUMENT_INDEX}
      stopWatch.stop();
      long elapsedTimeInMilliseconds = stopWatch.getTime()
 
 Below the performance evaluation for the three different approaches NAIVE, RTREE and DOCUMENT_GOOGLE_INDEX.
 
-1) Range query
+#### 1) POI query for 'Chinesicher Turm'
+
+NAIVE:
+
+	/poi/ChIJ6Q6XOph1nkcRQWtXFc8qRRg
+    	PoiServlet getPoiDetails: Getting details for poi id ChIJ6Q6XOph1nkcRQWtXFc8qRRg
+    	PoiService getVideosNaive: Performing video query for location with naive approach
+    	PersistenceFacade getVideos: Found 46 videos
+    	PoiService getVideosNaive: Found 46 videos for the given location (naive approach)
+    	PoiService getVideos: Got videos for location in 1574 milliseconds (using NAIVE)
+	
+RTREE:
+
+	/poi/ChIJ6Q6XOph1nkcRQWtXFc8qRRg
+		PoiServlet getPoiDetails: Getting details for poi id ChIJ6Q6XOph1nkcRQWtXFc8qRRg
+	  	VideoRTree getInstance: Getting VideoRTree instance
+	   VideoRTree getCandidates: Found 58 candidates for geo location in the r tree
+	   VideoRTree getVideos: Found 46 videos for geo location in the r tree
+	   PoiService getVideos: Got videos for location in 47 milliseconds (using RTREE)
+
+GOOGLE_DOCUMENT_INDEX:
+
+	...
+
+Query was executed 5 times and mean was calculated:
+
+	RTREE (47 milliseconds) < GOOGLE_DOCUMENT_INDEX (640 milliseconds) < NAIVE (1574 milliseconds)
+	
+#### 2) POI query for 'Monopteros'
+
+NAIVE:
+
+	/poi/ChIJ6Q6XOph1nkcRQWtXFc8qRRg
+    	PoiServlet getPoiDetails: Getting details for poi id ChIJ6Q6XOph1nkcRQWtXFc8qRRg
+    	PoiService getVideosNaive: Performing video query for location with naive approach
+    	PersistenceFacade getVideos: Found 1 videos
+    	PoiService getVideosNaive: Found 1 videos for the given location (naive approach)
+    	PoiService getVideos: Got videos for location in 1700 milliseconds (using NAIVE)
+	
+RTREE:
+
+	/poi/ChIJ6Q6XOph1nkcRQWtXFc8qRRg
+		PoiServlet getPoiDetails: Getting details for poi id ChIJ6Q6XOph1nkcRQWtXFc8qRRg
+	  	VideoRTree getInstance: Getting VideoRTree instance
+	   VideoRTree getCandidates: Found 3 candidates for geo location in the r tree
+	   VideoRTree getVideos: Found 1 videos for geo location in the r tree
+	   PoiService getVideos: Got videos for location in 6 milliseconds (using RTREE)
+
+GOOGLE_DOCUMENT_INDEX:
+
+	...
+
+Query was executed 5 times and mean was calculated:
+
+	RTREE (6 milliseconds) < GOOGLE_DOCUMENT_INDEX (49 milliseconds) << NAIVE (1700 milliseconds)
+
+#### 3) Initial range query at 'Chinesischer Turm'
 
 NAIVE:
 
 	/videos?action=range_query&bound1_lat=48.16840282484953&bound1_lng=11.61478721537776&bound2_lat=48.14598681662252&bound2_lng=11.555435294296217
-    	de.lmu.ifi.dbs.mediaqpoi.control.PoiService getVideosInRangeNaive: Performing range query with naive approach
-    	de.lmu.ifi.dbs.mediaqpoi.control.PersistenceFacade getVideos: Found [...] videos
-    	de.lmu.ifi.dbs.mediaqpoi.control.PoiService getVideosInRangeNaive: Found [...] videos in range (naive approach)
-    	de.lmu.ifi.dbs.mediaqpoi.control.PoiService getVideosInRange: Got videos in range in [2500] milliseconds (using NAIVE)
+    	PoiService getVideosInRangeNaive: Performing range query with naive approach
+    	PersistenceFacade getVideos: Found 140 videos
+    	PoiService getVideosInRangeNaive: Found 140 videos in range (naive approach)
+    	PoiService getVideosInRange: Got videos in range in 2102 milliseconds (using NAIVE)
 	
 RTREE:
 
 	/videos?action=range_query&bound1_lat=48.16376962982234&bound1_lng=11.631125889160103&bound2_lat=48.137284953024235&bound2_lng=11.55902811083979
-    	de.lmu.ifi.dbs.mediaqpoi.control.VideoRTree getInstance: Getting VideoRTree instance
-    	de.lmu.ifi.dbs.mediaqpoi.control.VideoRTree getVideosForArea: Found 79 videos for range in the r tree
-    	de.lmu.ifi.dbs.mediaqpoi.control.PoiService getVideosInRange: Got videos in range in [0] milliseconds (using RTREE)
+		VideoRTree getInstance: Getting VideoRTree instance
+    	VideoRTree getVideosForArea: Found 140 videos for range in the r tree
+    	PoiService getVideosInRange: Got videos in range in 0 milliseconds (using RTREE)
 	
 GOOGLE_DOCUMENT_INDEX:
 
 	...
 
-Query was executed 5 times and mean was calculated: RTREE (0 milliseconds) << NAIVE (2500 milliseconds)	
+Query was executed 5 times and mean was calculated:
 
-2) POI query for 'Chinesicher Turm'
+	RTREE (0 milliseconds) << NAIVE (2102 milliseconds) < GOOGLE_DOCUMENT_INDEX (2180 milliseconds)
+	
+#### 4) Range query at 'Freising'
 
 NAIVE:
 
-    /poi/ChIJ6Q6XOph1nkcRQWtXFc8qRRg
-    	de.lmu.ifi.dbs.mediaqpoi.boundary.PoiServlet getPoiDetails: Getting details for poi id ChIJ6Q6XOph1nkcRQWtXFc8qRRg
-    	de.lmu.ifi.dbs.mediaqpoi.control.PoiService getVideosNaive: Performing video query for location with naive approach
-    	de.lmu.ifi.dbs.mediaqpoi.control.PersistenceFacade getVideos: Found [...] videos
-    	de.lmu.ifi.dbs.mediaqpoi.control.PoiService getVideosNaive: Found [...] videos for the given location (naive approach)
-    	de.lmu.ifi.dbs.mediaqpoi.control.PoiService getVideos: Got videos for location in [500] milliseconds (using NAIVE)
+	/videos?action=range_query&bound1_lat=48.16840282484953&bound1_lng=11.61478721537776&bound2_lat=48.14598681662252&bound2_lng=11.555435294296217
+    	PoiService getVideosInRangeNaive: Performing range query with naive approach
+    	PersistenceFacade getVideos: Found 5 videos
+    	PoiService getVideosInRangeNaive: Found 5 videos in range (naive approach)
+    	PoiService getVideosInRange: Got videos in range in 1649 milliseconds (using NAIVE)
 	
 RTREE:
 
-    /poi/ChIJ6Q6XOph1nkcRQWtXFc8qRRg
-	    	de.lmu.ifi.dbs.mediaqpoi.boundary.PoiServlet getPoiDetails: Getting details for poi id ChIJ6Q6XOph1nkcRQWtXFc8qRRg
-	    	de.lmu.ifi.dbs.mediaqpoi.control.VideoRTree getInstance: Getting VideoRTree instance
-	    	de.lmu.ifi.dbs.mediaqpoi.control.VideoRTree getCandidates: Found 32 candidates for geo location in the r tree
-	    	de.lmu.ifi.dbs.mediaqpoi.control.VideoRTree getVideos: Found 24 videos for geo location in the r tree
-	    	de.lmu.ifi.dbs.mediaqpoi.control.PoiService getVideos: Got videos for location in [0] milliseconds (using RTREE)
-
+	/videos?action=range_query&bound1_lat=48.16376962982234&bound1_lng=11.631125889160103&bound2_lat=48.137284953024235&bound2_lng=11.55902811083979
+		VideoRTree getInstance: Getting VideoRTree instance
+    	VideoRTree getVideosForArea: Found 5 videos for range in the r tree
+    	PoiService getVideosInRange: Got videos in range in 0 milliseconds (using RTREE)
+	
 GOOGLE_DOCUMENT_INDEX:
 
 	...
 
-Query was executed 5 times and mean was calculated: RTREE (0 milliseconds) << NAIVE (500 milliseconds)
+Query was executed 5 times and mean was calculated:
+
+	RTREE (0 milliseconds) << NAIVE (1649 milliseconds) < GOOGLE_DOCUMENT_INDEX (1833 milliseconds)
 
 Downloads
 ------
