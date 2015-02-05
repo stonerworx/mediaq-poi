@@ -226,7 +226,7 @@ public class PoiService implements IPoiService {
         }
 
         for (TrajectoryPoint point : trajectory.getTimeStampedPoints()) {
-          if (point.isVisible(longitude, latitude)) {
+          if (point.isVisible(latitude, longitude)) {
             result.add(video);
             break;
           }
