@@ -459,6 +459,15 @@ Technical documentation
 Performance Evaluation
 ------
 
+In order to measure the time that our different algorithms are consuming we integrated the [StopWatch][9]<sup>9</sup> provided by
+the Apache commons-lang3 library.
+
+     StopWatch stopWatch = new StopWatch();
+     stopWatch.start();
+     // do stuff
+     stopWatch.stop();
+     long elapsedTimeInMilliseconds = stopWatch.getTime()
+
 Below the performance evaluation for the three different approaches NAIVE, RTREE and DOCUMENT_GOOGLE_INDEX.
 
 1) Range query
@@ -527,6 +536,7 @@ References
 * 6: GruntJS [http://gruntjs.com/][6]
 * 7: R-tree [https://github.com/aled/jsi/][7]
 * 8: LatLonRect [http://www.unidata.ucar.edu/software/thredds/v4.3/netcdf-java/v4.3/javadoc/ucar/unidata/geoloc/LatLonRect.html][8]
+* 9: StopWatch [https://commons.apache.org/proper/commons-lang/javadocs/api-3.1/index.html?org/apache/commons/lang3/time/StopWatch.html][9]
 
 [1]: http://mediaq.usc.edu/ "MediaQ"
 [2]: https://developers.google.com/places/documentation/ "Google Places API"
@@ -536,6 +546,7 @@ References
 [6]: http://gruntjs.com/ "GruntJS"
 [7]: https://github.com/aled/jsi/ "R-tree"
 [8]: http://www.unidata.ucar.edu/software/thredds/v4.3/netcdf-java/v4.3/javadoc/ucar/unidata/geoloc/LatLonRect.html
+[9]: https://commons.apache.org/proper/commons-lang/javadocs/api-3.1/index.html?org/apache/commons/lang3/time/StopWatch.html
 
 ---
 
