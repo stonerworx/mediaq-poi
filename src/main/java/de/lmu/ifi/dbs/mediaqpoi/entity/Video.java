@@ -4,6 +4,8 @@ import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.gson.annotations.Expose;
 
+import java.io.Serializable;
+
 import javax.jdo.annotations.*;
 
 @PersistenceCapable

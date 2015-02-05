@@ -2,7 +2,11 @@ package de.lmu.ifi.dbs.mediaqpoi.boundary;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
+import de.lmu.ifi.dbs.mediaqpoi.control.GooglePlacesApi;
 import de.lmu.ifi.dbs.mediaqpoi.control.PoiService;
+import de.lmu.ifi.dbs.mediaqpoi.entity.Location;
+import de.lmu.ifi.dbs.mediaqpoi.entity.PlacesList;
 import de.lmu.ifi.dbs.mediaqpoi.entity.Poi;
 import de.lmu.ifi.dbs.mediaqpoi.entity.Video;
 
@@ -12,6 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -28,8 +33,14 @@ public class PoiServlet extends HttpServlet {
         responseData.put("status", "ok");
 
         String id = req.getParameter("id");
+        String lat = req.getParameter("lat");
+        String lng = req.getParameter("lng");
 
-        getPoiDetails(id, responseData);
+        if (id != null) {
+          getPoiDetails(id, responseData);
+        } else {
+          getPoiDetailsByLocation(lat, lng, responseData);
+        }
 
         Gson gson = new GsonBuilder()
             .excludeFieldsWithoutExposeAnnotation()
@@ -38,7 +49,13 @@ public class PoiServlet extends HttpServlet {
         resp.getWriter().write(gson.toJson(responseData));
     }
 
-
+    private void getPoiDetailsByLocation(String lat, String lng, Map<String, Object> response) {
+        Location location = new Location(Double.valueOf(lat), Double.valueOf(lng));
+        PlacesList places = GooglePlacesApi.searchPlaces(location, 2);
+        if (!places.results.isEmpty()) {
+            getPoiDetails(places.results.get(0).placeId, response);
+        }
+    }
 
     private void getPoiDetails(String placeid, Map<String, Object> response) {
         try {

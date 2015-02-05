@@ -117,6 +117,7 @@
       }, false);
 
       vm.clickMarker = function(marker) {
+        marker.setAnimation(maps.Animation.BOUNCE);
         vm.openVideo(marker.model.id);
       };
 
@@ -146,8 +147,8 @@
           selectedPoi = false;
         }
 
-        vm.markers = [];
         dataService.getVideo(videoId).then(function(video) {
+          vm.markers = [];
 
           vm.activeVideo = video;
 
@@ -242,7 +243,7 @@
         function mapSettleTime() {
           clearTimeout(mapupdater);
           if (!vm.videoVisible && ! vm.poiVisible) {
-            mapupdater = setTimeout(getVideosByBounds, 3000);
+            mapupdater = setTimeout(getVideosByBounds, 1000);
           }
         }
 
@@ -251,6 +252,29 @@
         });
         maps.event.addListener(gmap, 'dragend', mapSettleTime);
         maps.event.addListener(gmap, 'zoom_changed', mapSettleTime);
+
+        function setPoiDetails(poi) {
+          vm.visiblePoiMarkers.push(poi.getMarker());
+          vm.visiblePoiMarkers[0].show = true;
+          vm.visiblePoiMarkers[0].close = function() {
+            vm.visiblePoiMarkers = [];
+            vm.poiVisible = false;
+            vm.poiSearch = '';
+            selectedPoi = false;
+            getVideosByBounds();
+          };
+          vm.markers = poi.getVideoMarkers();
+          vm.loading = false;
+        }
+
+        maps.event.addListener(gmap, 'click', function(e) {
+          vm.visiblePoiMarkers = [];
+          vm.poiVisible = false;
+          vm.loading = true;
+          dataService.getPoiByLatLng(e.latLng).then(function(poi) { // jshint ignore:line
+            setPoiDetails(poi);
+          });
+        });
 
         maps.event.addListener(autocomplete, 'place_changed', function() {
           vm.visiblePoiMarkers = [];
@@ -271,17 +295,7 @@
           vm.loading = true;
 
           dataService.getPoi(place.place_id).then(function(poi) { // jshint ignore:line
-            vm.visiblePoiMarkers.push(poi.getMarker());
-            vm.visiblePoiMarkers[0].show = true;
-            vm.visiblePoiMarkers[0].close = function() {
-              vm.visiblePoiMarkers = [];
-              vm.poiVisible = false;
-              vm.poiSearch = '';
-              selectedPoi = false;
-              getVideosByBounds();
-            };
-            vm.markers = poi.getVideoMarkers();
-            vm.loading = false;
+            setPoiDetails(poi);
           });
 
         });

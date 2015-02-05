@@ -4,6 +4,8 @@ import com.google.api.client.util.Key;
 import com.google.appengine.api.search.GeoPoint;
 import com.google.gson.annotations.Expose;
 
+import java.io.Serializable;
+
 import ucar.unidata.geoloc.LatLonPoint;
 import ucar.unidata.geoloc.LatLonPointImpl;
 

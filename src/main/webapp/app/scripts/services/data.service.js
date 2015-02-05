@@ -116,10 +116,37 @@
       return deferred.promise;
     }
 
+    function getPoiByLatLng(latLng) {
+      var deferred = $q.defer();
+
+      $log.info('requesting poi by latLng (' + latLng.lat() + ',' + latLng.lng() + ').');
+
+      var url = host + '/poi?lat=' + latLng.lat() + '&lng=' + latLng.lng();
+
+      $log.debug(url);
+
+      $resource(url).get(function (data) {
+
+        $log.info('poi received. returning.');
+
+        var poi = new PoiModel(data.poi);
+        var videoList = [];
+        angular.forEach(data.videos, function(video) {
+          videoList.push(new VideoModel(video));
+        });
+        poi.setVideos(videoList);
+
+        deferred.resolve(poi);
+      });
+
+      return deferred.promise;
+    }
+
     return {
       getVideos: getVideos,
       getVideo: getVideo,
-      getPoi: getPoi
+      getPoi: getPoi,
+      getPoiByLatLng: getPoiByLatLng
     };
 
   }
