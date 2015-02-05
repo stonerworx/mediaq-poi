@@ -503,14 +503,12 @@ Query was executed 5 times and mean was calculated: RTREE (0 milliseconds) << NA
 	
 * RTREE
 
-    {
     /poi/ChIJ6Q6XOph1nkcRQWtXFc8qRRg
-    	de.lmu.ifi.dbs.mediaqpoi.boundary.PoiServlet getPoiDetails: Getting details for poi id ChIJ6Q6XOph1nkcRQWtXFc8qRRg
-    	de.lmu.ifi.dbs.mediaqpoi.control.VideoRTree getInstance: Getting VideoRTree instance
-    	de.lmu.ifi.dbs.mediaqpoi.control.VideoRTree getCandidates: Found 32 candidates for geo location in the r tree
-    	de.lmu.ifi.dbs.mediaqpoi.control.VideoRTree getVideos: Found 24 videos for geo location in the r tree
-    	de.lmu.ifi.dbs.mediaqpoi.control.PoiService getVideos: Got videos for location in [0] milliseconds (using RTREE)
-    	}
+	    	de.lmu.ifi.dbs.mediaqpoi.boundary.PoiServlet getPoiDetails: Getting details for poi id ChIJ6Q6XOph1nkcRQWtXFc8qRRg;
+	    	de.lmu.ifi.dbs.mediaqpoi.control.VideoRTree getInstance: Getting VideoRTree instance;
+	    	de.lmu.ifi.dbs.mediaqpoi.control.VideoRTree getCandidates: Found 32 candidates for geo location in the r tree;
+	    	de.lmu.ifi.dbs.mediaqpoi.control.VideoRTree getVideos: Found 24 videos for geo location in the r tree;
+	    	de.lmu.ifi.dbs.mediaqpoi.control.PoiService getVideos: Got videos for location in [0] milliseconds (using RTREE);
 
 * GOOGLE_DOCUMENT_INDEX
 
