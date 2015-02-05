@@ -465,7 +465,7 @@ Below the performance evaluation for the three different approaches NAIVE, RTREE
 
 * NAIVE
 
-    /videos?action=range_query&bound1_lat=48.16840282484953&bound1_lng=11.61478721537776&bound2_lat=48.14598681662252&bound2_lng=11.555435294296217
+	/videos?action=range_query&bound1_lat=48.16840282484953&bound1_lng=11.61478721537776&bound2_lat=48.14598681662252&bound2_lng=11.555435294296217
     	de.lmu.ifi.dbs.mediaqpoi.control.PoiService getVideosInRangeNaive: Performing range query with naive approach
     	de.lmu.ifi.dbs.mediaqpoi.control.PersistenceFacade getVideos: Found [...] videos
     	de.lmu.ifi.dbs.mediaqpoi.control.PoiService getVideosInRangeNaive: Found [...] videos in range (naive approach)
@@ -473,7 +473,7 @@ Below the performance evaluation for the three different approaches NAIVE, RTREE
 	
 * RTREE
 
-    /videos?action=range_query&bound1_lat=48.16376962982234&bound1_lng=11.631125889160103&bound2_lat=48.137284953024235&bound2_lng=11.55902811083979
+	/videos?action=range_query&bound1_lat=48.16376962982234&bound1_lng=11.631125889160103&bound2_lat=48.137284953024235&bound2_lng=11.55902811083979
     	de.lmu.ifi.dbs.mediaqpoi.control.VideoRTree getInstance: Getting VideoRTree instance
     	de.lmu.ifi.dbs.mediaqpoi.control.VideoRTree getVideosForArea: Found 79 videos for range in the r tree
     	de.lmu.ifi.dbs.mediaqpoi.control.PoiService getVideosInRange: Got videos in range in [0] milliseconds (using RTREE)
