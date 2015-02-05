@@ -39,10 +39,20 @@ information of both systems to a single, even more powerful, application.
 
 ---
 
-Our approach
+Queries and algorithms
 ------
 
 #### 1) Find all videos that show a given POI
+
+##### Naive approach
+
+    Foreach video in ALL videos
+      trajectory = video.getTrajectory();
+      Foreach trajectory_point in trajectory
+        if POI is visible at the trajectory_point
+          -> add video to result set
+
+##### "Our" approach using the R-tree index structure
 
 Basis of this query is a [R-tree][7]<sup>7</sup> filled with all videos of the MediaQ database. In order to do this we calculate for each video the minimum bounded rectangel (MBR) of the video trajectory and insert it into the [R-tree][7]<sup>7</sup>.
 
@@ -50,7 +60,7 @@ Basis of this query is a [R-tree][7]<sup>7</sup> filled with all videos of the M
 
 This way we can search now for videos in a certain range on the map.
 
-##### Filtering with [R-tree][7]<sup>7</sup>
+###### Filtering with [R-tree][7]<sup>7</sup>
 
 First of all we determine the coordinates (latitude, longitude) of the POI via [Google Places API][2]<sup>2</sup>. By means of this coordinates and the visibility range we define our search area.
 
@@ -60,7 +70,7 @@ With the MBR of this search area we can run a range query on the [R-tree][7]<sup
 
 ![alt text](/images/documentation/rtree_range_query.png "rtree range query")
 
-##### Refinement
+###### Refinement
 
 In the filtering phase we determined the video candidates. Now we have to check for each candidate if the POI is visible in any trajectory point of this video. Therefore we calculate the distance and the angle between each trajectory point of a video and the given POI.
 
@@ -79,7 +89,38 @@ After comparing this values we know exactly if a video is showing the POI we are
         if (distance <= radius) AND (thetax - alpha/2 <= angle <= thetax + alpha/2)
           -> add video to result set
 
+##### "Our" approach using a Google Document Index
+
+In this approach we use the [Google Search API][3]<sup>3</sup> which already provides geospatial index structures.
+However, we have to store the videos as documents in order to use this features. We store the circular approximation of
+each video trajectory as document and trust Google enough to index them efficiently ;-)
+The middle point of the circle is saved as geopoint field ("centerPoint") and the search radius ("searchRange")
+of the trajectory is stored as number field.
+
+The query is solved using a filter step. The maximum search radius of the indexed trajectories is used as upper bound.
+All videos that have a less or equal distance to the poi are handled as candidates:
+
+    String queryString = "distance(centerPoint, " + geoPoint(poiLocation) + ") <= " + maxSearchRange;
+    Build query with the queryString
+    Execute the query and add results to candidates list
+
+The refinement step is analogous to the R-tree refinement.
+
+While realizing this query with the [Google Search API][3]<sup>3</sup> we faced some issues with it:
+
+* Only very basic queries are supported by the API (see also http://stackoverflow.com/questions/28213499/is-it-possible-to-use-a-document-field-as-radius-with-distance-function-in-googl)
+* Data is not stored in the data store but as document
+* Some functions cannot be used in the local development server (see also https://cloud.google.com/appengine/docs/java/search/devserver)
+* You have no insight into the index structure
+
+
 #### 2) Find all POIs that are shown in a given video
+
+The naive approach here would be to iterate through all trajectory points of the video and check ALL POIs
+ if they are visible at each point. Of course, this is not very practical and hard to realize. Maybe Chuck Norris is the
+ only one to get all POIs of the whole world in one single request from the [Google Search API][3]<sup>3</sup> ;-)
+
+As Chuck Norris was unfortunately not willing to participate in our project, we had to find another way to solve this query.
 
 ##### Filtering with [Google Places API][2]<sup>2</sup>
 
@@ -103,6 +144,63 @@ For each trajectory point of the video determine which of the POI candidates is 
         calculate the distance and the angle between the trajectory_point and the POI
         if (distance <= radius) AND (thetax - alpha/2 <= angle <= thetax + alpha/2)
           -> add POI to result set
+
+#### 3) Find all videos that are recorded in a certain map section
+
+To reduce the data load and achieve a good performance we decided to load only those videos that are located in the
+current map section that the user has navigated to.
+
+##### Naive approach
+
+    foreach video in ALL videos
+      trajectory = video.getTrajectory()
+      get minimal bounding rectangle (MBR) of trajectory
+      if MBR intersects with query window (range)
+        foreach trajectory_point in trajectory
+           if range contains trajectory_point
+             -> add video to result set
+             break;
+
+
+##### "Our" approach using the R-tree index structure
+
+TODO
+
+##### "Our" approach using a Google Document Index
+
+We additionally store the minimal bounding rectangle (MBR) of the video trajectory in the document. The MBR is represented
+by two opposite corner points. The location with the minimum longitude and minimum latitude is stored as geopoint field
+("minPoint") and the location with the maximum coordinates finds oneself also as geopoint field ("maxPoint") in the
+document.
+
+In the refinement step, all videos that have either their minimum point or their maximum point lying in the circumcircle
+of the range are loaded as candidates. The circumcircle of the range has to be used because the
+[Google Search API][3]<sup>3</sup> does not support queries for intersections with geometrical figures. It only lets you
+query for distances between geopoints.
+
+
+    middle = center of circumcircle around rectangular range
+    radius = distance between middle and one corner point
+    String queryString = "distance(minPoint, " + geoPoint(middle) + ") <= " + radius;
+         queryString += " OR distance(maxPoint, " + geoPoint(middle) + ") <= " + radius;
+    Build query with the queryString
+    Execute the query and add results to candidates list
+
+In the refinement step the candidates are checked if they have at least one trajectory point that is located in the range
+area:
+
+    foreach video in candidates
+      trajectory = video.getTrajectory()
+      get minimal bounding rectangle (MBR) of trajectory (minPoint, maxPoint)
+      if MBR intersects with query window (range)
+        foreach trajectory_point in trajectory
+           if range contains trajectory_point
+             -> add video to result set
+             break;
+
+For the intersection test of the range with the MBR of the trajectory the [LatLonRect][8]<sup>8</sup> class of the
+unidataCommon library is used.
+
 
 Backend
 ------
@@ -379,6 +477,7 @@ References
 * 5: AngularJS [https://angularjs.org/][5]
 * 6: GruntJS [http://gruntjs.com/][6]
 * 7: R-tree [https://github.com/aled/jsi/][7]
+* 8: LatLonRect [http://www.unidata.ucar.edu/software/thredds/v4.3/netcdf-java/v4.3/javadoc/ucar/unidata/geoloc/LatLonRect.html][8]
 
 [1]: http://mediaq.usc.edu/ "MediaQ"
 [2]: https://developers.google.com/places/documentation/ "Google Places API"
@@ -387,6 +486,7 @@ References
 [5]: https://angularjs.org/ "AngularJS"
 [6]: http://gruntjs.com/ "GruntJS"
 [7]: https://github.com/aled/jsi/ "R-tree"
+[8]: http://www.unidata.ucar.edu/software/thredds/v4.3/netcdf-java/v4.3/javadoc/ucar/unidata/geoloc/LatLonRect.html
 
 ---
 
