@@ -486,9 +486,9 @@ RTREE:
 	/poi/ChIJ6Q6XOph1nkcRQWtXFc8qRRg
 		PoiServlet getPoiDetails: Getting details for poi id ChIJ6Q6XOph1nkcRQWtXFc8qRRg
 	  	VideoRTree getInstance: Getting VideoRTree instance
-	   VideoRTree getCandidates: Found 58 candidates for geo location in the r tree
-	   VideoRTree getVideos: Found 46 videos for geo location in the r tree
-	   PoiService getVideos: Got videos for location in 47 milliseconds (using RTREE)
+	  	VideoRTree getCandidates: Found 58 candidates for geo location in the r tree
+	   	VideoRTree getVideos: Found 46 videos for geo location in the r tree
+	   	PoiService getVideos: Got videos for location in 47 milliseconds (using RTREE)
 
 GOOGLE_DOCUMENT_INDEX:
 
@@ -514,9 +514,9 @@ RTREE:
 	/poi/ChIJ6Q6XOph1nkcRQWtXFc8qRRg
 		PoiServlet getPoiDetails: Getting details for poi id ChIJ6Q6XOph1nkcRQWtXFc8qRRg
 	  	VideoRTree getInstance: Getting VideoRTree instance
-	   VideoRTree getCandidates: Found 3 candidates for geo location in the r tree
-	   VideoRTree getVideos: Found 1 videos for geo location in the r tree
-	   PoiService getVideos: Got videos for location in 6 milliseconds (using RTREE)
+	   	VideoRTree getCandidates: Found 3 candidates for geo location in the r tree
+	   	VideoRTree getVideos: Found 1 videos for geo location in the r tree
+	   	PoiService getVideos: Got videos for location in 6 milliseconds (using RTREE)
 
 GOOGLE_DOCUMENT_INDEX:
 
