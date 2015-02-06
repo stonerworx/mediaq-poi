@@ -39,35 +39,48 @@ information of both systems to a single, even more powerful, application.
 
 ---
 
-Our approach
+Queries and algorithms
 ------
 
 #### 1) Find all videos that show a given POI
 
-* Determine the coordinates (latitude, longitude) of the POI via [Google Places API][2]<sup>2</sup>
+##### Naive approach
 
-##### Filtering with R-tree
+    Foreach video in ALL videos
+      trajectory = video.getTrajectory();
+      Foreach trajectory_point in trajectory
+        if POI is visible at the trajectory_point
+          -> add video to result set
 
-* R-tree contains all videos as minimal bounded rectangles (MBRs) -> trajectory of a video can simplified be shown as a MBR
+##### "Our" approach using the R-tree index structure
+
+Basis of this query is a [R-tree][7]<sup>7</sup> filled with all videos of the MediaQ database. In order to do this we calculate for each video the minimum bounded rectangel (MBR) of the video trajectory and insert it into the [R-tree][7]<sup>7</sup>.
 
 ![alt text](/images/documentation/trajectory_mbr.png "trajectory mbr")
 
-* POI with visibility range can also be shown as a MBR
+This way we can search now for videos in a certain range on the map.
+
+###### Filtering with [R-tree][7]<sup>7</sup>
+
+First of all we determine the coordinates (latitude, longitude) of the POI via [Google Places API][2]<sup>2</sup>. By means of this coordinates and the visibility range we define our search area.
 
 ![alt text](/images/documentation/poi_mbr.png "poi mbr")
 
-* R-tree range query with the POI-MBR
+With the MBR of this search area we can run a range query on the [R-tree][7]<sup>7</sup>. The result set of this query contains all videos which might be showing the given POI.
 
 ![alt text](/images/documentation/rtree_range_query.png "rtree range query")
 
--> Results in video candidates
+###### Refinement
 
-##### Refinement
-For each video candidate determine if the POI is visible in a trajectory point of the video:
+In the filtering phase we determined the video candidates. Now we have to check for each candidate if the POI is visible in any trajectory point of this video. Therefore we calculate the distance and the angle between each trajectory point of a video and the given POI.
 
-* What we know
- 
-![alt text](/images/documentation/thetax.png "thetax") ![alt text](/images/documentation/alpha_radius.png "alpha & radius")
+![alt text](/images/documentation/angle_distance_poi.png "angle & distance")
+
+Each trajectory point contains the information about its perspective.
+
+![alt text](/images/documentation/trajectory_point_perspective.png "trajectory point perspective")
+
+After comparing this values we know exactly if a video is showing the POI we are searching for.
  
     Foreach video in candidates
       trajectory = video.getTrajectory();
@@ -76,28 +89,54 @@ For each video candidate determine if the POI is visible in a trajectory point o
         if (distance <= radius) AND (thetax - alpha/2 <= angle <= thetax + alpha/2)
           -> add video to result set
 
-![alt text](/images/documentation/angle_distance.png "angle & distance")
+##### "Our" approach using a Google Document Index
 
--> Result set with all videos that show the given POI
+In this approach we use the [Google Search API][3]<sup>3</sup> which already provides geospatial index structures.
+However, we have to store the videos as documents in order to use this features. We store the circular approximation of
+each video trajectory as document and trust Google enough to index them efficiently ;-)
+The middle point of the circle is saved as geopoint field ("centerPoint") and the search radius ("searchRange")
+of the trajectory is stored as number field.
+
+The query is solved using a filter step. The maximum search radius of the indexed trajectories is used as upper bound.
+All videos that have a less or equal distance to the poi are handled as candidates:
+
+    String queryString = "distance(centerPoint, " + geoPoint(poiLocation) + ") <= " + maxSearchRange;
+    Build query with the queryString
+    Execute the query and add results to candidates list
+
+The refinement step is analogous to the R-tree refinement.
+
+While realizing this query with the [Google Search API][3]<sup>3</sup> we faced some issues with it:
+
+* Only very basic queries are supported by the API (see also http://stackoverflow.com/questions/28213499/is-it-possible-to-use-a-document-field-as-radius-with-distance-function-in-googl)
+* Data is not stored in the data store but as document
+* Some functions cannot be used in the local development server (see also https://cloud.google.com/appengine/docs/java/search/devserver)
+* You have no insight into the index structure
+
 
 #### 2) Find all POIs that are shown in a given video
 
-* Trajectory of a video can simplified be shown as a MBR
+The naive approach here would be to iterate through all trajectory points of the video and check ALL POIs
+ if they are visible at each point. Of course, this is not very practical and hard to realize. Maybe Chuck Norris is the
+ only one to get all POIs of the whole world in one single request from the [Google Search API][3]<sup>3</sup> ;-)
 
-![alt text](/images/documentation/trajectory_mbr.png "trajectory mbr")
+As Chuck Norris was unfortunately not willing to participate in our project, we had to find another way to solve this query.
 
-##### Filtering with Google Places API
+##### Filtering with [Google Places API][2]<sup>2</sup>
 
-* Get all POIs located in the video-MBR
+First of all we calculate the circle that surrounds the trajectory of the given video and add the visibility range. [Google Places API][2]<sup>2</sup> now provides us with the POIs in this search area.
+
+![alt text](/images/documentation/search_area.png "search area")
  
--> Results in POI candidates
+-> Results in POI candidates which might be shown in the video
 
 ##### Refinement
-For each trajectory point of the video determine which of the POI candidates is visible:
 
-* What we know
+For each trajectory point of the video determine which of the POI candidates is visible. Again we know the perspective of each trajectory point and calculate the distance and the angle to each POI candidate. After comparing this values we get the result set with all visible POIs in this video.
 
-![alt text](/images/documentation/thetax.png "thetax") ![alt text](/images/documentation/alpha_radius.png "alpha & radius")
+![alt text](/images/documentation/trajectory_point_perspective.png "trajectory point perspective")
+
+![alt text](/images/documentation/angle_distance_poi.png "angle & distance")
  
     trajectory = video.getTrajectory();
     Foreach trajectory_point in trajectory
@@ -106,9 +145,62 @@ For each trajectory point of the video determine which of the POI candidates is 
         if (distance <= radius) AND (thetax - alpha/2 <= angle <= thetax + alpha/2)
           -> add POI to result set
 
-![alt text](/images/documentation/angle_distance.png "angle & distance")
+#### 3) Find all videos that are recorded in a certain map section
 
--> Result set with all visible POIs
+To reduce the data load and achieve a good performance we decided to load only those videos that are located in the
+current map section that the user has navigated to.
+
+##### Naive approach
+
+    foreach video in ALL videos
+      trajectory = video.getTrajectory()
+      get minimal bounding rectangle (MBR) of trajectory
+      if MBR intersects with query window (range)
+        foreach trajectory_point in trajectory
+           if range contains trajectory_point
+             -> add video to result set
+             break;
+
+
+##### "Our" approach using the R-tree index structure
+
+The R-tree can be used directly to find videos in a certain area.
+
+##### "Our" approach using a Google Document Index
+
+We additionally store the minimal bounding rectangle (MBR) of the video trajectory in the document. The MBR is represented
+by two opposite corner points. The location with the minimum longitude and minimum latitude is stored as geopoint field
+("minPoint") and the location with the maximum coordinates finds oneself also as geopoint field ("maxPoint") in the
+document.
+
+In the refinement step, all videos that have either their minimum point or their maximum point lying in the circumcircle
+of the range are loaded as candidates. The circumcircle of the range has to be used because the
+[Google Search API][3]<sup>3</sup> does not support queries for intersections with geometrical figures. It only lets you
+query for distances between geopoints.
+
+
+    middle = center of circumcircle around rectangular range
+    radius = distance between middle and one corner point
+    String queryString = "distance(minPoint, " + geoPoint(middle) + ") <= " + radius;
+         queryString += " OR distance(maxPoint, " + geoPoint(middle) + ") <= " + radius;
+    Build query with the queryString
+    Execute the query and add results to candidates list
+
+In the refinement step the candidates are checked if they have at least one trajectory point that is located in the range
+area:
+
+    foreach video in candidates
+      trajectory = video.getTrajectory()
+      get minimal bounding rectangle (MBR) of trajectory (minPoint, maxPoint)
+      if MBR intersects with query window (range)
+        foreach trajectory_point in trajectory
+           if range contains trajectory_point
+             -> add video to result set
+             break;
+
+For the intersection test of the range with the MBR of the trajectory the [LatLonRect][8]<sup>8</sup> class of the
+unidataCommon library is used.
+
 
 Backend
 ------
@@ -325,11 +417,13 @@ Technical documentation
   [Grunt][6]<sup>6</sup>, The JavaScript Task Runner is automatically building our frontend
   distribution - including JavaScript and image minification and much more.
 
-* R-tree:
- R-tree for spatial queries
-* [UML]
+* [R-tree][7]<sup>7</sup>
 
-  ![UML use case diagram](/images/documentation/uml_use_cases.png "Use cases")
+ A high performance Java version of the [R-tree][7]<sup>7</sup> spatial indexing algorithm.
+
+* UML
+
+ ![UML use case diagram](/images/documentation/uml_use_cases.png "Use cases")
 
   Use cases of the mediaq-poi application
 
@@ -347,7 +441,7 @@ Technical documentation
   Sequence diagram to show how the query "get POIs for video" is solved. The servlet receives the request with the video's
   id as parameter. It loads the Video object from the datastore (not shown in sequence diagram) and calls the
   getVisiblePois()-method of the PoiService. The service now gets the circular approximation of the video's trajectory
-  and requests the Google Places Api to return all places within this circular range. All this places are handled as candidates.
+  and requests the [Google Places API][2]<sup>2</sup> to return all places within this circular range. All this places are handled as candidates.
   In the refinement step all trajectory points are iterated and for every single point all candidate POIs are checked
   if they are visible at the point, If yes, they are added to the result lists. In the end, the results are returned to
   the servlet which puts them together with other information about the video to the http response (as JSON).
@@ -360,12 +454,120 @@ Technical documentation
   is capsulized. The entity classes are very simple data containers that are used for communication between the
   different components.
 
-* …
-
 Performance Evaluation
 ------
 
-TODO
+In order to measure the time that our different algorithms are consuming we integrated the [StopWatch][9]<sup>9</sup> provided by
+the Apache commons-lang3 library.
+
+     StopWatch stopWatch = new StopWatch();
+     stopWatch.start();
+     // query with {NAIVE, RTREE, GOOGLE_DOCUMENT_INDEX}
+     stopWatch.stop();
+     long elapsedTimeInMilliseconds = stopWatch.getTime()
+
+Below the performance evaluation for the three different approaches NAIVE, RTREE and DOCUMENT_GOOGLE_INDEX.
+
+#### 1) POI query for 'Chinesicher Turm'
+
+NAIVE:
+
+	/poi/ChIJ6Q6XOph1nkcRQWtXFc8qRRg
+    	PoiServlet getPoiDetails: Getting details for poi id ChIJ6Q6XOph1nkcRQWtXFc8qRRg
+    	PoiService getVideosNaive: Performing video query for location with naive approach
+    	PoiService getVideosNaive: Found 46 videos for the given location (naive approach)
+    	PoiService getVideos: Got videos for location in 1574 milliseconds (using NAIVE)
+	
+RTREE:
+
+	/poi/ChIJ6Q6XOph1nkcRQWtXFc8qRRg
+		PoiServlet getPoiDetails: Getting details for poi id ChIJ6Q6XOph1nkcRQWtXFc8qRRg
+	  	VideoRTree getInstance: Getting VideoRTree instance
+	  	VideoRTree getCandidates: Found 58 candidates for geo location in the r tree
+	   	VideoRTree getVideos: Found 46 videos for geo location in the r tree
+	   	PoiService getVideos: Got videos for location in 47 milliseconds (using RTREE)
+
+GOOGLE_DOCUMENT_INDEX:
+
+	/poi/ChIJ6Q6XOph1nkcRQWtXFc8qRRg
+		PoiServlet getPoiDetails: Getting details for poi id ChIJsT-BEJd1nkcRWL5StFHCk5k
+		PersistenceFacade getVideos: Found 46 video for the given location (using Google document index)
+		PoiService getVideos: Got videos for location in 640 milliseconds (using GOOGLE_DOCUMENT_INDEX)
+
+Query was executed 5 times and mean was calculated:
+
+	RTREE (47 milliseconds) < GOOGLE_DOCUMENT_INDEX (640 milliseconds) < NAIVE (1574 milliseconds)
+	
+#### 2) POI query for 'Monopteros'
+
+NAIVE:
+
+	/poi/ChIJsT-BEJd1nkcRWL5StFHCk5k
+    	PoiServlet getPoiDetails: Getting details for poi id ChIJ6Q6XOph1nkcRQWtXFc8qRRg
+    	PoiService getVideosNaive: Performing video query for location with naive approach
+    	PoiService getVideosNaive: Found 1 video for the given location (naive approach)
+    	PoiService getVideos: Got videos for location in 1700 milliseconds (using NAIVE)
+	
+RTREE:
+
+	/poi/ChIJsT-BEJd1nkcRWL5StFHCk5k
+		PoiServlet getPoiDetails: Getting details for poi id ChIJ6Q6XOph1nkcRQWtXFc8qRRg
+	  	VideoRTree getInstance: Getting VideoRTree instance
+	   	VideoRTree getCandidates: Found 5 candidates for geo location in the r tree
+	   	VideoRTree getVideos: Found 1 video for geo location in the r tree
+	   	PoiService getVideos: Got videos for location in 6 milliseconds (using RTREE)
+
+GOOGLE_DOCUMENT_INDEX:
+
+	/poi/ChIJsT-BEJd1nkcRWL5StFHCk5k
+		PoiServlet getPoiDetails: Getting details for poi id ChIJsT-BEJd1nkcRWL5StFHCk5k
+		PersistenceFacade getVideos: Found 1 video for the given location (using Google document index)
+		PoiService getVideos: Got videos for location in 49 milliseconds (using GOOGLE_DOCUMENT_INDEX)
+	
+
+Query was executed 5 times and mean was calculated:
+
+	RTREE (6 milliseconds) < GOOGLE_DOCUMENT_INDEX (49 milliseconds) << NAIVE (1700 milliseconds)
+
+#### 3) Initial range query at 'Chinesischer Turm'
+
+NAIVE:
+
+	/videos?action=range_query&bound1_lat=48.16840282484953&bound1_lng=11.61478721537776&bound2_lat=48.14598681662252&bound2_lng=11.555435294296217
+    	PoiService getVideosInRangeNaive: Performing range query with naive approach
+    	PoiService getVideosInRangeNaive: Found 140 videos in range (naive approach)
+    	PoiService getVideosInRange: Got videos in range in 2102 milliseconds (using NAIVE)
+	
+RTREE:
+
+	/videos?action=range_query&bound1_lat=48.16376962982234&bound1_lng=11.631125889160103&bound2_lat=48.137284953024235&bound2_lng=11.55902811083979
+		VideoRTree getInstance: Getting VideoRTree instance
+    	VideoRTree getVideosForArea: Found 140 videos for range in the r tree
+    	PoiService getVideosInRange: Got videos in range in 0 milliseconds (using RTREE)
+
+Query was executed 5 times and mean was calculated:
+
+	RTREE (0 milliseconds) << NAIVE (2102 milliseconds) < GOOGLE_DOCUMENT_INDEX (2180 milliseconds)
+	
+#### 4) Range query at 'Freising'
+
+NAIVE:
+
+	/videos?action=range_query&bound1_lat=48.41605498486009&bound1_lng=11.777233489160153&bound2_lat=48.38970080144271&bound2_lng=11.70513571083984
+    	PoiService getVideosInRangeNaive: Performing range query with naive approach
+    	PoiService getVideosInRangeNaive: Found 5 videos in range (naive approach)
+    	PoiService getVideosInRange: Got videos in range in 1649 milliseconds (using NAIVE)
+	
+RTREE:
+
+	/videos?action=range_query&bound1_lat=48.41605498486009&bound1_lng=11.777233489160153&bound2_lat=48.38970080144271&bound2_lng=11.70513571083984
+		VideoRTree getInstance: Getting VideoRTree instance
+    	VideoRTree getVideosForArea: Found 5 videos for range in the r tree
+    	PoiService getVideosInRange: Got videos in range in 0 milliseconds (using RTREE)
+
+Query was executed 5 times and mean was calculated:
+
+	RTREE (0 milliseconds) << NAIVE (1649 milliseconds) < GOOGLE_DOCUMENT_INDEX (1833 milliseconds)
 
 Downloads
 ------
@@ -382,6 +584,9 @@ References
 * 4: Google Search Api [https://cloud.google.com/appengine/docs/java/search/][4]
 * 5: AngularJS [https://angularjs.org/][5]
 * 6: GruntJS [http://gruntjs.com/][6]
+* 7: R-tree [https://github.com/aled/jsi/][7]
+* 8: LatLonRect [http://www.unidata.ucar.edu/software/thredds/v4.3/netcdf-java/v4.3/javadoc/ucar/unidata/geoloc/LatLonRect.html][8]
+* 9: StopWatch [https://commons.apache.org/proper/commons-lang/javadocs/api-3.1/index.html?org/apache/commons/lang3/time/StopWatch.html][9]
 
 [1]: http://mediaq.usc.edu/ "MediaQ"
 [2]: https://developers.google.com/places/documentation/ "Google Places API"
@@ -389,6 +594,9 @@ References
 [4]: https://cloud.google.com/appengine/docs/java/search/ "Google Search API"
 [5]: https://angularjs.org/ "AngularJS"
 [6]: http://gruntjs.com/ "GruntJS"
+[7]: https://github.com/aled/jsi/ "R-tree"
+[8]: http://www.unidata.ucar.edu/software/thredds/v4.3/netcdf-java/v4.3/javadoc/ucar/unidata/geoloc/LatLonRect.html
+[9]: https://commons.apache.org/proper/commons-lang/javadocs/api-3.1/index.html?org/apache/commons/lang3/time/StopWatch.html
 
 ---
 
