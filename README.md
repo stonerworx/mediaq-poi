@@ -420,10 +420,10 @@ Technical documentation
 * [R-tree][7]<sup>7</sup>
 
  A high performance Java version of the [R-tree][7]<sup>7</sup> spatial indexing algorithm.
- 
-* [UML]
 
-  ![UML use case diagram](/images/documentation/uml_use_cases.png "Use cases")
+* UML
+
+ ![UML use case diagram](/images/documentation/uml_use_cases.png "Use cases")
 
   Use cases of the mediaq-poi application
 
@@ -453,8 +453,6 @@ Technical documentation
   specified in detail. The servlets mainly communicate with the IPoiService interface so that the business logic
   is capsulized. The entity classes are very simple data containers that are used for communication between the
   different components.
-
-* …
 
 Performance Evaluation
 ------
@@ -546,10 +544,6 @@ RTREE:
 		VideoRTree getInstance: Getting VideoRTree instance
     	VideoRTree getVideosForArea: Found 140 videos for range in the r tree
     	PoiService getVideosInRange: Got videos in range in 0 milliseconds (using RTREE)
-	
-GOOGLE_DOCUMENT_INDEX:
-
-	...
 
 Query was executed 5 times and mean was calculated:
 
@@ -570,10 +564,6 @@ RTREE:
 		VideoRTree getInstance: Getting VideoRTree instance
     	VideoRTree getVideosForArea: Found 5 videos for range in the r tree
     	PoiService getVideosInRange: Got videos in range in 0 milliseconds (using RTREE)
-	
-GOOGLE_DOCUMENT_INDEX:
-
-	...
 
 Query was executed 5 times and mean was calculated:
 
