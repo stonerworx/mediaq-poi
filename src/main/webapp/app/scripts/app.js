@@ -2,7 +2,7 @@
 
   'use strict';
 
-  function config($routeProvider, uiGmapGoogleMapApiProvider, $logProvider) {
+  function config($routeProvider, uiGmapGoogleMapApiProvider, $logProvider, $httpProvider) {
     $routeProvider
       .when('/', {
         templateUrl: 'views/main.html',
@@ -22,16 +22,14 @@
       v: '3.17'
     });
     $logProvider.debugEnabled(true);
+    $httpProvider.interceptors.push('HttpInterceptor');
   }
 
   angular
     .module('mediaqPoi', [
-              'ngAnimate',
-              'ngCookies',
               'ngResource',
               'ngRoute',
               'ngSanitize',
-              'ngTouch',
               'uiGmapgoogle-maps',
               'Showdown'
             ])

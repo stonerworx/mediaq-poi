@@ -10,7 +10,7 @@
     var markers = [];
     var selectedPoi = false;
 
-    vm.loading = true;
+    var currentlyLoading = null;
 
     uiGmapGoogleMapApi.then(function (maps) {
       //get map
@@ -54,7 +54,6 @@
         animation: maps.Animation.DROP
       };
       vm.activeVideo = new VideoModel();
-      vm.loading = false;
       vm.videoPositionMarker = {
         id: 'videoPosition',
         icon: {
@@ -116,6 +115,18 @@
 
       }, false);
 
+      player.addEventListener('pause', function () {
+        vm.videoPositionMarker = {};
+        vm.currentPoiMarkers = [];
+        $scope.$apply();
+      }, false);
+
+      player.addEventListener('ended', function () {
+        vm.videoPositionMarker = {};
+        vm.currentPoiMarkers = [];
+        $scope.$apply();
+      }, false);
+
       vm.clickMarker = function(marker) {
         marker.setAnimation(maps.Animation.BOUNCE);
         vm.openVideo(marker.model.id);
@@ -138,7 +149,6 @@
       };
 
       vm.openVideo = function(videoId) {
-        vm.loading = true;
 
         markers = vm.markers;
         if (vm.poiVisible) {
@@ -147,7 +157,12 @@
           selectedPoi = false;
         }
 
+        currentlyLoading = 'video';
         dataService.getVideo(videoId).then(function(video) {
+          if (currentlyLoading !== 'video') {
+            return;
+          }
+
           vm.markers = [];
 
           vm.activeVideo = video;
@@ -185,8 +200,6 @@
                     vm.activeVideo.show();
                     player.play();
 
-                    vm.loading = false;
-
                   }, delay);
 
                 }, 2/3*delay);
@@ -216,8 +229,6 @@
         });
 
         var getVideosByBounds = function() {
-          vm.loading = true;
-          angular.element('.loading').focus();
           var bounds = {
             northEast: {
               latitude: gmap.getBounds().getNorthEast().lat(),
@@ -229,8 +240,12 @@
             }
           };
 
+          currentlyLoading = 'videos';
           dataService.getVideos(bounds).then(function(videos) {
-            vm.loading = false;
+            if (currentlyLoading !== 'videos') {
+              return;
+            }
+
             vm.markers = [];
             angular.forEach(videos, function(video) {
               vm.markers.push(video.getMarker());
@@ -264,19 +279,25 @@
             getVideosByBounds();
           };
           vm.markers = poi.getVideoMarkers();
-          vm.loading = false;
         }
 
         maps.event.addListener(gmap, 'click', function(e) {
           vm.visiblePoiMarkers = [];
-          vm.poiVisible = false;
-          vm.loading = true;
+          vm.poiVisible = true;
+          vm.markers = [];
+
+          $scope.$apply();
+          currentlyLoading = 'poilatlng';
           dataService.getPoiByLatLng(e.latLng).then(function(poi) { // jshint ignore:line
+            if (currentlyLoading !== 'poilatlng') {
+              return;
+            }
             setPoiDetails(poi);
           });
         });
 
         maps.event.addListener(autocomplete, 'place_changed', function() {
+          vm.closeVideo();
           vm.visiblePoiMarkers = [];
           vm.poiVisible = false;
           var place = autocomplete.getPlace();
@@ -292,9 +313,11 @@
           vm.map.zoom = 15;
           $scope.$apply();
 
-          vm.loading = true;
-
+          currentlyLoading = 'poi';
           dataService.getPoi(place.place_id).then(function(poi) { // jshint ignore:line
+            if (currentlyLoading !== 'poi') {
+              return;
+            }
             setPoiDetails(poi);
           });
 
